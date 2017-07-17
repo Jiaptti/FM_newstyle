@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">"喜马拉雅FM"</string>
+    <string name="tabs_crosstalk_sketch">"相声小品"</string>
+    <string name="tabs_exquisite_article">"精品文章"</string>
+    <string name="tabs_literati_writings">"文人著作"</string>
+    <string name="foot_load_more">"加载更多"</string>
+    <string name="foot_has_no_more">"没有更多"</string>
+    <string name="wrong_xml">"XML错误"</string>
+    <string name="no_content">"没有内容"</string>
+    <string name="play_counts">"播放次数："</string>
+    <string name="tracks">"集"</string>
+    <string name="no_net">"没有网络"</string>
+    <string name="ten_thousand">"万"</string>
+    <string name="album_author">"主播: "</string>
+    <string name="album_play_counts">"播放: "</string>
+    <string name="ten_thousand_times">"万次"</string>
+</resources>
