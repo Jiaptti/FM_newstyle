@@ -18,8 +18,6 @@ import com.fastapp.viroyal.fm_newstyle.base.BaseViewHolder;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
 import com.fastapp.viroyal.fm_newstyle.data.base.Data;
 import com.fastapp.viroyal.fm_newstyle.data.base.BaseEntity;
-import com.fastapp.viroyal.fm_newstyle.data.entity.HimalayanBean;
-import com.fastapp.viroyal.fm_newstyle.data.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.util.RxSchedulers;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.CommFooterVH;
 

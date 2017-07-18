@@ -18,4 +18,7 @@ public class AppConstant {
     public static final int PAGE_STORY = 11;
     public static final int PAGE_CROSSTALK = 12;
     public static final int PAGE_BOOK = 13;
+
+    public static final int STATUS_PLAY = 1;
+    public static final int STATUS_PAUSE = 2;
 }

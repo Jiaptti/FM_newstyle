@@ -2,25 +2,102 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="horizontal">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <FrameLayout
+        android:id="@+id/album_image_layout"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:gravity="center"
+        android:layout_margin="10dip">
+
+        <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
+            android:id="@+id/album_item_image"
+            android:layout_width="40dip"
+            android:layout_height="40dip" />
 
         <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
             android:id="@+id/album_item_play"
-            android:layout_width="50dip"
-            android:layout_height="50dip" />
+            android:layout_width="40dip"
+            android:layout_height="40dip"
+            android:background="@mipmap/notify_btn_light_play2_normal" />
+    </FrameLayout>
 
-    </LinearLayout>
-    <TextView
-        android:id="@+id/album_item_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:textSize="@dimen/text_large_primary_size"
-        android:textColor="@color/black"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dip"
+        android:layout_marginTop="10dip">
+
+        <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
+            android:id="@+id/play_flag_wave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dip"
+            android:layout_marginRight="5dip"
+            android:visibility="gone"/>
+
+
+        <TextView
+            android:id="@+id/album_item_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:textColor="@color/black"
+            android:layout_marginRight="50dip"
+            android:layout_toRightOf="@+id/play_flag_wave"
+            android:textSize="@dimen/text_regular_primary_size" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/album_item_name"
+            android:layout_marginTop="10dip"
+            android:layout_marginRight="10dip"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal"
+            android:gravity="center|left"
+            android:paddingLeft="15dip">
+
+            <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
+                android:id="@+id/playtimes_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@mipmap/ic_item_playtimes_count"/>
+
+            <TextView
+                android:id="@+id/album_play_times"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_light"
+                android:layout_marginLeft="3dip"
+                android:textSize="@dimen/text_third_size" />
+
+            <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
+                android:id="@+id/duration_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@mipmap/ic_item_duration"
+                android:layout_marginLeft="20dp" />
+
+            <TextView
+                android:id="@+id/album_plays_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_light"
+                android:layout_marginLeft="3dip"
+                android:textSize="@dimen/text_third_size" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/times_ago"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="8dip"
+            android:singleLine="true"
+            android:textColor="@color/text_light"
+            android:textSize="@dimen/text_third_size" />
+    </RelativeLayout>
 
 </LinearLayout>

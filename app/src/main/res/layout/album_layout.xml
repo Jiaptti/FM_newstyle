@@ -8,14 +8,16 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="20dip"
+        android:layout_height="10dip"
         android:layout_marginTop="30dip"
-        android:background="@color/text_light"/>
+        android:background="@color/light_gray"/>
 
     <com.fastapp.viroyal.fm_newstyle.view.layout.TRecyclerView
         android:id="@+id/album_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:scrollbars="none"
         />
 
 </LinearLayout>

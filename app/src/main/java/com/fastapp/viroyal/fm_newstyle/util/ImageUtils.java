@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.fastapp.viroyal.fm_newstyle.R;
+import com.fastapp.viroyal.fm_newstyle.view.GlideCircleTransform;
 
 /**
  * Created by hanjiaqi on 2017/7/3.
@@ -14,8 +15,13 @@ import com.fastapp.viroyal.fm_newstyle.R;
 public class ImageUtils {
     public static void loadImage(Context context, String url, ImageView view){
         Glide.with(context).load(url)
-                .placeholder(R.drawable.progress_bar)
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                .crossFade()
+                .into(view);
+    }
+
+    public static void loadCircleImage(Context context, String url, ImageView view){
+        Glide.with(context).load(url).transform(new GlideCircleTransform(context)).diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .crossFade()
                 .into(view);
     }

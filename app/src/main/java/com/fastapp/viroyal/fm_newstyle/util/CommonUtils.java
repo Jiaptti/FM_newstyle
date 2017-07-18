@@ -1,7 +1,13 @@
 package com.fastapp.viroyal.fm_newstyle.util;
 
+import android.util.Log;
+
+import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
+
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by hanjiaqi on 2017/7/14.
@@ -34,5 +40,40 @@ public class CommonUtils {
         } else {
             return playCounts / 100000000 + AppContext.getStringById(R.string.ten_thousand_times);
         }
+    }
+
+    public static String getIntervalDays(long time){
+        long times = System.currentTimeMillis();
+        Date date = new Date(time);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        long intervalMilli = times - time;
+        int days = (int)(intervalMilli / (24 * 60 * 60 * 1000));
+        if(days < 1){
+            if(calendar.get(Calendar.HOUR) < 1){
+                if(calendar.get(Calendar.MINUTE) < 1){
+                    return calendar.get(Calendar.SECOND) + AppContext.getStringById(R.string.seconds_ago);
+                } else if(calendar.get(Calendar.MINUTE) < 60){
+                    return calendar.get(Calendar.MINUTE) + AppContext.getStringById(R.string.minutes_ago);
+                }
+            } else {
+                return calendar.get(Calendar.HOUR) + AppContext.getStringById(R.string.hours_ago);
+            }
+        } else if(days < 30){
+            return days + AppContext.getStringById(R.string.days_ago);
+        } else {
+            if((calendar.get(Calendar.MONTH) + 1) < 10){
+                return calendar.get(Calendar.YEAR) + "-0" + (calendar.get(Calendar.MONTH) + 1) ;
+            }
+            return calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1);
+        }
+        return "";
+    }
+
+    public static String getPlayTime(int duration){
+        if((duration % 60) < 10){
+            return (duration / 60) + ":0" + (duration % 60);
+        }
+        return (duration / 60) + ":" + (duration % 60);
     }
 }

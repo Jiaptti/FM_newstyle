@@ -31,6 +31,8 @@ public class AlbumActivity extends BaseActivity <AlbumPresenter, AlbumModel> imp
     TextView albumAuthor;
     @Bind(R.id.album_play_counts)
     TextView albumPlayCounts;
+    @Bind(R.id.album_type)
+    TextView albumType;
     @Bind(R.id.album_list)
     TRecyclerView albumList;
     private int albumId;
@@ -55,6 +57,7 @@ public class AlbumActivity extends BaseActivity <AlbumPresenter, AlbumModel> imp
         ImageUtils.loadImage(this, data.getData().getAlbum().getCoverSmall(), albumImage);
         albumAuthor.setText(data.getData().getUser().getNickname());
         albumPlayCounts.setText(CommonUtils.getOmitAlbumCounts(data.getData().getAlbum().getPlayTimes()));
+        albumType.setText(data.getData().getAlbum().getCategoryName());
         albumList.setViewById(AlbumVH.class, albumId);
     }
 }

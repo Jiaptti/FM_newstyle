@@ -6,5 +6,7 @@
     <!--通用文字尺寸-->
     <dimen name="text_regular_primary_size">14.0dip</dimen>
     <dimen name="text_large_secondary_size">12.0dip</dimen>
+    <dimen name="text_third_size">10.0dip</dimen>
+    <dimen name="text_small">8.0dip</dimen>
     <dimen name="text_large_primary_size">16.0dip</dimen>
 </resources>

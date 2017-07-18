@@ -62,7 +62,7 @@
                     android:id="@+id/album_author"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/text_album"
+                    android:textColor="@color/colorPrimary"
                     android:textSize="@dimen/text_large_secondary_size" />
             </LinearLayout>
 
@@ -84,6 +84,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/text_light"
+                    android:textSize="@dimen/text_large_secondary_size" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/album_type"
+                    android:textColor="@color/text_light"
+                    android:textSize="@dimen/text_large_secondary_size" />
+
+                <TextView
+                    android:id="@+id/album_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorPrimary"
                     android:textSize="@dimen/text_large_secondary_size" />
             </LinearLayout>
 
