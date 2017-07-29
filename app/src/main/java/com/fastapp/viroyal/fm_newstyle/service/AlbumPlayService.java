@@ -5,11 +5,13 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.*;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
@@ -17,7 +19,6 @@ import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
 import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.realm.TracksBeanRealm;
-import com.fastapp.viroyal.fm_newstyle.util.NetWorkUtils;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -27,19 +28,17 @@ import java.util.concurrent.Executors;
  * Created by hanjiaqi on 2017/7/19.
  */
 
-public class AlbumPlayService extends Service{
+public class AlbumPlayService extends Service implements OnPreparedListener, OnBufferingUpdateListener, OnCompletionListener {
     private PlayBinder playBinder;
 
     private MediaPlayer player;
     private static ExecutorService executorService = Executors.newCachedThreadPool();
     private RealmHelper realmHelper;
     private RxManager manager = new RxManager();
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            player.start();
-            manager.post(AppConstant.UPDATE_ITEM_STATUS , null);
+//            player.start();
         }
     };
 
@@ -48,6 +47,10 @@ public class AlbumPlayService extends Service{
         super.onCreate();
         playBinder = new PlayBinder();
         player = new MediaPlayer();
+        player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        player.setOnCompletionListener(this);
+        player.setOnPreparedListener(this);
+        player.setOnBufferingUpdateListener(this);
         realmHelper = new RealmHelper(this);
     }
 
@@ -62,12 +65,28 @@ public class AlbumPlayService extends Service{
         return playBinder;
     }
 
-    public class PlayBinder extends Binder{
+    @Override
+    public void onPrepared(MediaPlayer mediaPlayer) {
+        Log.i(AppConstant.TAG, "onPrepared");
+        mediaPlayer.start();
+    }
+
+    @Override
+    public void onBufferingUpdate(MediaPlayer mediaPlayer, int percent) {
+        Log.i(AppConstant.TAG, "percent = " + percent);
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mediaPlayer) {
+        Log.i(AppConstant.TAG, "onCompletion");
+    }
+
+    public class PlayBinder extends Binder {
         public String playUrl;
 
-        public void setUrl(String url){
+        public void setUrl(String url) {
             try {
-                if(playUrl == null || !playUrl.equals(url)){
+                if (playUrl == null || !playUrl.equals(url)) {
                     this.playUrl = url;
                     player.reset();
                     player.setDataSource(url);
@@ -78,15 +97,16 @@ public class AlbumPlayService extends Service{
             }
         }
 
-        public void playMedia(){
+        public void playMedia() {
+            manager.post(AppConstant.UPDATE_ITEM_STATUS, null);
             executorService.execute(new PlayThread());
         }
 
-        public void playNext(){
+        public void playNext() {
             try {
                 player.reset();
                 TracksBeanRealm entity = realmHelper.getNextTracks(playUrl);
-                if(entity == null){
+                if (entity == null) {
                     stopMedia();
                     AppContext.toastShort(R.string.has_no_next);
                     return;
@@ -99,11 +119,11 @@ public class AlbumPlayService extends Service{
             }
         }
 
-        public void playPrev(){
+        public void playPrev() {
             try {
                 player.reset();
                 TracksBeanRealm entity = realmHelper.getPreTracks(playUrl);
-                if(entity == null){
+                if (entity == null) {
                     stopMedia();
                     AppContext.toastShort(R.string.has_no_prev);
                     return;
@@ -116,60 +136,60 @@ public class AlbumPlayService extends Service{
             }
         }
 
-        public void pauseMedia(){
-            if(player != null && player.isPlaying()){
+        public void pauseMedia() {
+            if (player != null && player.isPlaying()) {
                 player.pause();
-                manager.post(AppConstant.UPDATE_ITEM_STATUS , null);
+                manager.post(AppConstant.UPDATE_ITEM_STATUS, null);
             }
         }
 
-        public void stopMedia(){
-            if(player != null){
+        public void stopMedia() {
+            if (player != null) {
                 player.stop();
                 player.release();
             }
         }
 
-        public int getDuration(){
-            if(player != null){
+        public int getDuration() {
+            if (player != null) {
                 return player.getDuration();
             }
             return 0;
         }
 
-        public int getPlayPosition(){
-            if(player != null){
+        public int getPlayPosition() {
+            if (player != null) {
                 return player.getCurrentPosition();
             }
             return 0;
         }
 
-        public void seekTo(int position){
-            if(player != null){
+        public void seekTo(int position) {
+            if (player != null) {
                 player.seekTo(position);
             }
         }
 
-        public boolean isPlaying(){
-            if(player != null){
+        public boolean isPlaying() {
+            if (player != null) {
                 return player.isPlaying();
             }
             return false;
         }
     }
 
-    class PlayThread extends Thread{
+    class PlayThread extends Thread {
         @Override
         public void run() {
             super.run();
-            if(player != null && !player.isPlaying()){
+            if (player != null && !player.isPlaying()) {
                 try {
                     Thread.sleep(1000);
                     mHandler.sendEmptyMessage(0);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                if(!AppContext.checkNet()){
+                if (!AppContext.checkNet()) {
                     return;
                 }
             }
