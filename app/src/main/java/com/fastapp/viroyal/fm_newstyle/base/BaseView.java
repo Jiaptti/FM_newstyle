@@ -5,4 +5,7 @@ package com.fastapp.viroyal.fm_newstyle.base;
  */
 
 public interface BaseView {
+    void showLoading();
+
+    void dismissLoading();
 }

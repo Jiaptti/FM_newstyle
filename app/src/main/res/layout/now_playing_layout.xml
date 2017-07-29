@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center">
+
+    <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
+        android:id="@+id/now_playing_image"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center" />
+
+    <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
+        android:id="@+id/now_playing_status"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_gravity="center"
+        android:background="@mipmap/play_icon_pause" />
+
+</FrameLayout>

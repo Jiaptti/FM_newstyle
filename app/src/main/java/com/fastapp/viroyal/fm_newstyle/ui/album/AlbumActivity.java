@@ -1,28 +1,47 @@
 package com.fastapp.viroyal.fm_newstyle.ui.album;
 
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
+import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseActivity;
-import com.fastapp.viroyal.fm_newstyle.data.base.Data;
-import com.fastapp.viroyal.fm_newstyle.data.entity.HimalayanBean;
+import com.fastapp.viroyal.fm_newstyle.base.BaseListFragment;
+import com.fastapp.viroyal.fm_newstyle.base.RxManager;
+import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
+import com.fastapp.viroyal.fm_newstyle.model.base.Data;
+import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBean;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
+import com.fastapp.viroyal.fm_newstyle.model.realm.TracksBeanRealm;
 import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
-import com.fastapp.viroyal.fm_newstyle.view.layout.TRecyclerView;
+import com.fastapp.viroyal.fm_newstyle.view.fragment.AlbumDetailsFragment;
+import com.fastapp.viroyal.fm_newstyle.view.layout.FragmentAdapter;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.AlbumVH;
+import com.google.android.gms.common.api.GoogleApiClient;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import butterknife.Bind;
+import rx.functions.Action1;
 
 /**
  * Created by hanjiaqi on 2017/7/3.
  */
 
-public class AlbumActivity extends BaseActivity <AlbumPresenter, AlbumModel> implements AlbumContract.View{
+public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> implements AlbumContract.View {
     @Bind(R.id.album_title)
     TextView albumTitle;
     @Bind(R.id.album_image)
@@ -33,9 +52,21 @@ public class AlbumActivity extends BaseActivity <AlbumPresenter, AlbumModel> imp
     TextView albumPlayCounts;
     @Bind(R.id.album_type)
     TextView albumType;
-    @Bind(R.id.album_list)
-    TRecyclerView albumList;
+    @Bind(R.id.album_content)
+    LinearLayout albumContent;
+    @Bind(R.id.album_tabs)
+    TabLayout albumTabs;
+    @Bind(R.id.album_pager)
+    ViewPager albumPager;
+
+    @Bind(R.id.loading_layout)
+    LinearLayout loadingLayout;
+    @Bind(R.id.loading_img)
+    SquareImageView loadingImg;
+    private AnimationDrawable animation;
+
     private int albumId;
+    private RealmHelper mHelper;
 
     @Override
     protected int layoutResID() {
@@ -45,10 +76,28 @@ public class AlbumActivity extends BaseActivity <AlbumPresenter, AlbumModel> imp
     @Override
     protected void initView() {
         Bundle bundle = getIntent().getBundleExtra(AppConstant.ALBUM_BUNDLE);
-        if(bundle != null){
+        if (bundle != null) {
             albumId = bundle.getInt(AppConstant.ALBUM_ID);
             presenter.getAlbumsList(albumId);
         }
+        setActionBarTitle(AppContext.getStringById(R.string.album_actionbar_title));
+        mHelper = new RealmHelper(this);
+        presenter.manager.on(AppConstant.LOADING_STATUS, new Action1() {
+            @Override
+            public void call(Object o) {
+                dismissLoading();
+            }
+        });
+    }
+
+    @Override
+    public boolean hasBackButton() {
+        return true;
+    }
+
+    @Override
+    protected boolean supportActionBar() {
+        return true;
     }
 
     @Override
@@ -58,6 +107,29 @@ public class AlbumActivity extends BaseActivity <AlbumPresenter, AlbumModel> imp
         albumAuthor.setText(data.getData().getUser().getNickname());
         albumPlayCounts.setText(CommonUtils.getOmitAlbumCounts(data.getData().getAlbum().getPlayTimes()));
         albumType.setText(data.getData().getAlbum().getCategoryName());
-        albumList.setViewById(AlbumVH.class, albumId);
+        List<Fragment> fragments = new ArrayList<>();
+        fragments.add(AlbumDetailsFragment.newInstance(data));
+        fragments.add(BaseListFragment.newInstance(AlbumVH.class, albumId));
+        albumPager.setAdapter(new FragmentAdapter(getSupportFragmentManager(),fragments,
+                Arrays.asList(new String[]{AppContext.getStringById(R.string.album_details),
+                        AppContext.getStringById(R.string.album_show)+"("+ data.getData().getAlbum().getTracks() +")"})));
+        albumTabs.setupWithViewPager(albumPager);
+        albumTabs.getTabAt(1).select();
+        mHelper.addAllTracts(data.getData().getTracks().getList());
+    }
+
+    @Override
+    public void showLoading() {
+        loadingLayout.setVisibility(View.VISIBLE);
+        albumContent.setVisibility(View.GONE);
+        animation = (AnimationDrawable) loadingImg.getBackground();
+        animation.start();
+    }
+
+    @Override
+    public void dismissLoading() {
+        loadingLayout.setVisibility(View.GONE);
+        albumContent.setVisibility(View.VISIBLE);
+        animation.stop();
     }
 }

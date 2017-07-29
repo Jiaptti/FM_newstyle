@@ -8,10 +8,12 @@
     <color name="tab_selected">#04b4ae</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
+    <color name="red">#FF0000</color>
     <color name="text_dark">#af000000</color>
     <color name="text_light">#3f000000</color>
     <color name="light_gray">#1a000000</color>
     <color name="lightest_gray">#0a000000</color>
     <color name="transparent">#00000000</color>
     <color name="text_album">#04f4ae</color>
+    <color name="gray_10">#6D6B6C</color>
 </resources>

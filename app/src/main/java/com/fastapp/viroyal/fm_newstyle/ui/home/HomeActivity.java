@@ -1,32 +1,37 @@
 package com.fastapp.viroyal.fm_newstyle.ui.home;
 
 
+import android.content.Intent;
+import android.graphics.drawable.AnimationDrawable;
+import android.os.Build;
+import android.provider.Settings;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
+import android.view.View;
+import android.widget.LinearLayout;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
+import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseActivity;
-import com.fastapp.viroyal.fm_newstyle.base.BaseListFragment;
-import com.fastapp.viroyal.fm_newstyle.util.TUtils;
-import com.fastapp.viroyal.fm_newstyle.util.test.TestUtils;
+import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
+import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
 import com.fastapp.viroyal.fm_newstyle.view.layout.FragmentAdapter;
-import com.fastapp.viroyal.fm_newstyle.view.viewholder.CategoryVH;
-
-import java.util.ArrayList;
+import com.fastapp.viroyal.fm_newstyle.view.popuwindow.NowPlayingWindow;
 import java.util.Arrays;
 import java.util.List;
 
 import butterknife.Bind;
-import rx.Observable;
-import rx.functions.Action1;
 
 public class HomeActivity extends BaseActivity<HomePresenter, HomeModel> implements HomeContract.View{
     @Bind(R.id.tabs)
     TabLayout mTabLayout;
     @Bind(R.id.content_view_pager)
     ViewPager mContentPager;
+    private NowPlayingWindow mPlayingWindow;
+    private long firstClickTime;
 
     @Override
     protected int layoutResID() {
@@ -35,36 +40,58 @@ public class HomeActivity extends BaseActivity<HomePresenter, HomeModel> impleme
 
     @Override
     protected void initView() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if(!Settings.canDrawOverlays(this)) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+                startActivity(intent);
+                return;
+            } else {
+
+            }
+        } else {
+        }
     }
 
     @Override
-    public void showTabList(String[] tabs) {
-        final List<Fragment> fragments = new ArrayList<>();
-        Observable.from(tabs).subscribe(new Action1<String>() {
-            @Override
-            public void call(String s) {
-                fragments.add(BaseListFragment.newInstance(CategoryVH.class, getType(s)));
-            }
-        });
-        mContentPager.setAdapter(new FragmentAdapter(getSupportFragmentManager(),fragments, Arrays.asList(tabs)));
-        mTabLayout.setupWithViewPager(mContentPager);
-//        TestUtils.testData1();
+    public void showLoading() {
     }
 
-    private int getType(String str){
-        int type = AppConstant.PAGE_CROSSTALK;
-        if(str.equalsIgnoreCase(getString(R.string.tabs_crosstalk_sketch))){
-            type =  AppConstant.PAGE_CROSSTALK;
-        } else if(str.equalsIgnoreCase(getString(R.string.tabs_exquisite_article))){
-            type = AppConstant.PAGE_STORY;
-        } else if(str.equalsIgnoreCase(getString(R.string.tabs_literati_writings))){
-            type = AppConstant.PAGE_BOOK;
+    @Override
+    public void dismissLoading() {
+        if(mPlayingWindow == null){
+            mPlayingWindow = NowPlayingWindow.getPlayingWindow(mContext);
+            mPlayingWindow.show();
         }
-        return type;
     }
+
+    @Override
+    public void showTabFragment(List<Fragment> fragments) {
+        mContentPager.setAdapter(new FragmentAdapter(getSupportFragmentManager(), fragments, Arrays.asList(CommonUtils.getAllTabs())));
+        mContentPager.setOffscreenPageLimit(3);
+        mTabLayout.setupWithViewPager(mContentPager);
+    }
+
+    @Override
+    protected boolean supportActionBar() {
+        return false;
+    }
+
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        if(System.currentTimeMillis() - firstClickTime < 2000){
+            super.onBackPressed();
+        } else {
+            firstClickTime = System.currentTimeMillis();
+            AppContext.toastShort(R.string.tip_click_back_again_to_exist);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(mPlayingWindow != null){
+            mPlayingWindow.dismiss();
+        }
     }
 }

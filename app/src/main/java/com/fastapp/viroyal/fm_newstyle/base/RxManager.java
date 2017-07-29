@@ -1,5 +1,9 @@
 package com.fastapp.viroyal.fm_newstyle.base;
 
+import android.util.Log;
+
+import com.fastapp.viroyal.fm_newstyle.AppConstant;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +26,7 @@ public class RxManager {
     private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
 
     public void on(String tag, Action1 action1){
+        Log.i(AppConstant.TAG, "tag = " + tag);
         Observable<?> observable = mRxBus.regiest(tag);
         mObservables.put(tag, observable);
         mCompositeSubscription.add(observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
@@ -44,7 +49,15 @@ public class RxManager {
         }
     }
 
-    public void post(Object tag, Objects content){
+    public void clear(String tag){
+        mCompositeSubscription.unsubscribe();
+        Observable<?> observable = mObservables.get(tag);
+        if(observable != null){
+            mRxBus.unRegiest(tag, observable);
+        }
+    }
+
+    public <T> void post(Object tag, T content){
         mRxBus.post(tag, content);
     }
 }

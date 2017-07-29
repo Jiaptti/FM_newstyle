@@ -9,10 +9,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
-import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseViewHolder;
-import com.fastapp.viroyal.fm_newstyle.data.entity.HimalayanEntity;
+import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanEntity;
 import com.fastapp.viroyal.fm_newstyle.ui.album.AlbumActivity;
 import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
@@ -47,7 +46,7 @@ public class CategoryVH extends BaseViewHolder<HimalayanEntity> {
     }
 
     @Override
-    public void onBindViewHolder(View view, final HimalayanEntity entity) {
+    public void onBindViewHolder(final View view, final HimalayanEntity entity) {
         ImageUtils.loadImage(mContext, entity.getCoverSmall(), albumImage);
         albumTitle.setText(entity.getTitle());
         albumIntro.setText(entity.getIntro());
@@ -55,7 +54,7 @@ public class CategoryVH extends BaseViewHolder<HimalayanEntity> {
         tracksCounts.setText(entity.getTracks() + "");
         view.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 Bundle bundle = new Bundle();
                 bundle.putInt(AppConstant.ALBUM_ID, entity.getAlbumId());
                 Intent intent = new Intent(mContext, AlbumActivity.class);

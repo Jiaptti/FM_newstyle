@@ -7,6 +7,7 @@
     android:layout_marginEnd="6dp"
     android:layout_marginStart="6dp"
     android:layout_marginTop="3dp"
+    android:foreground="?android:attr/selectableItemBackground"
     app:cardBackgroundColor="@color/white"
     app:cardCornerRadius="2dp"
     app:cardElevation="2dp">
@@ -16,11 +17,22 @@
         android:layout_height="100dip"
         android:orientation="horizontal">
 
-        <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
-            android:id="@+id/category_image"
-            android:layout_width="100dp"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop" />
+        <android.support.v7.widget.CardView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center_vertical"
+            app:cardBackgroundColor="@color/white"
+            android:layout_margin="5dp"
+            app:cardCornerRadius="2dp"
+            app:cardElevation="5dp">
+
+            <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
+                android:id="@+id/category_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
+        </android.support.v7.widget.CardView>
+
 
         <RelativeLayout
             android:layout_width="0dp"
@@ -33,58 +45,55 @@
                 android:id="@+id/category_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:singleLine="true"
                 android:textColor="@color/text_dark"
-                android:textSize="@dimen/text_large_primary_size" />
+                android:textSize="@dimen/text_regular_primary_size" />
 
             <TextView
                 android:id="@+id/category_intro"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_below="@+id/category_title"
                 android:layout_marginTop="5dip"
                 android:maxLines="2"
-                android:layout_below="@+id/category_title"
-                android:layout_centerVertical="true"
                 android:textColor="@color/text_light"
-                android:textSize="@dimen/text_regular_primary_size" />
+                android:textSize="@dimen/text_large_secondary_size" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:layout_alignParentBottom="true"
-                android:gravity="left|center">
+                android:gravity="left|center"
+                android:orientation="horizontal">
 
                 <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
                     android:id="@+id/plays_counts_info"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@mipmap/ic_item_playtimes_count"/>
+                    android:background="@mipmap/ic_item_playtimes_count" />
 
                 <TextView
                     android:id="@+id/plays_counts"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/play_counts"
                     android:layout_marginLeft="3dip"
                     android:textColor="@color/text_light"
-                    android:textSize="@dimen/text_large_secondary_size" />
+                    android:textSize="@dimen/text_third_size" />
 
                 <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
                     android:id="@+id/tracks"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="5dip"
-                    android:background="@mipmap/ic_item_sounds_count"/>
+                    android:background="@mipmap/ic_item_sounds_count" />
 
                 <TextView
                     android:id="@+id/tracks_counts"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0"
                     android:layout_marginLeft="3dip"
+                    android:text="0"
                     android:textColor="@color/text_light"
-                    android:textSize="@dimen/text_large_secondary_size" />
+                    android:textSize="@dimen/text_third_size" />
 
             </LinearLayout>
 

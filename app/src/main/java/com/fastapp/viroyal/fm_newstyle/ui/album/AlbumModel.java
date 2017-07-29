@@ -2,8 +2,8 @@ package com.fastapp.viroyal.fm_newstyle.ui.album;
 
 
 import com.fastapp.viroyal.fm_newstyle.api.Api;
-import com.fastapp.viroyal.fm_newstyle.data.base.Data;
-import com.fastapp.viroyal.fm_newstyle.data.entity.HimalayanBean;
+import com.fastapp.viroyal.fm_newstyle.model.base.Data;
+import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
 import com.fastapp.viroyal.fm_newstyle.util.RxSchedulers;
 
 import rx.Observable;

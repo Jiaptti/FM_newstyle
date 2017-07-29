@@ -76,4 +76,23 @@ public class CommonUtils {
         }
         return (duration / 60) + ":" + (duration % 60);
     }
+
+    public static int getType(String str){
+        int type = AppConstant.PAGE_CROSSTALK;
+        if(str.equalsIgnoreCase(AppContext.getStringById(R.string.tabs_crosstalk_sketch))){
+            type =  AppConstant.PAGE_CROSSTALK;
+        } else if(str.equalsIgnoreCase(AppContext.getStringById(R.string.tabs_exquisite_article))){
+            type = AppConstant.PAGE_STORY;
+        } else if(str.equalsIgnoreCase(AppContext.getStringById(R.string.tabs_literati_writings))){
+            type = AppConstant.PAGE_BOOK;
+        }
+        return type;
+    }
+
+    public static String[] getAllTabs(){
+        String[] tabs = {AppContext.getStringById(R.string.tabs_crosstalk_sketch),
+                AppContext.getStringById(R.string.tabs_exquisite_article),
+                AppContext.getStringById(R.string.tabs_literati_writings)};
+        return tabs;
+    }
 }

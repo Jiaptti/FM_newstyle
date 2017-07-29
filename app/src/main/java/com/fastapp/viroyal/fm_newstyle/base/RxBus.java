@@ -54,7 +54,7 @@ public class RxBus {
         return newInstance();
     }
 
-    public void post(Object tag, Object content){
+    public <T> void post(Object tag, T content){
         List<Subject> subjectList = subjectMapper.get(tag);
         if(!isEmpty(subjectList)){
             for(Subject subject : subjectList){

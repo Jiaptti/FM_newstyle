@@ -1,11 +1,8 @@
 package com.fastapp.viroyal.fm_newstyle.api;
 
-import com.fastapp.viroyal.fm_newstyle.data.base.Data;
-import com.fastapp.viroyal.fm_newstyle.data.entity.HimalayanBean;
-import com.fastapp.viroyal.fm_newstyle.data.entity.HimalayanEntity;
-import com.fastapp.viroyal.fm_newstyle.data.entity.TracksBeanList;
-import com.fastapp.viroyal.fm_newstyle.util.test.HimalayanEntityTest;
-import com.fastapp.viroyal.fm_newstyle.util.test.HimalayanTest;
+import com.fastapp.viroyal.fm_newstyle.model.base.Data;
+import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
+import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanEntity;
 
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -22,16 +19,7 @@ public interface ApiService {
                                                      @Query("categoryId") int categoryId, @Query("device") String device,
                                                      @Query("pageId") int pageId, @Query("pageSize") int pageSize, @Query("version") String version);
 
-    @GET("metadata/albums")
-    Observable<HimalayanTest<HimalayanEntityTest>> getCommentList1(@Query("calcDimension") String calcDimension,
-                                                                    @Query("categoryId") int categoryId, @Query("device") String device,
-                                                                    @Query("pageId") int pageId, @Query("pageSize") int pageSize, @Query("version") String version);
-
     @GET("mobile/v1/album")
     Observable<Data<HimalayanBean>> getAlbumsList(@Query("albumId") int albumId,@Query("pageSize")int pageSize);
-
-    @GET("mobile/v1/album")
-    Observable<Data<HimalayanBean>> getAlbumsList1(@Query("albumId") int albumId, @Query("pageId")int pageId,
-                                                   @Query("pageSize")int pageSize);
 
 }

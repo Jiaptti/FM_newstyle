@@ -9,11 +9,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
+import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.TUtils;
 import com.fastapp.viroyal.fm_newstyle.view.layout.TRecyclerView;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
+
+import rx.functions.Action1;
 
 /**
  * Created by hanjiaqi on 2017/7/1.
@@ -21,6 +25,7 @@ import java.lang.reflect.ParameterizedType;
 
 public class BaseListFragment extends Fragment{
     private TRecyclerView mTRecyclerView;
+    private RxManager manager = new RxManager();
 
     /**
      * @param vh 传入VH的类名
@@ -40,7 +45,18 @@ public class BaseListFragment extends Fragment{
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mTRecyclerView = new TRecyclerView(getContext());
-        mTRecyclerView.setViewByTab(TUtils.forName(getArguments().getString(AppConstant.VH_CLASS)),getArguments().getInt(AppConstant.TYPE));
+        if(getArguments().getInt(AppConstant.TYPE) > 100){
+            mTRecyclerView.setViewById(TUtils.forName(getArguments().getString(AppConstant.VH_CLASS)), getArguments().getInt(AppConstant.TYPE));
+            manager.on(AppConstant.UPDATE_ITEM_STATUS, new Action1() {
+                @Override
+                public void call(Object o) {
+                    Log.i(AppConstant.TAG, "notifyDataSetChanged");
+                    mTRecyclerView.getAdapter().notifyDataSetChanged();
+                }
+            });
+        } else {
+            mTRecyclerView.setViewByTab(TUtils.forName(getArguments().getString(AppConstant.VH_CLASS)), getArguments().getInt(AppConstant.TYPE));
+        }
         return mTRecyclerView;
     }
 
@@ -48,5 +64,10 @@ public class BaseListFragment extends Fragment{
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if(mTRecyclerView != null) mTRecyclerView.sendRequest();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 }

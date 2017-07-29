@@ -1,8 +1,14 @@
 package com.fastapp.viroyal.fm_newstyle.ui.home;
 
+import android.support.v4.app.Fragment;
+
 import com.fastapp.viroyal.fm_newstyle.base.BaseModel;
 import com.fastapp.viroyal.fm_newstyle.base.BasePresenter;
 import com.fastapp.viroyal.fm_newstyle.base.BaseView;
+
+import java.util.List;
+
+import rx.Observable;
 
 /**
  * Created by hanjiaqi on 2017/6/26.
@@ -11,11 +17,11 @@ import com.fastapp.viroyal.fm_newstyle.base.BaseView;
 public interface HomeContract {
 
     interface View extends BaseView{
-        void showTabList(String[] tabs);
+        void showTabFragment(List<Fragment> fragments);
     }
 
     interface Model extends BaseModel{
-        String[] getTabList();
+        Observable<String> getTabFragment();
     }
 
     abstract class Presenter extends BasePresenter<View, Model> {

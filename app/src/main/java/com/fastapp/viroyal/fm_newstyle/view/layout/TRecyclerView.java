@@ -16,8 +16,8 @@ import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseViewHolder;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
-import com.fastapp.viroyal.fm_newstyle.data.base.Data;
-import com.fastapp.viroyal.fm_newstyle.data.base.BaseEntity;
+import com.fastapp.viroyal.fm_newstyle.model.base.Data;
+import com.fastapp.viroyal.fm_newstyle.model.base.BaseEntity;
 import com.fastapp.viroyal.fm_newstyle.util.RxSchedulers;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.CommFooterVH;
 
@@ -27,7 +27,10 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import rx.Subscriber;
+import rx.functions.Action0;
 import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by hanjiaqi on 2017/6/29.
@@ -39,17 +42,17 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
     RecyclerView recyclerView;
     @Bind(R.id.empty_layout)
     LinearLayout emptyLayout;
-
     private LinearLayoutManager mLayoutManager;
     private int begin;
     private boolean isEmpty = false;
     private T model;
-    private CoreAdapter<T> mAdatper = new CoreAdapter<>();
-    private RxManager mRxManager = new RxManager();
+    public CoreAdapter<T> mAdatper = new CoreAdapter<>();
+    private RxManager mRxManager;
     private int type = AppConstant.PAGE_CROSSTALK;
     private int mId = 0;
     private int pageSize = 10;
     private int maxPage = 0;
+    private int length = 0;
 
 
     public TRecyclerView(Context context) {
@@ -73,6 +76,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         addView(view);
         ButterKnife.bind(this, view);
         initView(view);
+        mRxManager = new RxManager();
     }
 
     private void initView(View view) {
@@ -99,19 +103,6 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                 mLastItem = mLayoutManager.findLastVisibleItemPosition();
             }
         });
-        mRxManager.on(AppConstant.EVENT_DEL_ITEM, new Action1() {
-            @Override
-            public void call(Object o) {
-                mAdatper.removeItem((Integer) o);
-            }
-        });
-
-        mRxManager.on(AppConstant.EVENT_UPDATE_ITEM, new Action1() {
-            @Override
-            public void call(Object o) {
-                mAdatper.updateItem(((UpDateData)o).i, ((UpDateData)o).oj);
-            }
-        });
         emptyLayout.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,12 +111,16 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         });
     }
 
-    private int getPageSize(){
+    private int getPageSize() {
         return pageSize;
     }
 
+    public CoreAdapter getAdapter() {
+        return mAdatper;
+    }
+
     public void sendRequest() {
-        begin ++;
+        begin++;
         if (isEmpty) {
             emptyLayout.setVisibility(View.GONE);
         }
@@ -133,28 +128,29 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
             Log.i(AppConstant.TAG, "model is null!");
             return;
         }
-        if(mId > 0){
+        if (mId > 0) {
             type = mId;
             pageSize = pageSize + 10;
         }
         mRxManager.add(model.getPageAt(type, begin, getPageSize()).compose(RxSchedulers.io_main())
-                .subscribe( new Action1 <Data<T>>() {
+                .subscribe(new Action1<Data<T>>() {
                     @Override
                     public void call(Data<T> data) {
-                        if(mId > 0){
+                        if (mId > 0) {
                             maxPage = data.getData().getTracks().getTotalCount();
-                            mAdatper.setBeansById((List<T>) data.getData().getTracks().getList(), begin);
+                            List<T> list = (List<T>) data.getData().getTracks().getList();
+                            mAdatper.setBeansById(list.subList(length, list.size()), begin);
+                            length = data.getData().getTracks().getList().size();
                         } else {
                             mAdatper.setBeans(data.getList(), begin);
                         }
-                        if(begin == 1 && data.getList() == null){
+                        if (begin == 1 && data.getList() == null) {
                             setEmpty();
                         }
                     }
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
-                        Log.i(AppConstant.TAG, "throwable = " + throwable);
                         throwable.printStackTrace();
                         setEmpty();
                     }
@@ -166,10 +162,12 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         sendRequest();
     }
 
+
     private void setEmpty() {
         if (!isEmpty) {
             isEmpty = true;
-            emptyLayout.setVisibility(View.VISIBLE);
+            if(emptyLayout != null)
+                emptyLayout.setVisibility(View.VISIBLE);
         }
     }
 
@@ -199,21 +197,10 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                     .newInstance();
             mAdatper.setViewType(clazz, type);
             mId = id;
-            refresh();
         } catch (Exception e) {
             e.printStackTrace();
         }
         return this;
-    }
-
-    public class UpDateData {
-        public int i;
-        public T oj;
-
-        public UpDateData(int i, T oj) {
-            this.i = i;
-            this.oj = oj;
-        }
     }
 
     public class CoreAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -227,10 +214,9 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             boolean isFoot = viewType == mFootType;
             try {
-                return (RecyclerView.ViewHolder) (isFoot ? mFootViewClass : mItemViewClass)
-                        .getConstructor(View.class).newInstance(
-                                LayoutInflater.from(parent.getContext()).inflate(isFoot ? mFootType: mItemType, parent,
-                                        false));
+                return (isFoot ? mFootViewClass : mItemViewClass).getConstructor(View.class).newInstance(
+                        LayoutInflater.from(parent.getContext()).inflate(isFoot ? mFootType : mItemType, parent,
+                                false));
             } catch (Exception e) {
                 Log.i(AppConstant.TAG, AppContext.getStringById(R.string.wrong_xml));
                 e.printStackTrace();
@@ -239,7 +225,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         }
 
         @Override
-        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
             ((BaseViewHolder) holder).onBindViewHolder(holder.itemView,
                     position + 1 == getItemCount() ? (hasMore ? new Object() : null) : mDates.get(position));
         }
@@ -271,8 +257,13 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         public void setBeansById(List<T> dates, int begin) {
             if (dates == null) dates = new ArrayList<>();
             hasMore = dates.size() < maxPage;
-            this.mDates = dates;
+            if (begin > 1) {
+                this.mDates.addAll(dates);
+            } else {
+                this.mDates = dates;
+            }
             notifyDataSetChanged();
+            mRxManager.post(AppConstant.LOADING_STATUS , null);
         }
 
         public void removeItem(int position) {
@@ -290,5 +281,11 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         public int getItemCount() {
             return mDates.size() + 1;
         }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        ButterKnife.unbind(this);
     }
 }
