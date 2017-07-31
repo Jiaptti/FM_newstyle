@@ -24,19 +24,8 @@ public class NowPlayingWindow {
     private static Context context;
     private WindowManager.LayoutParams params;
     private NowPlayingLayout mPlayingView;
-    private RxManager mRxManager = new RxManager();
 
-    private NowPlayingWindow(){
-        mRxManager.on(AppConstant.UPDATE_ITEM_STATUS, new Action1() {
-            @Override
-            public void call(Object o) {
-                if(o instanceof NowPlayTrack){
-                    Log.i(AppConstant.TAG, "UPDATE_ITEM_STATUS");
-                    mPlayingView.setNowPlayingImg(((NowPlayTrack)o).getCoverSmall());
-                }
-            }
-        });
-    }
+    private NowPlayingWindow(){}
 
     public static synchronized NowPlayingWindow getPlayingWindow(Context context){
         if(mInstance == null){

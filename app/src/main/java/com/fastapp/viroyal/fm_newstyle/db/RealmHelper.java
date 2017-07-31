@@ -67,7 +67,6 @@ public class RealmHelper {
         mRealm.beginTransaction();
         mRealm.copyToRealm(playTrack);
         mRealm.commitTransaction();
-        Log.i(AppConstant.TAG, "setNowTrack");
     }
 
     public NowPlayTrack isNowTrack(String url){

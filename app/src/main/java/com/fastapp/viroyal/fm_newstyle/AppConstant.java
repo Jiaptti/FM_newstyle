@@ -19,12 +19,16 @@ public class AppConstant {
     public static final String EVENT_DEL_ITEM = "delete_item";
     public static final String EVENT_UPDATE_ITEM = "update_item";
 
+    public static final String PLAY_CURRENT_POSITION = "play_current_position";
+
     public static final int PAGESIZE = 10;
     public static final int PAGE_STORY = 11;
     public static final int PAGE_CROSSTALK = 12;
     public static final int PAGE_BOOK = 13;
 
-    public static final int STATUS_PLAY = 1;
-    public static final int STATUS_PAUSE = 2;
-    public static final int STATUS_CHANGE = 3;
+    public static final int STATUS_PLAY = 101;
+    public static final int STATUS_PAUSE = 102;
+    public static final int STATUS_STOP = 103;
+    public static final int STATUS_RESUME = 104;
+
 }

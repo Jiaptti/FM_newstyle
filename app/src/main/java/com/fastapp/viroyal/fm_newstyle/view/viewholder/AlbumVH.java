@@ -79,14 +79,12 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
                         if (helper.getNowPlayingTrack().getTitle().equals(entity.getTitle())) {
                             mBinder.pauseMedia();
                         } else {
-                            mBinder.pauseMedia();
-                            mBinder.setUrl(entity.getPlayUrl32());
-                            mBinder.playMedia();
+                            mBinder.stopMedia();
+                            mBinder.playMedia(entity.getPlayUrl32());
                             helper.setNowPlayTrack(entity);
                         }
                     } else {
-                        mBinder.setUrl(entity.getPlayUrl32());
-                        mBinder.playMedia();
+                        mBinder.playMedia(entity.getPlayUrl32());
                         helper.setNowPlayTrack(entity);
                     }
                 }
@@ -97,7 +95,7 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
 
     private void setPlayStatus(TracksBeanList entity) {
         if(mBinder != null){
-            if(mBinder.isPlaying() && helper.getNowPlayingTrack().getTitle().equals(entity.getTitle())){
+            if(helper.getNowPlayingTrack().getTitle().equals(entity.getTitle())){
                 mFlagWave.setVisibility(View.VISIBLE);
                 mAlbumName.setTextColor(Color.RED);
                 animation.start();
