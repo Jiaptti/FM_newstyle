@@ -35,7 +35,7 @@ public class AlbumPlayService extends Service implements MediaPlayerManager.Play
     public void onCreate() {
         super.onCreate();
         playBinder = new PlayBinder();
-        realmHelper = new RealmHelper(this);
+        realmHelper = AppContext.getRealmHelper();
         playerManager = MediaPlayerManager.newInstance();
     }
 

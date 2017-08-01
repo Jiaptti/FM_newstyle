@@ -9,6 +9,9 @@ import android.os.Looper;
 import android.os.Message;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
+import com.fastapp.viroyal.fm_newstyle.AppContext;
+import com.fastapp.viroyal.fm_newstyle.base.RxManager;
+import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 
 import java.io.IOException;
 
@@ -102,18 +105,22 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
         this.url = url;
         this.listener = listener;
         playHandler.sendEmptyMessage(AppConstant.STATUS_PLAY);
+        AppContext.setPlayState(AppConstant.STATUS_PLAY);
     }
 
     public void stopMediaPlayer() {
         playHandler.sendEmptyMessage(AppConstant.STATUS_STOP);
+        AppContext.setPlayState(AppConstant.STATUS_STOP);
     }
 
     public void pauseMediaPlayer() {
         playHandler.sendEmptyMessage(AppConstant.STATUS_PAUSE);
+        AppContext.setPlayState(AppConstant.STATUS_PAUSE);
     }
 
     public void resumeMediaPlayer() {
         playHandler.sendEmptyMessage(AppConstant.STATUS_RESUME);
+        AppContext.setPlayState(AppConstant.STATUS_RESUME);
     }
 
     public int getDuration(){

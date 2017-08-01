@@ -3,7 +3,7 @@ package com.fastapp.viroyal.fm_newstyle.base;
 
 
 public abstract class BasePresenter<V , M> {
-    public RxManager manager;
+    private RxManager manager;
     public V view;
     public M model;
 
@@ -12,6 +12,13 @@ public abstract class BasePresenter<V , M> {
         this.model = model;
         manager = new RxManager();
         this.onStart();
+    }
+
+    public RxManager getManager(){
+        if(manager == null){
+            manager = new RxManager();
+        }
+        return manager;
     }
 
     protected abstract void onStart();

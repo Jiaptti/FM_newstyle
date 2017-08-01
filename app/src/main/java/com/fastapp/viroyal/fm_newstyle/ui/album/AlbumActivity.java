@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -15,20 +14,15 @@ import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseActivity;
 import com.fastapp.viroyal.fm_newstyle.base.BaseListFragment;
-import com.fastapp.viroyal.fm_newstyle.base.RxManager;
 import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
-import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBean;
-import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
-import com.fastapp.viroyal.fm_newstyle.model.realm.TracksBeanRealm;
 import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
 import com.fastapp.viroyal.fm_newstyle.view.fragment.AlbumDetailsFragment;
-import com.fastapp.viroyal.fm_newstyle.view.layout.FragmentAdapter;
+import com.fastapp.viroyal.fm_newstyle.view.fragment.adapter.FragmentAdapter;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.AlbumVH;
-import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,8 +75,8 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
             presenter.getAlbumsList(albumId);
         }
         setActionBarTitle(AppContext.getStringById(R.string.album_actionbar_title));
-        mHelper = new RealmHelper(this);
-        presenter.manager.on(AppConstant.LOADING_STATUS, new Action1() {
+        mHelper = AppContext.getRealmHelper();
+        presenter.getManager().on(AppConstant.LOADING_STATUS, new Action1() {
             @Override
             public void call(Object o) {
                 dismissLoading();

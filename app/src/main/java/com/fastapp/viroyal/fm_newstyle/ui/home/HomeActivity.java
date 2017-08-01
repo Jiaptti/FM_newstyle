@@ -1,25 +1,15 @@
 package com.fastapp.viroyal.fm_newstyle.ui.home;
 
 
-import android.content.Intent;
-import android.graphics.drawable.AnimationDrawable;
-import android.os.Build;
-import android.provider.Settings;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
-import android.view.View;
-import android.widget.LinearLayout;
 
-import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseActivity;
 import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
-import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
-import com.fastapp.viroyal.fm_newstyle.view.layout.FragmentAdapter;
-import com.fastapp.viroyal.fm_newstyle.view.popuwindow.NowPlayingWindow;
+import com.fastapp.viroyal.fm_newstyle.view.fragment.adapter.FragmentAdapter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,8 +20,8 @@ public class HomeActivity extends BaseActivity<HomePresenter, HomeModel> impleme
     TabLayout mTabLayout;
     @Bind(R.id.content_view_pager)
     ViewPager mContentPager;
-    private NowPlayingWindow mPlayingWindow;
     private long firstClickTime;
+
 
     @Override
     protected int layoutResID() {
@@ -39,30 +29,13 @@ public class HomeActivity extends BaseActivity<HomePresenter, HomeModel> impleme
     }
 
     @Override
-    protected void initView() {
-        if (Build.VERSION.SDK_INT >= 23) {
-            if(!Settings.canDrawOverlays(this)) {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
-                startActivity(intent);
-                return;
-            } else {
-
-            }
-        } else {
-        }
-    }
+    protected void initView() {}
 
     @Override
-    public void showLoading() {
-    }
+    public void showLoading() {}
 
     @Override
-    public void dismissLoading() {
-        if(mPlayingWindow == null){
-            mPlayingWindow = NowPlayingWindow.getPlayingWindow(mContext);
-            mPlayingWindow.show();
-        }
-    }
+    public void dismissLoading() {}
 
     @Override
     public void showTabFragment(List<Fragment> fragments) {
@@ -90,8 +63,5 @@ public class HomeActivity extends BaseActivity<HomePresenter, HomeModel> impleme
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(mPlayingWindow != null){
-            mPlayingWindow.dismiss();
-        }
     }
 }

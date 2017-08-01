@@ -42,7 +42,7 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
     public AlbumVH(View itemView) {
         super(itemView);
         AppContext.getAppContext().bindService(new Intent(mContext, AlbumPlayService.class), connection, Context.BIND_AUTO_CREATE);
-        helper = new RealmHelper(mContext);
+        helper = AppContext.getRealmHelper();
     }
 
     @Override
@@ -94,20 +94,19 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
     }
 
     private void setPlayStatus(TracksBeanList entity) {
-        if(mBinder != null){
-            if(helper.getNowPlayingTrack().getTitle().equals(entity.getTitle())){
-                mFlagWave.setVisibility(View.VISIBLE);
-                mAlbumName.setTextColor(Color.RED);
-                animation.start();
-                mAlbumImage.clearColorFilter();
-                mAlbumPlayStatus.setBackgroundResource(R.mipmap.player_toolbar_pause_adstatue);
-            } else {
-                animation.stop();
-                mFlagWave.setVisibility(View.GONE);
-                mAlbumName.setTextColor(Color.BLACK);
-                mAlbumImage.setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
-                mAlbumPlayStatus.setBackgroundResource(R.mipmap.notify_btn_light_play2_normal);
-            }
+        if (helper.getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim()) &&
+                AppContext.getPlayState() == AppConstant.STATUS_PLAY) {
+            mFlagWave.setVisibility(View.VISIBLE);
+            mAlbumName.setTextColor(Color.RED);
+            animation.start();
+            mAlbumImage.clearColorFilter();
+            mAlbumPlayStatus.setBackgroundResource(R.mipmap.player_toolbar_pause_adstatue);
+        } else {
+            animation.stop();
+            mFlagWave.setVisibility(View.GONE);
+            mAlbumName.setTextColor(Color.BLACK);
+            mAlbumImage.setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+            mAlbumPlayStatus.setBackgroundResource(R.mipmap.notify_btn_light_play2_normal);
         }
     }
 

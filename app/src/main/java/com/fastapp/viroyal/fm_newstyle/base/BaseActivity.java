@@ -14,10 +14,15 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
+import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
+import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.util.TUtils;
+import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
 import com.fastapp.viroyal.fm_newstyle.view.layout.SwipeBackLayout;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 
 /**
@@ -30,8 +35,12 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
     public E model;
     private Toolbar mActionBar;
     private TextView mActionTitle;
+
     private SwipeBackLayout swipeBackLayout;
     private ImageView ivShadow;
+
+    private SquareImageView nowPlayingImg;
+    private SquareImageView nowPlayingStatus;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -47,6 +56,14 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         if (this instanceof BaseView) presenter.setVM(this, model);
 
         mActionBar = (Toolbar) findViewById(R.id.action_bar);
+        nowPlayingImg = (SquareImageView) findViewById(R.id.now_playing_image);
+        nowPlayingStatus = (SquareImageView) findViewById(R.id.now_playing_status);
+
+        NowPlayTrack nowPlayTrack = AppContext.getRealmHelper().getNowPlayingTrack();
+        if(nowPlayTrack != null){
+            ImageUtils.loadCircleImage(AppContext.getAppContext(), nowPlayTrack.getCoverSmall(), nowPlayingImg);
+        }
+
         if (supportActionBar()) {
             initActionBar(mActionBar);
         }

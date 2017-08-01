@@ -1,4 +1,4 @@
-package com.fastapp.viroyal.fm_newstyle.view.layout;
+package com.fastapp.viroyal.fm_newstyle.view.fragment.adapter;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

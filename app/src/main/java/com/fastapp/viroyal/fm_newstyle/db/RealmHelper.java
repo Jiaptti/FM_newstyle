@@ -20,9 +20,21 @@ import io.realm.RealmResults;
 
 public class RealmHelper {
     private Realm mRealm;
+    private static RealmHelper instance ;
 
-    public RealmHelper(Context context){
+    private RealmHelper(Context context){
         mRealm = Realm.getInstance(new RealmConfiguration.Builder(context).deleteRealmIfMigrationNeeded().name(AppConstant.DB_NAME).build());
+    }
+
+    public static RealmHelper getRealmHelper(Context context){
+        if(instance == null){
+            synchronized (RealmHelper.class){
+                if(instance == null){
+                    instance = new RealmHelper(context);
+                }
+            }
+        }
+        return instance;
     }
 
     public void addTracks(TracksBeanRealm entity){

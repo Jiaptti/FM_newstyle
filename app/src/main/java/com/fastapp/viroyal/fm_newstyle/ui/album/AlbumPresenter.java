@@ -20,7 +20,7 @@ public class AlbumPresenter extends AlbumContract.Presenter{
 
     @Override
     void getAlbumsList(int albumId) {
-        manager.add(model.getAlbums(albumId).doOnSubscribe(new Action0() {
+        getManager().add(model.getAlbums(albumId).doOnSubscribe(new Action0() {
                     @Override
                     public void call() {
                         view.showLoading();

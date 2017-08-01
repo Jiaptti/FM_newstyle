@@ -10,7 +10,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.util.NetWorkUtils;
+
+import io.realm.Realm;
 
 /**
  * Created by hanjiaqi on 2017/6/27.
@@ -20,12 +23,25 @@ public class AppContext extends Application{
     private static AppContext mApp;
     private static long sLastToastTime;
     private static String sLastToast = "";
+    private static int playState = AppConstant.STATUS_NONE;
 
     @Override
     public void onCreate() {
         super.onCreate();
         mApp = this;
         checkNet();
+    }
+
+    public static RealmHelper getRealmHelper(){
+        return RealmHelper.getRealmHelper(mApp);
+    }
+
+    public static void setPlayState(int state){
+        playState = state;
+    }
+
+    public static int getPlayState(){
+        return playState;
     }
 
     public static String getStringById(int resId){

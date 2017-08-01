@@ -30,7 +30,7 @@ public class HomePresenter extends HomeContract.Presenter {
     @Override
     void getTabList() {
         final List<Fragment> fragments = new ArrayList<>();
-        manager.add(model.getTabFragment().doOnSubscribe(new Action0() {
+        getManager().add(model.getTabFragment().doOnSubscribe(new Action0() {
             @Override
             public void call() {
                 view.showLoading();

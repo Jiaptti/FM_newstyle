@@ -30,5 +30,6 @@ public class AppConstant {
     public static final int STATUS_PAUSE = 102;
     public static final int STATUS_STOP = 103;
     public static final int STATUS_RESUME = 104;
+    public static final int STATUS_NONE = 105;
 
 }
