@@ -95,6 +95,11 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
     }
 
     @Override
+    protected boolean supportBottomPlay() {
+        return true;
+    }
+
+    @Override
     public void showAlbumMessage(Data<HimalayanBean> data) {
         albumTitle.setText(data.getData().getAlbum().getTitle());
         ImageUtils.loadImage(this, data.getData().getAlbum().getCoverSmall(), albumImage);

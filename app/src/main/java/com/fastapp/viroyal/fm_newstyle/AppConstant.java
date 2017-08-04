@@ -15,17 +15,15 @@ public class AppConstant {
 
     public static final String UPDATE_ITEM_STATUS = "update_item";
     public static final String LOADING_STATUS = "loading_item";
-
-    public static final String EVENT_DEL_ITEM = "delete_item";
-    public static final String EVENT_UPDATE_ITEM = "update_item";
-
     public static final String PLAY_CURRENT_POSITION = "play_current_position";
 
+    //home tab and pagesize
     public static final int PAGESIZE = 10;
     public static final int PAGE_STORY = 11;
     public static final int PAGE_CROSSTALK = 12;
     public static final int PAGE_BOOK = 13;
 
+    //current play status
     public static final int STATUS_PLAY = 101;
     public static final int STATUS_PAUSE = 102;
     public static final int STATUS_STOP = 103;

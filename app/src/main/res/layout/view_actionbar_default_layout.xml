@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/action_bar"
+    android:id="@+id/tool_bar"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
     android:background="@color/white"
@@ -14,6 +14,7 @@
     app:paddingEnd="0dp"
     app:paddingStart="0dp"
     app:popupTheme="@style/ActionBarPopupThemeOverlay"
+    app:layout_scrollFlags="scroll|enterAlways"
     app:theme="@style/ActionBarThemeOverlay">
 
     <TextView

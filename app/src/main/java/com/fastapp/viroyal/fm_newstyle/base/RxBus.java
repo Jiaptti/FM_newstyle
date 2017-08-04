@@ -1,6 +1,9 @@
 package com.fastapp.viroyal.fm_newstyle.base;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
+
+import com.fastapp.viroyal.fm_newstyle.AppConstant;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,10 +33,12 @@ public class RxBus {
     }
 
     public <T> Observable<T> regiest(Object tag){
+        Log.i(AppConstant.TAG, "regiest = " + tag);
         List<Subject> subjectList = subjectMapper.get(tag);
         if(subjectList == null){
             subjectList = new ArrayList<>();
             subjectMapper.put(tag, subjectList);
+
         }
         Subject<T,T> subject = PublishSubject.create();
         subjectList.add(subject);
@@ -61,6 +66,11 @@ public class RxBus {
                 subject.onNext(content);
             }
         }
+    }
+
+    public boolean isEmpty(Object tag){
+        List<Subject> subjectList = subjectMapper.get(tag);
+        return isEmpty(subjectList);
     }
 
     private boolean isEmpty(Collection<Subject> subjectList){

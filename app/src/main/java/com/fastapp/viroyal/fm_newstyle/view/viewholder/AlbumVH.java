@@ -8,8 +8,10 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.IBinder;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
@@ -19,6 +21,7 @@ import com.fastapp.viroyal.fm_newstyle.base.BaseViewHolder;
 import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
+import com.fastapp.viroyal.fm_newstyle.ui.track.TrackActivity;
 import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
@@ -38,6 +41,7 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
     private AlbumPlayService.PlayBinder mBinder;
     private AnimationDrawable animation;
     private RealmHelper helper;
+    private RelativeLayout albumContentLayout;
 
     public AlbumVH(View itemView) {
         super(itemView);
@@ -59,6 +63,7 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
         mAlbumImage = (SquareImageView) view.findViewById(R.id.album_item_image);
         mFlagWave = (SquareImageView) view.findViewById(R.id.play_flag_wave);
         mAlbumPlayStatus = (SquareImageView) view.findViewById(R.id.album_play_status);
+        albumContentLayout = (RelativeLayout) view.findViewById(R.id.album_content_layout);
     }
 
     @Override
@@ -83,30 +88,39 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
                             mBinder.playMedia(entity.getPlayUrl32());
                             helper.setNowPlayTrack(entity);
                         }
-                    } else {
+                    } else if(AppContext.getPlayState() != AppConstant.STATUS_PLAY){
                         mBinder.playMedia(entity.getPlayUrl32());
                         helper.setNowPlayTrack(entity);
                     }
                 }
             }
         });
+
+        albumContentLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ActivityCompat.startActivity(mContext, new Intent(mContext, TrackActivity.class), null);
+            }
+        });
         setPlayStatus(entity);
     }
 
     private void setPlayStatus(TracksBeanList entity) {
-        if (helper.getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim()) &&
-                AppContext.getPlayState() == AppConstant.STATUS_PLAY) {
-            mFlagWave.setVisibility(View.VISIBLE);
-            mAlbumName.setTextColor(Color.RED);
-            animation.start();
-            mAlbumImage.clearColorFilter();
-            mAlbumPlayStatus.setBackgroundResource(R.mipmap.player_toolbar_pause_adstatue);
-        } else {
-            animation.stop();
-            mFlagWave.setVisibility(View.GONE);
-            mAlbumName.setTextColor(Color.BLACK);
-            mAlbumImage.setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
-            mAlbumPlayStatus.setBackgroundResource(R.mipmap.notify_btn_light_play2_normal);
+        if(helper.getNowPlayingTrack() != null){
+            if (helper.getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim()) &&
+                    (AppContext.getPlayState() == AppConstant.STATUS_PLAY || AppContext.getPlayState() == AppConstant.STATUS_RESUME)) {
+                mFlagWave.setVisibility(View.VISIBLE);
+                mAlbumName.setTextColor(Color.RED);
+                animation.start();
+                mAlbumImage.clearColorFilter();
+                mAlbumPlayStatus.setBackgroundResource(R.mipmap.player_toolbar_pause_adstatue);
+            } else {
+                animation.stop();
+                mFlagWave.setVisibility(View.GONE);
+                mAlbumName.setTextColor(Color.BLACK);
+                mAlbumImage.setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
+                mAlbumPlayStatus.setBackgroundResource(R.mipmap.notify_btn_light_play2_normal);
+            }
         }
     }
 

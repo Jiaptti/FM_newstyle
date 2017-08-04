@@ -65,7 +65,7 @@ public class AlbumPlayService extends Service implements MediaPlayerManager.Play
 
         public void pauseMedia() {
             playerManager.pauseMediaPlayer();
-            manager.post(AppConstant.UPDATE_ITEM_STATUS, null);
+            manager.post(AppConstant.UPDATE_ITEM_STATUS, realmHelper.getNowPlayingTrack());
         }
 
         public void stopMedia() {

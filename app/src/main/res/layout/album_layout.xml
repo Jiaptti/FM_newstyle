@@ -6,13 +6,12 @@
     android:orientation="vertical">
 
     <include
-        android:id="@+id/action_bar"
         layout="@layout/view_actionbar_default_layout" />
 
     <LinearLayout
         android:id="@+id/album_content"
         android:layout_width="match_parent"
-        android:layout_below="@+id/action_bar"
+        android:layout_below="@+id/tool_bar"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 

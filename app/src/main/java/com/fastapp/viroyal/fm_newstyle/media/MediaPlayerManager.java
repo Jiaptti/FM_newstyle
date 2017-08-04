@@ -52,14 +52,14 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
 
     private void pauseFM() {
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            this.position = mediaPlayer.getCurrentPosition();
+            position = mediaPlayer.getCurrentPosition();
             mediaPlayer.pause();
         }
     }
 
     private void resumePlayFM() {
         if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
-            mediaPlayer.seekTo(this.position);
+            mediaPlayer.seekTo(position);
             mediaPlayer.start();
         }
     }

@@ -68,6 +68,11 @@ public class RealmHelper {
         return null;
     }
 
+    public List<TracksBeanRealm> getAllTracks(){
+        RealmResults<TracksBeanRealm> results = mRealm.where(TracksBeanRealm.class).findAll();
+        return mRealm.copyToRealm(results);
+    }
+
     public void removeAllTracks(){
         mRealm.beginTransaction();
         mRealm.clear(NowPlayTrack.class);
@@ -119,6 +124,8 @@ public class RealmHelper {
             playTrack = new NowPlayTrack();
             playTrack.setTitle(entity.getTitle());
             playTrack.setCoverSmall(entity.getCoverSmall());
+            playTrack.setCoverLarge(entity.getCoverLarge());
+            playTrack.setCoverMiddle(entity.getCoverMiddle());
             playTrack.setCreatedAt(entity.getCreatedAt());
             playTrack.setNickname(entity.getNickname());
             playTrack.setDuration(entity.getDuration());
