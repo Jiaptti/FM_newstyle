@@ -79,6 +79,9 @@ public class AlbumPlayService extends Service implements MediaPlayerManager.Play
         public boolean isPlaying() {
             return playerManager.isPlaying();
         }
+
+        public void seekTo(int time){
+        }
     }
 
     @Override
