@@ -21,10 +21,39 @@
         android:scrollbars="none"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
-            android:id="@+id/track_image"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
+                android:id="@+id/track_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:id="@+id/play_popup_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:background="#99000000"
+                android:visibility="gone">
+
+                <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
+                    android:id="@+id/play_back_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@mipmap/ic_launcher" />
+
+                <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
+                    android:id="@+id/play_forward_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@mipmap/ic_launcher" />
+            </LinearLayout>
+        </FrameLayout>
+
 
     </android.support.v4.widget.NestedScrollView>
 

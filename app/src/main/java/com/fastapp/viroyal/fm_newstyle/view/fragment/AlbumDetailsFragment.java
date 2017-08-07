@@ -33,7 +33,8 @@ public class AlbumDetailsFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.album_detalis_layout,container,false);
         mAlbumDes = (TextView) view.findViewById(R.id.album_content_desc);
-        mAlbumDes.setText(entity.getData().getAlbum().getIntro());
+        if(entity.getData() != null)
+            mAlbumDes.setText(entity.getData().getAlbum().getIntro());
         return view;
     }
 }
