@@ -83,9 +83,10 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
             @Override
             public void onClick(View view) {
                 Log.i(AppConstant.TAG, "mBinder.isPlaying() = " + mBinder.isPlaying() + " State() = "
-                            + (AppContext.getPlayState() == AppConstant.STATUS_PLAY));
+                            + AppContext.getPlayState());
                 if (mBinder != null) {
-                    if (mBinder.isPlaying()) {
+                    if (mBinder.isPlaying() || AppContext.getPlayState() == AppConstant.STATUS_RESUME
+                            || AppContext.getPlayState() == AppConstant.STATUS_PLAY) {
                         if (helper.getNowPlayingTrack().getTitle().equals(entity.getTitle())) {
                             mBinder.pauseMedia();
                         } else {
@@ -93,7 +94,8 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
                             mBinder.playMedia(entity.getPlayUrl32());
                             helper.setNowPlayTrack(entity);
                         }
-                    } else if(AppContext.getPlayState() != AppConstant.STATUS_PLAY){
+                    } else if(AppContext.getPlayState() == AppConstant.STATUS_NONE
+                            || AppContext.getPlayState() == AppConstant.STATUS_PAUSE){
                         mBinder.playMedia(entity.getPlayUrl32());
                         helper.setNowPlayTrack(entity);
                     }
