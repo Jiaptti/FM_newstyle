@@ -3,6 +3,7 @@ package com.fastapp.viroyal.fm_newstyle.api;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanEntity;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TrackInfoBean;
 
 import retrofit2.http.GET;
 import retrofit2.http.Query;
@@ -20,6 +21,8 @@ public interface ApiService {
                                                      @Query("pageId") int pageId, @Query("pageSize") int pageSize, @Query("version") String version);
 
     @GET("mobile/v1/album")
-    Observable<Data<HimalayanBean>> getAlbumsList(@Query("albumId") int albumId,@Query("pageSize")int pageSize);
+    Observable<Data<HimalayanBean>> getAlbumsList(@Query("albumId") int albumId, @Query("pageSize")int pageSize);
 
+    @GET("v1/track/baseInfo")
+    Observable<TrackInfoBean> getTrackInfo(@Query("trackId")int trackId);
 }

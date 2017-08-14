@@ -16,4 +16,9 @@
     <color name="transparent">#00000000</color>
     <color name="text_album">#04f4ae</color>
     <color name="gray_10">#6D6B6C</color>
+    <color name="playerprogress_1_new">#fff86442</color>
+    <color name="playerprogress_2_new">#ffd9dfe5</color>
+    <color name="playerprogress_3_new">#ffe8eef3</color>
+    <color name="gray_light">#ffa4a4a4</color>
+    <color name="play_mask">#99000000</color>
 </resources>

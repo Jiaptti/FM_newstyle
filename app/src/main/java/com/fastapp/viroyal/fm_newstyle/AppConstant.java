@@ -11,6 +11,8 @@ public class AppConstant {
     public static final String VH_CLASS = "vh_class";
     public static final String ALBUM_ID = "albumId";
     public static final String ALBUM_BUNDLE = "album_bundle";
+    public static final String TRACK_ID = "trackId";
+    public static final String TRACK_BUNDLE = "album_bundle";
     public static final String DB_NAME = "himalayan,realm";
 
     public static final String UPDATE_ITEM_STATUS = "update_item";
@@ -29,5 +31,5 @@ public class AppConstant {
     public static final int STATUS_STOP = 103;
     public static final int STATUS_RESUME = 104;
     public static final int STATUS_NONE = 105;
-
+    public static final int STATUS_UPDATE_TIME = 106;
 }

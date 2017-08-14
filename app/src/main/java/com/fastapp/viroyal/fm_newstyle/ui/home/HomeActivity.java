@@ -45,13 +45,13 @@ public class HomeActivity extends BaseActivity<HomePresenter, HomeModel> impleme
     }
 
     @Override
-    protected boolean supportActionBar() {
+    public boolean supportActionBar() {
         return false;
     }
 
 
     @Override
-    protected boolean supportBottomPlay() {
+    public boolean supportBottomPlay() {
         return true;
     }
 

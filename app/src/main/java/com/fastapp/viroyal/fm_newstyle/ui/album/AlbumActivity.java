@@ -90,12 +90,12 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
     }
 
     @Override
-    protected boolean supportActionBar() {
+    public boolean supportActionBar() {
         return true;
     }
 
     @Override
-    protected boolean supportBottomPlay() {
+    public boolean supportBottomPlay() {
         return true;
     }
 

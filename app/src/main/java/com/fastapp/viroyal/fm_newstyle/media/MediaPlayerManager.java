@@ -23,10 +23,12 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
     private HandlerThread playHandlerThread;
     private Handler playHandler;
     private Handler updateHandler;
+    private Handler timeChangeHandler;
     private String url;
     private int position;
     private MediaPlayer mediaPlayer;
     private PlayCompleteListener listener;
+    private PlayTimeChangeListener timeListener;
 
     private static class Singleton {
         public static MediaPlayerManager media = new MediaPlayerManager();
@@ -54,6 +56,7 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             position = mediaPlayer.getCurrentPosition();
             mediaPlayer.pause();
+            playHandler.removeCallbacks(TimeChangeRunnable);
         }
     }
 
@@ -61,6 +64,7 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
         if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
             mediaPlayer.seekTo(position);
             mediaPlayer.start();
+//            playHandler.postAtTime(TimeChangeRunnable, 1000);
         }
     }
 
@@ -73,6 +77,14 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
             }
         }
         listener = null;
+        timeListener = null;
+        if(playHandler != null && TimeChangeRunnable != null){
+            playHandler.removeCallbacks(TimeChangeRunnable);
+            playHandler.removeCallbacksAndMessages(null);
+        }
+        if(updateHandler != null){
+            updateHandler.removeCallbacksAndMessages(null);
+        }
     }
 
     public void onDestroy(){
@@ -82,9 +94,7 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
             mediaPlayer.setOnCompletionListener(null);
             mediaPlayer.release();
             mediaPlayer = null;
-            listener = null;
             position = 0;
-            updateHandler.removeCallbacksAndMessages(null);
         }
     }
 
@@ -101,11 +111,26 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
         return Singleton.media;
     }
 
-    public void playFM(String url, PlayCompleteListener listener) {
+    public void playFM(String url) {
         this.url = url;
-        this.listener = listener;
         playHandler.sendEmptyMessage(AppConstant.STATUS_PLAY);
+//        playHandler.postAtTime(TimeChangeRunnable, 1000);
         AppContext.setPlayState(AppConstant.STATUS_PLAY);
+    }
+
+    public Runnable TimeChangeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            playHandler.sendEmptyMessage(AppConstant.STATUS_UPDATE_TIME);
+        }
+    };
+
+    public void setPlayerCompleteListener(PlayCompleteListener listener){
+        this.listener = listener;
+    }
+
+    public void setPlayTimeChangeListener(PlayTimeChangeListener timeListener){
+        this.timeListener = timeListener;
     }
 
     public void stopMediaPlayer() {
@@ -142,6 +167,11 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
         void playMusicComplete();
     }
 
+    public interface PlayTimeChangeListener{
+        void playTimeChange(int time);
+    }
+
+
     private void initHandler() {
         if (playHandlerThread == null) {
             playHandlerThread = new HandlerThread("playHandlerThread");
@@ -163,6 +193,10 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
                             break;
                         case AppConstant.STATUS_RESUME:
                             resumePlayFM();
+                            break;
+                        case AppConstant.STATUS_UPDATE_TIME:
+                            if(timeListener != null)
+                                timeListener.playTimeChange(mediaPlayer.getCurrentPosition());
                             break;
                     }
                 }

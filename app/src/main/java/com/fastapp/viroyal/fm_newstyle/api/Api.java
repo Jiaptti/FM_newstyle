@@ -21,7 +21,7 @@ public class Api{
 
     private static final int TIMEOUT_READ = 15;
     private static final int TIMEOUT_CONNECTION = 15;
-    public ApiService apiService;
+    private ApiService apiService;
 
     private static class SingletonHolder{
         private static Api mApi = new Api();

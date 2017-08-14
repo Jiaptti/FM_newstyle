@@ -55,12 +55,17 @@ public class AlbumPlayService extends Service implements MediaPlayerManager.Play
 
         public void playMedia(String url) {
             if (playUrl == null || !playUrl.equals(url)) {
-                playerManager.playFM(url, AlbumPlayService.this);
+                playerManager.playFM(url);
+                playerManager.setPlayerCompleteListener(AlbumPlayService.this);
                 this.playUrl = url;
             }  else {
                 playerManager.resumeMediaPlayer();
             }
             manager.post(AppConstant.UPDATE_ITEM_STATUS, realmHelper.getNowPlayingTrack());
+        }
+
+        public void setTimeListener(MediaPlayerManager.PlayTimeChangeListener listener){
+            playerManager.setPlayTimeChangeListener(listener);
         }
 
         public void pauseMedia() {

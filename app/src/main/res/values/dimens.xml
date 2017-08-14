@@ -10,4 +10,6 @@
     <dimen name="text_small">8.0sp</dimen>
     <dimen name="text_large_primary_size">16.0sp</dimen>
     <dimen name="actionbar_size">48sp</dimen>
+
+    <dimen name="player_time_size">38sp</dimen>
 </resources>

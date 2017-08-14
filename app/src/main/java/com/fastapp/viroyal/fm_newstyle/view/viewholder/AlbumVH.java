@@ -1,5 +1,6 @@
 package com.fastapp.viroyal.fm_newstyle.view.viewholder;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +8,7 @@ import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimationDrawable;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
@@ -21,6 +23,7 @@ import com.fastapp.viroyal.fm_newstyle.base.BaseViewHolder;
 import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
+import com.fastapp.viroyal.fm_newstyle.ui.album.AlbumActivity;
 import com.fastapp.viroyal.fm_newstyle.ui.track.TrackActivity;
 import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
@@ -79,6 +82,8 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
         mAlbumImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.i(AppConstant.TAG, "mBinder.isPlaying() = " + mBinder.isPlaying() + " State() = "
+                            + (AppContext.getPlayState() == AppConstant.STATUS_PLAY));
                 if (mBinder != null) {
                     if (mBinder.isPlaying()) {
                         if (helper.getNowPlayingTrack().getTitle().equals(entity.getTitle())) {
@@ -99,7 +104,11 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
         albumContentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ActivityCompat.startActivity(mContext, new Intent(mContext, TrackActivity.class), null);
+                Bundle bundle = new Bundle();
+                bundle.putInt(AppConstant.TRACK_ID, entity.getTrackId());
+                Intent intent = new Intent(mContext, TrackActivity.class);
+                intent.putExtra(AppConstant.TRACK_BUNDLE, bundle);
+                ActivityCompat.startActivity((Activity) mContext, intent, null);
             }
         });
         setPlayStatus(entity);

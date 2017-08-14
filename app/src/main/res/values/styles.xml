@@ -25,6 +25,8 @@
         <item name="android:windowAnimationStyle">@style/ActivityTransitions</item>
 
         <item name="actionBarSize">@dimen/actionbar_size</item>
+
+        <item name="android:windowContentOverlay">@null</item>
     </style>
 
     <style name="ActionBarPopupThemeOverlay" parent="ThemeOverlay.AppCompat.Light" />
@@ -45,7 +47,7 @@
     </style>
 
     <declare-styleable name="BaseTheme">
-        <attr name="actionBarIconColor" format="color"/>
+        <attr name="actionBarIconColor" format="color" />
     </declare-styleable>
 
     <style name="ActivityTransitions" parent="@android:style/Animation">
@@ -55,5 +57,24 @@
         <item name="android:activityCloseExitAnimation">@anim/close_exit_slide_out_right</item>
     </style>
 
+    <style name="MySeekBarStyle" parent="@android:style/Widget">
+        <item name="android:focusable">true</item>
+        <item name="android:indeterminateOnly">false</item>
+        <item name="android:indeterminateDrawable">@drawable/abc_seekbar_track_material</item>
+        <item name="android:progressDrawable">@drawable/seekbar_style_orange</item>
+        <item name="android:thumb">@mipmap/seekbar_thumb_small</item>
+        <item name="android:layout_marginLeft">-16.0dip</item>
+        <item name="android:layout_marginRight">-16.0dip</item>
+        <item name="android:max">100</item>
+        <item name="android:layout_marginTop">-14.0dp</item>
+        <item name="android:layout_marginBottom">-14.0dp</item>
+        <item name="android:maxHeight">3.0dip</item>
+        <item name="android:minHeight">3.0dip</item>
+        <item name="android:padding">0.0dp</item>
+        <item name="android:process">0</item>
+        <item name="android:thumbOffset">0.0dp</item>
+        <item name="android:splitTrack">false</item>
+        <item name="android:secondaryProgress">0</item>
+    </style>
 
 </resources>

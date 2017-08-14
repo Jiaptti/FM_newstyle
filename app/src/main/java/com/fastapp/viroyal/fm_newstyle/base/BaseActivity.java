@@ -2,6 +2,8 @@ package com.fastapp.viroyal.fm_newstyle.base;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
@@ -11,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
@@ -42,9 +45,6 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
     public E model;
     private Toolbar mActionBar;
     private TextView mActionTitle;
-
-//    private SwipeBackLayout swipeBackLayout;
-    private ImageView ivShadow;
 
     private SquareImageView nowPlayingImg;
     private SquareImageView nowPlayingStatus;
@@ -82,6 +82,10 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
                     }
                 }
             });
+        }
+
+        if(systemUIFullScreen()){
+            fullScreen();
         }
 
         if (supportActionBar()) {
@@ -127,11 +131,26 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
             return;
         setSupportActionBar(actionBar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setElevation(0);
         actionBar.setTitle("");
         mActionTitle = (TextView) actionBar.findViewById(R.id.action_bar_title);
         int titleRes = getActionBarTitle();
         if (titleRes != 0 && mActionTitle != null) {
             mActionTitle.setText(titleRes);
+        }
+    }
+
+    private void fullScreen(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
+                    | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.TRANSPARENT);
+            window.setNavigationBarColor(Color.TRANSPARENT);
         }
     }
 
@@ -143,63 +162,33 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         AppContext.setPlayState(AppConstant.STATUS_NONE);
     }
 
-    public void reload() {
-        Intent intent = getIntent();
-        overridePendingTransition(0, 0);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        finish();
-        overridePendingTransition(0, 0);
-        startActivity(intent);
-    }
-
     @Override
     public void setContentView(@LayoutRes int layoutResID) {
         super.setContentView(layoutResID);
-//        if (layoutResID == R.layout.activity_main) {
-//            super.setContentView(layoutResID);
-//        } else {
-//            super.setContentView(getContainer());
-//            View contentView = LayoutInflater.from(this).inflate(layoutResID, null);
-//            contentView.setBackgroundColor(getResources().getColor(R.color.window_background));
-//            swipeBackLayout.addView(contentView);
-//        }
     }
-
-//    private View getContainer() {
-//        RelativeLayout relativeLayout = new RelativeLayout(this);
-//        swipeBackLayout = new SwipeBackLayout(this);
-//        swipeBackLayout.setDragEdge(SwipeBackLayout.DragEdge.LEFT);
-//        ivShadow = new ImageView(this);
-//        ivShadow.setBackgroundColor(getResources().getColor(R.color.theme_black_7f));
-//        RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
-//                RelativeLayout.LayoutParams.MATCH_PARENT);
-//        relativeLayout.addView(ivShadow, param);
-//        relativeLayout.addView(swipeBackLayout);
-//        swipeBackLayout.setOnSwipeBackListener(new SwipeBackLayout.SwipeBackListener() {
-//            @Override
-//            public void onViewPositionChanged(float fractionAnchor, float fractionScreen) {
-//                ivShadow.setAlpha(1 - fractionScreen);
-//            }
-//        });
-//        return relativeLayout;
-//    }
 
 
     protected abstract int layoutResID();
 
     protected abstract void initView();
 
-    protected abstract boolean supportActionBar();
+    public boolean supportActionBar(){
+        return false;
+    }
 
-    protected abstract boolean supportBottomPlay();
+    public boolean supportBottomPlay(){
+        return false;
+    }
 
     public int getActionBarTitle() {
         return R.string.app_name;
     }
 
-    ;
-
     public boolean hasBackButton() {
+        return false;
+    }
+
+    public boolean systemUIFullScreen(){
         return false;
     }
 

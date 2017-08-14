@@ -11,50 +11,226 @@
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true">
 
-        <include layout="@layout/view_actionbar_default_layout" />
-
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.widget.NestedScrollView
+        android:id="@+id/track_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="none"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <FrameLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
-                android:id="@+id/track_image"
+            <FrameLayout
+                android:id="@+id/player_content"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-            <LinearLayout
-                android:id="@+id/play_popup_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:background="#99000000"
-                android:visibility="gone">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
                 <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
-                    android:id="@+id/play_back_time"
+                    android:id="@+id/track_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <RelativeLayout
+                    android:id="@+id/play_popup_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/play_mask"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:id="@+id/player_time_content"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:padding="5dp">
+
+                            <TextView
+                                android:id="@+id/player_current_time"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="23:00"
+                                android:textColor="@color/red"
+                                android:textSize="@dimen/player_time_size" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="/"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/player_time_size" />
+
+                            <TextView
+                                android:id="@+id/player_duration"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="23:00"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/player_time_size" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/player_time_content"
+                            android:layout_marginTop="30dp"
+                            android:background="@mipmap/mask"
+                            android:orientation="horizontal"
+                            android:padding="20dp">
+
+                            <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
+                                android:id="@+id/player_backward"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginRight="10dp"
+                                android:background="@drawable/player_backward_btn_bg"
+                                android:clickable="true" />
+
+                            <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
+                                android:id="@+id/player_forward"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="10dp"
+                                android:background="@drawable/player_forward_btn_bg"
+                                android:clickable="true" />
+
+                        </LinearLayout>
+                    </LinearLayout>
+                </RelativeLayout>
+            </FrameLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="100.0dp"
+                android:layout_below="@+id/seek_bar"
+                android:background="@color/white">
+
+                <TextView
+                    android:id="@+id/elapsed_time"
+                    android:layout_width="100.0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5.0dip"
+                    android:layout_marginTop="10.0dip"
+                    android:text="@string/app_name"
+                    android:textColor="@color/gray_light"
+                    android:textSize="9.0sp" />
+
+                <TextView
+                    android:id="@+id/duration"
+                    android:layout_width="100.0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="5.0dip"
+                    android:layout_marginTop="10.0dip"
+                    android:gravity="right"
+                    android:text="@string/app_name"
+                    android:textColor="#ffa4a4a4"
+                    android:textSize="9.0sp" />
+
+                <TextView
+                    android:id="@+id/playlist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@mipmap/ic_launcher" />
+                    android:layout_centerVertical="true"
+                    android:drawableTop="@mipmap/player_toolbar_playlist_normal"
+                    android:gravity="center"
+                    android:paddingBottom="10.0dip"
+                    android:paddingLeft="25.0dip"
+                    android:paddingRight="10.0dip"
+                    android:paddingTop="15.0dip"
+                    android:text="列表"
+                    android:textColor="#ff999999"
+                    android:textSize="9.0sp" />
+
+                <TextView
+                    android:id="@+id/time_off"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:drawableTop="@mipmap/player_toolbar_time_off_bg"
+                    android:gravity="center"
+                    android:paddingBottom="10.0dip"
+                    android:paddingLeft="10.0dip"
+                    android:paddingRight="25.0dip"
+                    android:paddingTop="15.0dip"
+                    android:text="定时"
+                    android:textColor="#ff999999"
+                    android:textSize="9.0sp" />
 
                 <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
-                    android:id="@+id/play_forward_time"
+                    android:id="@+id/play_btn_bg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@mipmap/ic_launcher" />
-            </LinearLayout>
-        </FrameLayout>
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/toolbar_loading_normal"
+                    android:visibility="visible" />
 
+                <ImageButton
+                    android:id="@+id/play_pause"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_marginLeft="15.0dip"
+                    android:layout_marginRight="15.0dip"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/player_toolbar_play_bg" />
 
+                <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
+                    android:id="@+id/loading"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:src="@mipmap/player_loading"
+                    android:visibility="gone" />
+
+                <ImageButton
+                    android:id="@+id/next"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10.0dip"
+                    android:layout_toRightOf="@id/play_pause"
+                    android:background="@android:color/transparent"
+                    android:padding="15.0dip"
+                    android:src="@drawable/player_toolbar_next_bg" />
+
+                <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
+                    android:id="@+id/previous"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="10.0dip"
+                    android:layout_marginRight="10.0dip"
+                    android:layout_toLeftOf="@id/play_pause"
+                    android:layout_toStartOf="@id/play_pause"
+                    android:background="@android:color/transparent"
+                    android:padding="15.0dip"
+                    android:src="@drawable/player_toolbar_previous_bg" />
+            </RelativeLayout>
+
+            <SeekBar
+                android:id="@+id/seek_bar"
+                style="@style/MySeekBarStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/player_content" />
+        </RelativeLayout>
     </android.support.v4.widget.NestedScrollView>
+
+    <include layout="@layout/view_loading_layout" />
 
 </android.support.design.widget.CoordinatorLayout>
