@@ -33,7 +33,6 @@ public class RxBus {
     }
 
     public <T> Observable<T> regiest(Object tag){
-        Log.i(AppConstant.TAG, "regiest = " + tag);
         List<Subject> subjectList = subjectMapper.get(tag);
         if(subjectList == null){
             subjectList = new ArrayList<>();

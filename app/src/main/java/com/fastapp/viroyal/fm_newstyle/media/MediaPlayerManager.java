@@ -7,6 +7,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
+import android.widget.SeekBar;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
@@ -29,6 +31,7 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
     private MediaPlayer mediaPlayer;
     private PlayCompleteListener listener;
     private PlayTimeChangeListener timeListener;
+    private PlayBufferingUpdate bufferListener;
 
     private static class Singleton {
         public static MediaPlayerManager media = new MediaPlayerManager();
@@ -42,6 +45,9 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
 
     private void playMediaPlayer() {
         try {
+            if(mediaPlayer.isPlaying()){
+                mediaPlayer.stop();
+            }
             mediaPlayer.reset();
             mediaPlayer.setDataSource(url);
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -56,7 +62,6 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             position = mediaPlayer.getCurrentPosition();
             mediaPlayer.pause();
-            playHandler.removeCallbacks(TimeChangeRunnable);
         }
     }
 
@@ -64,7 +69,6 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
         if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
             mediaPlayer.seekTo(position);
             mediaPlayer.start();
-//            playHandler.postAtTime(TimeChangeRunnable, 1000);
         }
     }
 
@@ -78,12 +82,15 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
         }
         listener = null;
         timeListener = null;
-        if(playHandler != null && TimeChangeRunnable != null){
-            playHandler.removeCallbacks(TimeChangeRunnable);
+        bufferListener = null;
+        if(playHandler != null){
             playHandler.removeCallbacksAndMessages(null);
         }
         if(updateHandler != null){
             updateHandler.removeCallbacksAndMessages(null);
+        }
+        if(timeChangeHandler != null){
+            timeChangeHandler.removeCallbacksAndMessages(null);
         }
     }
 
@@ -114,14 +121,15 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
     public void playFM(String url) {
         this.url = url;
         playHandler.sendEmptyMessage(AppConstant.STATUS_PLAY);
-//        playHandler.postAtTime(TimeChangeRunnable, 1000);
+        timeChangeHandler.postAtTime(TimeChangeRunnable, 1000);
         AppContext.setPlayState(AppConstant.STATUS_PLAY);
     }
 
     public Runnable TimeChangeRunnable = new Runnable() {
         @Override
         public void run() {
-            playHandler.sendEmptyMessage(AppConstant.STATUS_UPDATE_TIME);
+            timeChangeHandler.sendEmptyMessage(AppConstant.STATUS_UPDATE_TIME);
+            timeChangeHandler.postDelayed(TimeChangeRunnable, 1000);
         }
     };
 
@@ -129,28 +137,42 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
         this.listener = listener;
     }
 
-    public void setPlayTimeChangeListener(PlayTimeChangeListener timeListener){
-        this.timeListener = timeListener;
+    public void setPlayTimeChangeListener(PlayTimeChangeListener listener){
+        this.timeListener = listener;
+    }
+
+    public void setPlayBufferingUpdateListener(PlayBufferingUpdate listener){
+        this.bufferListener = listener;
     }
 
     public void stopMediaPlayer() {
         playHandler.sendEmptyMessage(AppConstant.STATUS_STOP);
+        timeChangeHandler.removeCallbacks(TimeChangeRunnable);
         AppContext.setPlayState(AppConstant.STATUS_STOP);
     }
 
     public void pauseMediaPlayer() {
         playHandler.sendEmptyMessage(AppConstant.STATUS_PAUSE);
+        timeChangeHandler.removeCallbacks(TimeChangeRunnable);
         AppContext.setPlayState(AppConstant.STATUS_PAUSE);
     }
 
     public void resumeMediaPlayer() {
         playHandler.sendEmptyMessage(AppConstant.STATUS_RESUME);
+        timeChangeHandler.postAtTime(TimeChangeRunnable, 1000);
         AppContext.setPlayState(AppConstant.STATUS_RESUME);
     }
 
     public int getDuration(){
         if(mediaPlayer != null){
             return mediaPlayer.getDuration();
+        }
+        return 0;
+    }
+
+    public int getCurrentPosition(){
+        if(mediaPlayer != null){
+            return mediaPlayer.getCurrentPosition();
         }
         return 0;
     }
@@ -169,6 +191,10 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
 
     public interface PlayTimeChangeListener{
         void playTimeChange(int time);
+    }
+
+    public interface PlayBufferingUpdate{
+        void onPlayBufferingUpdate(MediaPlayer mediaPlayer, int percent);
     }
 
 
@@ -194,13 +220,23 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
                         case AppConstant.STATUS_RESUME:
                             resumePlayFM();
                             break;
-                        case AppConstant.STATUS_UPDATE_TIME:
-                            if(timeListener != null)
-                                timeListener.playTimeChange(mediaPlayer.getCurrentPosition());
-                            break;
                     }
                 }
             };
+            if (timeChangeHandler == null) {
+                timeChangeHandler = new Handler(){
+                    @Override
+                    public void handleMessage(Message msg) {
+                        super.handleMessage(msg);
+                        switch (msg.what) {
+                            case AppConstant.STATUS_UPDATE_TIME:
+                                if(timeListener != null)
+                                    timeListener.playTimeChange(mediaPlayer.getCurrentPosition());
+                                break;
+                        }
+                    }
+                };
+            }
         }
     }
 
@@ -227,8 +263,9 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
     }
 
     @Override
-    public void onBufferingUpdate(MediaPlayer mediaPlayer, int i) {
-
+    public void onBufferingUpdate(MediaPlayer mediaPlayer, int percent) {
+        if(bufferListener != null)
+            bufferListener.onPlayBufferingUpdate(mediaPlayer, percent);
     }
 
     @Override

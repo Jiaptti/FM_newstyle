@@ -82,8 +82,6 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
         mAlbumImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i(AppConstant.TAG, "mBinder.isPlaying() = " + mBinder.isPlaying() + " State() = "
-                            + AppContext.getPlayState());
                 if (mBinder != null) {
                     if (mBinder.isPlaying() || AppContext.getPlayState() == AppConstant.STATUS_RESUME
                             || AppContext.getPlayState() == AppConstant.STATUS_PLAY) {

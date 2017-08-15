@@ -29,7 +29,6 @@ public class TrackPresenter extends TrackContract.Presenter{
                 .doOnSubscribe(new Action0() {
                     @Override
                     public void call() {
-                        Log.i(AppConstant.TAG, "getTrackInfoBean showLoading");
                         view.showLoading();
                     }
                 })
@@ -38,7 +37,6 @@ public class TrackPresenter extends TrackContract.Presenter{
                 new Subscriber<TrackInfoBean>() {
                     @Override
                     public void onCompleted() {
-                        Log.i(AppConstant.TAG, "getTrackInfoBean onCompleted");
                         view.dismissLoading();
                     }
 
@@ -63,7 +61,6 @@ public class TrackPresenter extends TrackContract.Presenter{
                         new Subscriber<Data<HimalayanBean>>() {
                             @Override
                             public void onCompleted() {
-                                Log.i(AppConstant.TAG, "getAlbumList onCompleted");
                             }
 
                             @Override

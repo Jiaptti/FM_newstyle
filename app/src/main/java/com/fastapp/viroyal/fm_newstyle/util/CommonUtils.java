@@ -1,6 +1,7 @@
 package com.fastapp.viroyal.fm_newstyle.util;
 
 import android.util.Log;
+import android.widget.TextView;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
@@ -95,4 +96,32 @@ public class CommonUtils {
                 AppContext.getStringById(R.string.tabs_literati_writings)};
         return tabs;
     }
+
+    public static void setTotalTime(int time, TextView totalTime){
+        if(totalTime != null)
+            totalTime.setText((time / 60) + ":" + (time % 60));
+    }
+
+    public static void setCurrentTime(int time, TextView currentTime){
+        if(currentTime != null){
+            if(time < 10){
+                currentTime.setText("00:0" + time);
+            } else if(time < 60){
+                currentTime.setText("00:" + time);
+            } else if((time / 60) > 0 && (time / 60) < 10){
+                if((time % 60) < 10){
+                    currentTime.setText("0" + (time / 60) + ":0" + (time % 60));
+                } else {
+                    currentTime.setText("0" + (time / 60) + ":" + (time % 60));
+                }
+            } else if((time / 60) > 10){
+                if((time % 60) < 10){
+                    currentTime.setText((time / 60) + ":0" + (time % 60));
+                } else {
+                    currentTime.setText((time / 60) + ":" + (time % 60));
+                }
+            }
+        }
+    }
+
 }

@@ -7,6 +7,7 @@ import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimationDrawable;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -22,8 +23,11 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
@@ -33,7 +37,9 @@ import com.fastapp.viroyal.fm_newstyle.media.MediaPlayerManager;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TrackInfoBean;
+import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
 import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
+import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
 
@@ -44,7 +50,7 @@ import butterknife.Bind;
  */
 
 public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> implements TrackContract.View, View.OnClickListener
-        ,MediaPlayerManager.PlayTimeChangeListener{
+        ,MediaPlayerManager.PlayTimeChangeListener, MediaPlayerManager.PlayBufferingUpdate{
     @Nullable
     @Bind(R.id.action_bar)
     Toolbar actionBar;
@@ -60,6 +66,19 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     LinearLayout loadingLayout;
     @Bind(R.id.loading_img)
     SquareImageView loadingImg;
+    @Bind(R.id.player_current_time)
+    TextView playerCurrentTime;
+    @Bind(R.id.player_duration)
+    TextView playerDuration;
+    @Bind(R.id.current_time)
+    TextView currentTime;
+    @Bind(R.id.total_time)
+    TextView totalTime;
+    @Bind(R.id.play_pause)
+    ImageButton playPauseButton;
+    @Bind(R.id.seek_bar)
+    SeekBar playSeekBar;
+
     private AnimationDrawable animation;
 
     private Animation operatingAnim;
@@ -75,9 +94,14 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         Bundle bundle = getIntent().getBundleExtra(AppConstant.TRACK_BUNDLE);
         if (bundle != null) {
             presenter.getTrack(bundle.getInt(AppConstant.TRACK_ID));
+        } else {
+            NowPlayTrack nowPlayTrack = AppContext.getRealmHelper().getNowPlayingTrack();
+            ImageUtils.loadImage(mContext, nowPlayTrack.getCoverLarge(), trackImg);
+            CommonUtils.setTotalTime(nowPlayTrack.getDuration(), totalTime);
         }
         AppContext.getAppContext().bindService(new Intent(mContext, AlbumPlayService.class), connection, Context.BIND_AUTO_CREATE);
         trackImg.setOnClickListener(this);
+        playPauseButton.setOnClickListener(this);
         operatingAnim = AnimationUtils.loadAnimation(this, R.anim.album_rotation);
         operatingAnim.setInterpolator(new LinearInterpolator());
     }
@@ -116,8 +140,10 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             mBinder = (AlbumPlayService.PlayBinder) service;
-            if(mBinder != null)
+            if(mBinder != null){
                 mBinder.setTimeListener(TrackActivity.this);
+                mBinder.setPlayBufferingUpdateListener(TrackActivity.this);
+            }
         }
 
         @Override
@@ -127,17 +153,31 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
 
     @Override
     public void onClick(View view) {
-        if(playPopupLayout.getVisibility() == View.GONE){
-            playPopupLayout.setVisibility(View.VISIBLE);
-        } else {
-            playPopupLayout.setVisibility(View.GONE);
+        switch (view.getId()){
+            case R.id.track_image:
+                if(playPopupLayout.getVisibility() == View.GONE){
+                    playPopupLayout.setVisibility(View.VISIBLE);
+                } else {
+                    playPopupLayout.setVisibility(View.GONE);
+                }
+                break;
+            case R.id.play_pause:
+                if(mBinder.isPlaying()){
+                    mBinder.pauseMedia();
+                    playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
+                } else {
+                    mBinder.resumePlay();
+                    playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
+                }
+                break;
         }
-
     }
 
     @Override
     public void setNowPlayerMessage(TrackInfoBean trackInfoBean) {
         ImageUtils.loadImage(mContext, trackInfoBean.getCoverLarge(), trackImg);
+        CommonUtils.setTotalTime(trackInfoBean.getDuration(), totalTime);
+        CommonUtils.setTotalTime(trackInfoBean.getDuration(), playerDuration);
     }
 
     @Override
@@ -147,6 +187,22 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
 
     @Override
     public void playTimeChange(int time) {
-        Log.i("test","time = " + time);
+        CommonUtils.setCurrentTime((time / 1000), currentTime);
+        CommonUtils.setCurrentTime((time / 1000), playerCurrentTime);
+
+        int position = mBinder.getCurrentPosition();
+        int duration = mBinder.getDuration();
+        if (duration > 0) {
+            if(playSeekBar != null){
+                long pos = playSeekBar.getMax() * position / duration;
+                playSeekBar.setProgress((int) pos);
+            }
+        }
+    }
+
+    @Override
+    public void onPlayBufferingUpdate(MediaPlayer mediaPlayer, int percent) {
+        if(playSeekBar != null)
+            playSeekBar.setSecondaryProgress(percent);
     }
 }

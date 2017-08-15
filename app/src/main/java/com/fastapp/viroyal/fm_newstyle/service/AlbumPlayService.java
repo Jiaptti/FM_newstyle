@@ -10,6 +10,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.SeekBar;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
@@ -47,7 +48,6 @@ public class AlbumPlayService extends Service implements MediaPlayerManager.Play
 
     @Override
     public void playMusicComplete() {
-        Log.i(AppConstant.TAG, "playMusicComplete");
     }
 
     public class PlayBinder extends Binder {
@@ -62,6 +62,14 @@ public class AlbumPlayService extends Service implements MediaPlayerManager.Play
                 playerManager.resumeMediaPlayer();
             }
             manager.post(AppConstant.UPDATE_ITEM_STATUS, realmHelper.getNowPlayingTrack());
+        }
+
+        public void resumePlay(){
+            playerManager.resumeMediaPlayer();
+        }
+
+        public void setPlayBufferingUpdateListener(MediaPlayerManager.PlayBufferingUpdate listener){
+            playerManager.setPlayBufferingUpdateListener(listener);
         }
 
         public void setTimeListener(MediaPlayerManager.PlayTimeChangeListener listener){
@@ -79,6 +87,10 @@ public class AlbumPlayService extends Service implements MediaPlayerManager.Play
 
         public int getDuration() {
             return playerManager.getDuration();
+        }
+
+        public int getCurrentPosition(){
+            return playerManager.getCurrentPosition();
         }
 
         public boolean isPlaying() {

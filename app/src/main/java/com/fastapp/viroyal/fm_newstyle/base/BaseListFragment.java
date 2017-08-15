@@ -50,7 +50,6 @@ public class BaseListFragment extends Fragment{
             manager.on(AppConstant.UPDATE_ITEM_STATUS, new Action1() {
                 @Override
                 public void call(Object o) {
-                    Log.i(AppConstant.TAG, "notifyDataSetChanged");
                     mTRecyclerView.getAdapter().notifyDataSetChanged();
                 }
             });
