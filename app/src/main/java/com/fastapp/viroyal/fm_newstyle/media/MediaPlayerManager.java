@@ -145,6 +145,10 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
         this.bufferListener = listener;
     }
 
+    public void seekTo(int time){
+        mediaPlayer.seekTo(time);
+    }
+
     public void stopMediaPlayer() {
         playHandler.sendEmptyMessage(AppConstant.STATUS_STOP);
         timeChangeHandler.removeCallbacks(TimeChangeRunnable);

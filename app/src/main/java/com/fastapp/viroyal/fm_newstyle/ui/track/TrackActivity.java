@@ -50,7 +50,8 @@ import butterknife.Bind;
  */
 
 public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> implements TrackContract.View, View.OnClickListener
-        ,MediaPlayerManager.PlayTimeChangeListener, MediaPlayerManager.PlayBufferingUpdate{
+        ,MediaPlayerManager.PlayTimeChangeListener, MediaPlayerManager.PlayBufferingUpdate
+        ,SeekBar.OnSeekBarChangeListener{
     @Nullable
     @Bind(R.id.action_bar)
     Toolbar actionBar;
@@ -104,6 +105,7 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         playPauseButton.setOnClickListener(this);
         operatingAnim = AnimationUtils.loadAnimation(this, R.anim.album_rotation);
         operatingAnim.setInterpolator(new LinearInterpolator());
+        playSeekBar.setOnSeekBarChangeListener(this);
     }
 
     @Override
@@ -204,5 +206,21 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     public void onPlayBufferingUpdate(MediaPlayer mediaPlayer, int percent) {
         if(playSeekBar != null)
             playSeekBar.setSecondaryProgress(percent);
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        int duration = mBinder.getDuration();
+        mBinder.seekTo(((progress * duration) /100));
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
     }
 }

@@ -98,6 +98,7 @@ public class AlbumPlayService extends Service implements MediaPlayerManager.Play
         }
 
         public void seekTo(int time){
+            playerManager.seekTo(time);
         }
     }
 
