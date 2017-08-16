@@ -2,6 +2,7 @@ package com.fastapp.viroyal.fm_newstyle;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.view.Gravity;
 import android.view.LayoutInflater;

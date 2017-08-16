@@ -98,8 +98,9 @@ public class CommonUtils {
     }
 
     public static void setTotalTime(int time, TextView totalTime){
-        if(totalTime != null)
+        if(totalTime != null){
             totalTime.setText((time / 60) + ":" + (time % 60));
+        }
     }
 
     public static void setCurrentTime(int time, TextView currentTime){

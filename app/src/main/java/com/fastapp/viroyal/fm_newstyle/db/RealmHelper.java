@@ -137,7 +137,6 @@ public class RealmHelper {
             playTrack.setPlayPathAacv164(entity.getPlayPathAacv164());
             playTrack.setPlayPathAacv224(entity.getPlayPathAacv224());
             playTrack.setSelected(entity.isSelected());
-            playTrack.setDuration(entity.getDuration());
             setNowTrack(playTrack);
         }
     }

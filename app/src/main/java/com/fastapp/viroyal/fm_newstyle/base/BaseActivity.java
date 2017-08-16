@@ -159,7 +159,6 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         super.onDestroy();
         if (presenter != null) presenter.destroy();
         ButterKnife.unbind(this);
-        AppContext.setPlayState(AppConstant.STATUS_NONE);
     }
 
     @Override

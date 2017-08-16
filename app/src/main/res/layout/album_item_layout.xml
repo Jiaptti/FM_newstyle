@@ -22,7 +22,7 @@
             android:layout_width="40dip"
             android:layout_height="40dip"
             android:layout_gravity="center"
-            android:background="@mipmap/notify_btn_light_play2_normal" />
+            android:background="@drawable/notify_btn_light_play2_normal_xml" />
     </FrameLayout>
 
     <RelativeLayout

@@ -102,6 +102,7 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
             mediaPlayer.release();
             mediaPlayer = null;
             position = 0;
+            AppContext.setPlayState(AppConstant.STATUS_NONE);
         }
     }
 
@@ -146,7 +147,14 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
     }
 
     public void seekTo(int time){
-        mediaPlayer.seekTo(time);
+        position = time;
+        if(isPlaying()) {
+            mediaPlayer.pause();
+            mediaPlayer.seekTo(position);
+            resumeMediaPlayer();
+        } else {
+            mediaPlayer.seekTo(position);
+        }
     }
 
     public void stopMediaPlayer() {
@@ -274,7 +282,7 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
-        if (mediaPlayer != null) {
+        if (mediaPlayer != null && AppContext.getPlayState() != AppConstant.STATUS_PAUSE) {
             mediaPlayer.start();
         }
     }

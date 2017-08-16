@@ -59,6 +59,10 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     SquareImageView trackImg;
     @Bind(R.id.loading)
     SquareImageView playLoadingImg;
+    @Bind(R.id.player_backward)
+    SquareImageView backward;
+    @Bind(R.id.player_forward)
+    SquareImageView forward;
     @Bind(R.id.track_content)
     NestedScrollView trackContent;
     @Bind(R.id.play_popup_layout)
@@ -84,6 +88,7 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
 
     private Animation operatingAnim;
     private AlbumPlayService.PlayBinder mBinder;
+    private int position;
 
     @Override
     protected int layoutResID() {
@@ -99,10 +104,13 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
             NowPlayTrack nowPlayTrack = AppContext.getRealmHelper().getNowPlayingTrack();
             ImageUtils.loadImage(mContext, nowPlayTrack.getCoverLarge(), trackImg);
             CommonUtils.setTotalTime(nowPlayTrack.getDuration(), totalTime);
+            CommonUtils.setTotalTime(nowPlayTrack.getDuration(), playerDuration);
         }
         AppContext.getAppContext().bindService(new Intent(mContext, AlbumPlayService.class), connection, Context.BIND_AUTO_CREATE);
         trackImg.setOnClickListener(this);
         playPauseButton.setOnClickListener(this);
+        backward.setOnClickListener(this);
+        forward.setOnClickListener(this);
         operatingAnim = AnimationUtils.loadAnimation(this, R.anim.album_rotation);
         operatingAnim.setInterpolator(new LinearInterpolator());
         playSeekBar.setOnSeekBarChangeListener(this);
@@ -172,6 +180,14 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
                     playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
                 }
                 break;
+            case R.id.player_backward:
+                mBinder.seekTo(mBinder.getCurrentPosition() - 15000);
+                playTimeChange(mBinder.getCurrentPosition());
+                break;
+            case R.id.player_forward:
+                mBinder.seekTo(mBinder.getCurrentPosition() + 15000);
+                playTimeChange(mBinder.getCurrentPosition());
+                break;
         }
     }
 
@@ -211,7 +227,7 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         int duration = mBinder.getDuration();
-        mBinder.seekTo(((progress * duration) /100));
+        position = ((progress * duration) / 100);
     }
 
     @Override
@@ -221,6 +237,6 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-
+        mBinder.seekTo(position);
     }
 }

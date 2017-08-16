@@ -92,8 +92,8 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
                             mBinder.playMedia(entity.getPlayUrl32());
                             helper.setNowPlayTrack(entity);
                         }
-                    } else if(AppContext.getPlayState() == AppConstant.STATUS_NONE
-                            || AppContext.getPlayState() == AppConstant.STATUS_PAUSE){
+                    } else if (AppContext.getPlayState() == AppConstant.STATUS_NONE
+                            || AppContext.getPlayState() == AppConstant.STATUS_PAUSE) {
                         mBinder.playMedia(entity.getPlayUrl32());
                         helper.setNowPlayTrack(entity);
                     }
@@ -104,31 +104,42 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
         albumContentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Bundle bundle = new Bundle();
-                bundle.putInt(AppConstant.TRACK_ID, entity.getTrackId());
-                Intent intent = new Intent(mContext, TrackActivity.class);
-                intent.putExtra(AppConstant.TRACK_BUNDLE, bundle);
-                ActivityCompat.startActivity((Activity) mContext, intent, null);
+                if (mBinder != null) {
+                    if (!helper.getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim())) {
+                        mBinder.playMedia(entity.getPlayUrl32());
+                        helper.setNowPlayTrack(entity);
+                        Bundle bundle = new Bundle();
+                        bundle.putInt(AppConstant.TRACK_ID, entity.getTrackId());
+                        Intent intent = new Intent(mContext, TrackActivity.class);
+                        intent.putExtra(AppConstant.TRACK_BUNDLE, bundle);
+                        ActivityCompat.startActivity((Activity) mContext, intent, null);
+                    } else {
+                        Intent intent = new Intent(mContext, TrackActivity.class);
+                        ActivityCompat.startActivity((Activity) mContext, intent, null);
+                    }
+                }
             }
         });
         setPlayStatus(entity);
     }
 
     private void setPlayStatus(TracksBeanList entity) {
-        if(helper.getNowPlayingTrack() != null){
+        if (helper.getNowPlayingTrack() != null) {
             if (helper.getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim()) &&
                     (AppContext.getPlayState() == AppConstant.STATUS_PLAY || AppContext.getPlayState() == AppConstant.STATUS_RESUME)) {
                 mFlagWave.setVisibility(View.VISIBLE);
                 mAlbumName.setTextColor(Color.RED);
                 animation.start();
-                mAlbumImage.clearColorFilter();
-                mAlbumPlayStatus.setBackgroundResource(R.mipmap.player_toolbar_pause_adstatue);
+                mAlbumPlayStatus.setBackgroundResource(R.drawable.notify_btn_light_pause2_normal_xml);
             } else {
                 animation.stop();
-                mFlagWave.setVisibility(View.GONE);
-                mAlbumName.setTextColor(Color.BLACK);
-                mAlbumImage.setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
-                mAlbumPlayStatus.setBackgroundResource(R.mipmap.notify_btn_light_play2_normal);
+                if(helper.getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim())){
+                    mFlagWave.setVisibility(View.VISIBLE);
+                } else {
+                    mFlagWave.setVisibility(View.GONE);
+                    mAlbumPlayStatus.setBackgroundResource(R.drawable.notify_btn_light_play2_normal_xml);
+                }
+
             }
         }
     }
