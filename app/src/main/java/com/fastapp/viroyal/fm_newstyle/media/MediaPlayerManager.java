@@ -14,6 +14,7 @@ import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
 import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
+import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
 
 import java.io.IOException;
 
@@ -32,6 +33,7 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
     private PlayCompleteListener listener;
     private PlayTimeChangeListener timeListener;
     private PlayBufferingUpdate bufferListener;
+    private RxManager manager = new RxManager();
 
     private static class Singleton {
         public static MediaPlayerManager media = new MediaPlayerManager();
@@ -62,6 +64,7 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             position = mediaPlayer.getCurrentPosition();
             mediaPlayer.pause();
+            manager.post(AppConstant.MEDIA_START_PLAY, AppConstant.STATUS_PAUSE);
         }
     }
 
@@ -69,6 +72,7 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
         if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
             mediaPlayer.seekTo(position);
             mediaPlayer.start();
+            manager.post(AppConstant.MEDIA_START_PLAY, AppConstant.STATUS_RESUME);
         }
     }
 
@@ -284,6 +288,7 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
     public void onPrepared(MediaPlayer mediaPlayer) {
         if (mediaPlayer != null && AppContext.getPlayState() != AppConstant.STATUS_PAUSE) {
             mediaPlayer.start();
+            manager.post(AppConstant.MEDIA_START_PLAY, AppConstant.STATUS_PLAY);
         }
     }
 }

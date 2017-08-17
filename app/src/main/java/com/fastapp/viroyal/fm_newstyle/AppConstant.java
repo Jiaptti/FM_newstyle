@@ -16,6 +16,7 @@ public class AppConstant {
     public static final String DB_NAME = "himalayan,realm";
 
     public static final String UPDATE_ITEM_STATUS = "update_item";
+    public static final String MEDIA_START_PLAY = "media_start_play";
     public static final String LOADING_STATUS = "loading_item";
     public static final String PLAY_CURRENT_POSITION = "play_current_position";
 

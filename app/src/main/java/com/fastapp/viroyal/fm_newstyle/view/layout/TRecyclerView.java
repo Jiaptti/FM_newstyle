@@ -82,7 +82,9 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
     private void initView(View view) {
         mLayoutManager = new LinearLayoutManager(mContext);
         recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.smoothScrollToPosition(mAdatper.getItemCount());
         recyclerView.setAdapter(mAdatper);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             protected int mLastItem;
@@ -195,6 +197,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
             this.model = ((Class<T>) ((ParameterizedType) (clazz
                     .getGenericSuperclass())).getActualTypeArguments()[0])
                     .newInstance();
+            mIVH.initData();
             mAdatper.setViewType(clazz, type);
             mId = id;
         } catch (Exception e) {

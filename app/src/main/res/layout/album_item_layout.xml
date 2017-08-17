@@ -39,7 +39,8 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dip"
             android:layout_marginRight="5dip"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:background="@drawable/play_flag_wave"/>
 
 
         <TextView

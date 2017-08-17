@@ -85,9 +85,9 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     SeekBar playSeekBar;
 
     private AnimationDrawable animation;
-
     private Animation operatingAnim;
     private AlbumPlayService.PlayBinder mBinder;
+    private NowPlayTrack nowPlayTrack;
     private int position;
 
     @Override
@@ -101,7 +101,7 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         if (bundle != null) {
             presenter.getTrack(bundle.getInt(AppConstant.TRACK_ID));
         } else {
-            NowPlayTrack nowPlayTrack = AppContext.getRealmHelper().getNowPlayingTrack();
+            nowPlayTrack = AppContext.getRealmHelper().getNowPlayingTrack();
             ImageUtils.loadImage(mContext, nowPlayTrack.getCoverLarge(), trackImg);
             CommonUtils.setTotalTime(nowPlayTrack.getDuration(), totalTime);
             CommonUtils.setTotalTime(nowPlayTrack.getDuration(), playerDuration);
@@ -176,7 +176,8 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
                     mBinder.pauseMedia();
                     playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
                 } else {
-                    mBinder.resumePlay();
+                    if(nowPlayTrack != null)
+                        mBinder.playMedia(nowPlayTrack.getPlayUrl32());
                     playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
                 }
                 break;

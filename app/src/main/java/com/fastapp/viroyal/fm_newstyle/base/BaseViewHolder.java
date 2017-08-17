@@ -22,6 +22,8 @@ public abstract class BaseViewHolder<T> extends RecyclerView.ViewHolder{
 //        ViewUtil.autoFind(this, itemView);//id与name一致
     }
 
+    public void initData(){}
+
     public abstract void initViewHolder(View itemView);
 
     /**
