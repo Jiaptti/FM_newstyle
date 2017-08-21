@@ -84,7 +84,6 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     @Bind(R.id.seek_bar)
     SeekBar playSeekBar;
 
-    private AnimationDrawable animation;
     private Animation operatingAnim;
     private AlbumPlayService.PlayBinder mBinder;
     private NowPlayTrack nowPlayTrack;
@@ -122,21 +121,22 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         } else {
             playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
         }
+        playLoadingImg.startAnimation(operatingAnim);
     }
 
     @Override
     public void showLoading() {
-        loadingLayout.setVisibility(View.VISIBLE);
-        trackContent.setVisibility(View.GONE);
-        animation = (AnimationDrawable) loadingImg.getBackground();
-        animation.start();
+//        loadingLayout.setVisibility(View.VISIBLE);
+//        trackContent.setVisibility(View.GONE);
+//        animation = (AnimationDrawable) loadingImg.getBackground();
+//        animation.start();
     }
 
     @Override
     public void dismissLoading() {
-        loadingLayout.setVisibility(View.GONE);
-        trackContent.setVisibility(View.VISIBLE);
-        animation.stop();
+//        loadingLayout.setVisibility(View.GONE);
+//        trackContent.setVisibility(View.VISIBLE);
+//        animation.stop();
     }
 
     @Override
@@ -208,6 +208,14 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
                 long pos = playSeekBar.getMax() * position / duration;
                 playSeekBar.setProgress((int) pos);
             }
+        }
+//        dismissPlayLoading();
+    }
+
+    private void dismissPlayLoading(){
+        if(playLoadingImg != null && playLoadingImg.getAnimation() != null){
+            playLoadingImg.setVisibility(View.VISIBLE);
+            playLoadingImg.clearAnimation();
         }
     }
 

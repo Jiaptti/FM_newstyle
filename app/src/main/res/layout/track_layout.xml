@@ -193,8 +193,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:src="@mipmap/player_loading"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    android:background="@mipmap/player_loading" />
 
                 <ImageButton
                     android:id="@+id/next"
@@ -231,5 +231,6 @@
     </android.support.v4.widget.NestedScrollView>
 
     <include layout="@layout/view_loading_layout" />
-
+    <include layout="@layout/now_playing_layout"
+        android:visibility="gone"/>
 </android.support.design.widget.CoordinatorLayout>

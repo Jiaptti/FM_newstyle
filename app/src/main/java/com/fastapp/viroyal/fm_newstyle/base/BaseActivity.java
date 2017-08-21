@@ -17,6 +17,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -26,6 +27,7 @@ import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
+import com.fastapp.viroyal.fm_newstyle.ui.track.TrackActivity;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.util.TUtils;
 import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
@@ -50,6 +52,7 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
     private SquareImageView nowPlayingStatus;
     private RealmHelper realmHelper;
     private Animation operatingAnim;
+    private FrameLayout nowPlayingLayout;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,6 +72,27 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         operatingAnim.setInterpolator(new LinearInterpolator());
 
         mActionBar = (Toolbar) findViewById(R.id.tool_bar);
+        nowPlayingLayout = (FrameLayout) findViewById(R.id.now_playing_layout);
+        if(nowPlayingLayout != null){
+            nowPlayingLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (AppContext.getMediaPlayService().isPlaying()) {
+                        Intent intent = new Intent(mContext, TrackActivity.class);
+                        mContext.startActivity(intent);
+                    } else {
+                        NowPlayTrack entity = AppContext.getRealmHelper().getNowPlayingTrack();
+                        AppContext.getMediaPlayService().playMedia(entity.getPlayUrl32());
+                        Bundle bundle = new Bundle();
+                        bundle.putInt(AppConstant.TRACK_ID, entity.getTrackId());
+                        Intent intent = new Intent(mContext, TrackActivity.class);
+                        intent.putExtra(AppConstant.TRACK_BUNDLE, bundle);
+                        mContext.startActivity(intent);
+                    }
+                }
+            });
+        }
+
         nowPlayingImg = (SquareImageView) findViewById(R.id.now_playing_image);
         nowPlayingStatus = (SquareImageView) findViewById(R.id.now_playing_status);
 
@@ -113,7 +137,7 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
                 || AppContext.getPlayState() == AppConstant.STATUS_RESUME) && operatingAnim != null) {
             nowPlayingImg.startAnimation(operatingAnim);
             nowPlayingStatus.setBackgroundResource(R.mipmap.play_icon_bg);
-        } else if(AppContext.getPlayState() == AppConstant.STATUS_PAUSE) {
+        } else if (AppContext.getPlayState() == AppConstant.STATUS_PAUSE) {
             nowPlayingImg.clearAnimation();
         }
     }

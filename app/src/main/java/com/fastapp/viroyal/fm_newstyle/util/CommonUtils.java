@@ -99,7 +99,11 @@ public class CommonUtils {
 
     public static void setTotalTime(int time, TextView totalTime){
         if(totalTime != null){
-            totalTime.setText((time / 60) + ":" + (time % 60));
+            if(time % 60 < 10){
+                totalTime.setText((time / 60) + ":0" + (time % 60));
+            } else {
+                totalTime.setText((time / 60) + ":" + (time % 60));
+            }
         }
     }
 
