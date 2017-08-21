@@ -1,18 +1,12 @@
 package com.fastapp.viroyal.fm_newstyle.view.viewholder;
 
-import android.app.Activity;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -24,7 +18,6 @@ import com.fastapp.viroyal.fm_newstyle.base.RxManager;
 import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
-import com.fastapp.viroyal.fm_newstyle.ui.album.AlbumActivity;
 import com.fastapp.viroyal.fm_newstyle.ui.track.TrackActivity;
 import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
@@ -44,41 +37,35 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
     private SquareImageView mFlagWave;
     private TextView mTimesAgo;
     private TextView mTimeDuration;
-    private AlbumPlayService.PlayBinder mBinder;
+    private AlbumPlayService.PlayBinder mBinder = AppContext.getMediaPlayService();
     private AnimationDrawable animation;
-    private RealmHelper helper;
+    private RealmHelper helper = AppContext.getRealmHelper();
     private RelativeLayout albumContentLayout;
     private RxManager manager = new RxManager();
 
     public AlbumVH(View itemView) {
         super(itemView);
-        helper = AppContext.getRealmHelper();
-        AppContext.getAppContext().bindService(new Intent(mContext, AlbumPlayService.class), connection, Context.BIND_AUTO_CREATE);
-        manager.on(AppConstant.MEDIA_START_PLAY, new Action1() {
-            @Override
-            public void call(Object o) {
-                if(o instanceof Integer){
-                    switch ((Integer)o){
-                        case AppConstant.STATUS_PLAY:
-                        case AppConstant.STATUS_RESUME:
+        if (itemView instanceof LinearLayout) {
+            manager.on(AppConstant.MEDIA_START_PLAY, new Action1() {
+                @Override
+                public void call(Object o) {
+                    if (o instanceof Integer) {
+                        switch ((Integer) o) {
+                            case AppConstant.STATUS_PLAY:
+                            case AppConstant.STATUS_RESUME:
                                 animation.start();
-                            break;
-                        case AppConstant.STATUS_PAUSE:
-                            if(animation.isRunning()){
+                                break;
+                            case AppConstant.STATUS_PAUSE:
                                 animation.stop();
-                            }
-                            mAlbumName.setTextColor(Color.BLACK);
-                            break;
+                                mAlbumName.setTextColor(Color.BLACK);
+                                break;
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
     }
 
-    @Override
-    public void initData() {
-
-    }
 
     @Override
     public int getType() {
@@ -99,7 +86,9 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
 
     @Override
     public void onBindViewHolder(View view, final TracksBeanList entity) {
+        animation = (AnimationDrawable) mFlagWave.getBackground();
         mAlbumName.setText(entity.getTitle());
+        mFlagWave.setVisibility(View.VISIBLE);
         mPlayTimes.setText(CommonUtils.getOmitPlayCounts(entity.getPlaytimes()));
         ImageUtils.loadCircleImage(mContext, entity.getCoverSmall(), mAlbumImage);
         mAlbumImage.setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
@@ -117,13 +106,11 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
                             mBinder.stopMedia();
                             mBinder.playMedia(entity.getPlayUrl32());
                             helper.setNowPlayTrack(entity);
-                            entity.setSelected(true);
                         }
                     } else if (AppContext.getPlayState() == AppConstant.STATUS_NONE
                             || AppContext.getPlayState() == AppConstant.STATUS_PAUSE) {
                         mBinder.playMedia(entity.getPlayUrl32());
                         helper.setNowPlayTrack(entity);
-                        entity.setSelected(true);
                     }
                 }
             }
@@ -132,42 +119,31 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
         albumContentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mBinder != null && helper.getNowPlayingTrack() != null &&
-                        !helper.getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim())) {
-                    mBinder.playMedia(entity.getPlayUrl32());
-                    helper.setNowPlayTrack(entity);
-                    entity.setSelected(true);
-                    Bundle bundle = new Bundle();
-                    bundle.putInt(AppConstant.TRACK_ID, entity.getTrackId());
-                    Intent intent = new Intent(mContext, TrackActivity.class);
-                    intent.putExtra(AppConstant.TRACK_BUNDLE, bundle);
-                    ActivityCompat.startActivity((Activity) mContext, intent, null);
-                } else {
-                    Intent intent = new Intent(mContext, TrackActivity.class);
-                    ActivityCompat.startActivity((Activity) mContext, intent, null);
-                }
+                mBinder.playMedia(entity.getPlayUrl32());
+                helper.setNowPlayTrack(entity);
+                Bundle bundle = new Bundle();
+                bundle.putInt(AppConstant.TRACK_ID, entity.getTrackId());
+                Intent intent = new Intent(mContext, TrackActivity.class);
+                intent.putExtra(AppConstant.TRACK_BUNDLE, bundle);
+                mContext.startActivity(intent);
             }
         });
         setPlayStatus(entity);
     }
 
     private void setPlayStatus(TracksBeanList entity) {
-        animation = (AnimationDrawable) mFlagWave.getBackground();
         if (helper.getNowPlayingTrack() != null &&
                 helper.getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim())) {
             if ((AppContext.getPlayState() == AppConstant.STATUS_PLAY || AppContext.getPlayState() == AppConstant.STATUS_RESUME)) {
                 mAlbumName.setTextColor(Color.RED);
-                mFlagWave.setVisibility(View.VISIBLE);
-                if(mBinder != null && mBinder.isPlaying()){
+                if (mBinder != null && mBinder.isPlaying() && !animation.isRunning()) {
                     animation.start();
                 }
                 mAlbumPlayStatus.setBackgroundResource(R.drawable.notify_btn_light_pause2_normal_xml);
             } else if (AppContext.getPlayState() == AppConstant.STATUS_PAUSE) {
-                mFlagWave.setVisibility(View.VISIBLE);
-                if(mBinder != null && !mBinder.isPlaying()){
+                if (mBinder != null && !mBinder.isPlaying() && animation.isRunning()) {
                     animation.stop();
                 }
-
                 mAlbumPlayStatus.setBackgroundResource(R.drawable.notify_btn_light_play2_normal_xml);
             }
         } else {
@@ -176,15 +152,4 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
             mAlbumPlayStatus.setBackgroundResource(R.drawable.notify_btn_light_play2_normal_xml);
         }
     }
-
-    private ServiceConnection connection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder service) {
-            mBinder = (AlbumPlayService.PlayBinder) service;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-        }
-    };
 }

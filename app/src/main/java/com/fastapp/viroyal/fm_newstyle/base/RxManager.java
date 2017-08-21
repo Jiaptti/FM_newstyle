@@ -48,14 +48,6 @@ public class RxManager {
         }
     }
 
-    public void clear(String tag) {
-        mCompositeSubscription.unsubscribe();
-        Observable<?> observable = mObservables.get(tag);
-        if (observable != null) {
-            mRxBus.unRegiest(tag, observable);
-        }
-    }
-
     public <T> void post(Object tag, T content) {
         mRxBus.post(tag, content);
     }

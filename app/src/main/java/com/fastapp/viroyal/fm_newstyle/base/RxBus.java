@@ -7,6 +7,7 @@ import com.fastapp.viroyal.fm_newstyle.AppConstant;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,8 +22,7 @@ import rx.subjects.Subject;
 
 public class RxBus {
     private static RxBus mInstance;
-    private  ConcurrentHashMap<Object, List<Subject>> subjectMapper = new ConcurrentHashMap<>();
-
+    private ConcurrentHashMap<Object, List<Subject>> subjectMapper = new ConcurrentHashMap<>();
     private RxBus(){}
 
     public static synchronized RxBus newInstance(){
@@ -37,7 +37,6 @@ public class RxBus {
         if(subjectList == null){
             subjectList = new ArrayList<>();
             subjectMapper.put(tag, subjectList);
-
         }
         Subject<T,T> subject = PublishSubject.create();
         subjectList.add(subject);

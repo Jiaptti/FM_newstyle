@@ -66,6 +66,7 @@ public class AlbumPlayService extends Service implements MediaPlayerManager.Play
 
         public void resumePlay(){
             playerManager.resumeMediaPlayer();
+            manager.post(AppConstant.UPDATE_ITEM_STATUS, realmHelper.getNowPlayingTrack());
         }
 
         public void setPlayBufferingUpdateListener(MediaPlayerManager.PlayBufferingUpdate listener){

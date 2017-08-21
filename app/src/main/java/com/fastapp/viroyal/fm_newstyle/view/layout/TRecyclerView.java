@@ -197,7 +197,6 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
             this.model = ((Class<T>) ((ParameterizedType) (clazz
                     .getGenericSuperclass())).getActualTypeArguments()[0])
                     .newInstance();
-            mIVH.initData();
             mAdatper.setViewType(clazz, type);
             mId = id;
         } catch (Exception e) {

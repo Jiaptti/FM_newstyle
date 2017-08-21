@@ -50,8 +50,8 @@ import butterknife.Bind;
  */
 
 public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> implements TrackContract.View, View.OnClickListener
-        ,MediaPlayerManager.PlayTimeChangeListener, MediaPlayerManager.PlayBufferingUpdate
-        ,SeekBar.OnSeekBarChangeListener{
+        , MediaPlayerManager.PlayTimeChangeListener, MediaPlayerManager.PlayBufferingUpdate
+        , SeekBar.OnSeekBarChangeListener {
     @Nullable
     @Bind(R.id.action_bar)
     Toolbar actionBar;
@@ -97,6 +97,9 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
 
     @Override
     protected void initView() {
+        mBinder = AppContext.getMediaPlayService();
+        mBinder.setTimeListener(this);
+        mBinder.setPlayBufferingUpdateListener(this);
         Bundle bundle = getIntent().getBundleExtra(AppConstant.TRACK_BUNDLE);
         if (bundle != null) {
             presenter.getTrack(bundle.getInt(AppConstant.TRACK_ID));
@@ -105,8 +108,8 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
             ImageUtils.loadImage(mContext, nowPlayTrack.getCoverLarge(), trackImg);
             CommonUtils.setTotalTime(nowPlayTrack.getDuration(), totalTime);
             CommonUtils.setTotalTime(nowPlayTrack.getDuration(), playerDuration);
+            playTimeChange(mBinder.getCurrentPosition());
         }
-        AppContext.getAppContext().bindService(new Intent(mContext, AlbumPlayService.class), connection, Context.BIND_AUTO_CREATE);
         trackImg.setOnClickListener(this);
         playPauseButton.setOnClickListener(this);
         backward.setOnClickListener(this);
@@ -114,6 +117,11 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         operatingAnim = AnimationUtils.loadAnimation(this, R.anim.album_rotation);
         operatingAnim.setInterpolator(new LinearInterpolator());
         playSeekBar.setOnSeekBarChangeListener(this);
+        if (mBinder.isPlaying()) {
+            playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
+        } else {
+            playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
+        }
     }
 
     @Override
@@ -146,39 +154,23 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         super.onStop();
     }
 
-    private ServiceConnection connection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder service) {
-            mBinder = (AlbumPlayService.PlayBinder) service;
-            if(mBinder != null){
-                mBinder.setTimeListener(TrackActivity.this);
-                mBinder.setPlayBufferingUpdateListener(TrackActivity.this);
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-        }
-    };
-
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.track_image:
-                if(playPopupLayout.getVisibility() == View.GONE){
+                if (playPopupLayout.getVisibility() == View.GONE) {
                     playPopupLayout.setVisibility(View.VISIBLE);
                 } else {
                     playPopupLayout.setVisibility(View.GONE);
                 }
                 break;
             case R.id.play_pause:
-                if(mBinder.isPlaying()){
+                if (mBinder.isPlaying()) {
                     mBinder.pauseMedia();
-                    playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
-                } else {
-                    if(nowPlayTrack != null)
-                        mBinder.playMedia(nowPlayTrack.getPlayUrl32());
                     playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
+                } else {
+                    mBinder.resumePlay();
+                    playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
                 }
                 break;
             case R.id.player_backward:
@@ -212,7 +204,7 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         int position = mBinder.getCurrentPosition();
         int duration = mBinder.getDuration();
         if (duration > 0) {
-            if(playSeekBar != null){
+            if (playSeekBar != null) {
                 long pos = playSeekBar.getMax() * position / duration;
                 playSeekBar.setProgress((int) pos);
             }
@@ -221,7 +213,7 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
 
     @Override
     public void onPlayBufferingUpdate(MediaPlayer mediaPlayer, int percent) {
-        if(playSeekBar != null)
+        if (playSeekBar != null)
             playSeekBar.setSecondaryProgress(percent);
     }
 

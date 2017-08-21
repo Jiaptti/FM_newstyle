@@ -72,19 +72,23 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         nowPlayingImg = (SquareImageView) findViewById(R.id.now_playing_image);
         nowPlayingStatus = (SquareImageView) findViewById(R.id.now_playing_status);
 
-        if(supportBottomPlay()){
+        if (supportBottomPlay()) {
             setPlayViewStatue();
-            presenter.getManager().on(AppConstant.UPDATE_ITEM_STATUS, new Action1() {
+            presenter.getManager().on(AppConstant.MEDIA_START_PLAY, new Action1() {
                 @Override
                 public void call(Object obj) {
-                    if (obj instanceof NowPlayTrack) {
-                        setPlayViewStatue();
-                    }
+                    playNowImgAnimation();
+                }
+            });
+            presenter.getManager().on(AppConstant.UPDATE_ITEM_STATUS, new Action1() {
+                @Override
+                public void call(Object o) {
+                    setPlayViewStatue();
                 }
             });
         }
 
-        if(systemUIFullScreen()){
+        if (systemUIFullScreen()) {
             fullScreen();
         }
 
@@ -104,22 +108,28 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         this.initView();
     }
 
-    private void setPlayViewStatue(){
+    private void playNowImgAnimation() {
+        if ((AppContext.getPlayState() == AppConstant.STATUS_PLAY
+                || AppContext.getPlayState() == AppConstant.STATUS_RESUME) && operatingAnim != null) {
+            nowPlayingImg.startAnimation(operatingAnim);
+            nowPlayingStatus.setBackgroundResource(R.mipmap.play_icon_bg);
+        } else if(AppContext.getPlayState() == AppConstant.STATUS_PAUSE) {
+            nowPlayingImg.clearAnimation();
+        }
+    }
+
+    private void setPlayViewStatue() {
         if (AppContext.getPlayState() == AppConstant.STATUS_PLAY
                 || AppContext.getPlayState() == AppConstant.STATUS_RESUME) {
             String url = String.valueOf(nowPlayingImg.getTag());
             if (!url.equalsIgnoreCase(realmHelper.getNowPlayingTrack().getCoverSmall())) {
                 ImageUtils.loadCircleImage(AppContext.getAppContext(), realmHelper.getNowPlayingTrack().getCoverSmall(), nowPlayingImg);
             }
-            if(operatingAnim != null )
-                nowPlayingImg.startAnimation(operatingAnim);
-            nowPlayingStatus.setBackgroundResource(R.mipmap.play_icon_bg);
         } else if (AppContext.getPlayState() == AppConstant.STATUS_PAUSE) {
             nowPlayingStatus.setBackgroundResource(R.mipmap.play_icon_pause);
-            nowPlayingImg.clearAnimation();
-        } else if (AppContext.getPlayState() == AppConstant.STATUS_NONE){
+        } else if (AppContext.getPlayState() == AppConstant.STATUS_NONE) {
             NowPlayTrack nowPlayTrack = realmHelper.getNowPlayingTrack();
-            if(nowPlayTrack != null){
+            if (nowPlayTrack != null) {
                 nowPlayingImg.setTag(R.id.tracks_image_tag, nowPlayTrack.getCoverSmall());
                 ImageUtils.loadCircleImage(AppContext.getAppContext(), nowPlayTrack.getCoverSmall(), nowPlayingImg);
             }
@@ -140,8 +150,8 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         }
     }
 
-    private void fullScreen(){
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+    private void fullScreen() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
                     | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
@@ -171,11 +181,11 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
 
     protected abstract void initView();
 
-    public boolean supportActionBar(){
+    public boolean supportActionBar() {
         return false;
     }
 
-    public boolean supportBottomPlay(){
+    public boolean supportBottomPlay() {
         return false;
     }
 
@@ -187,7 +197,7 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         return false;
     }
 
-    public boolean systemUIFullScreen(){
+    public boolean systemUIFullScreen() {
         return false;
     }
 

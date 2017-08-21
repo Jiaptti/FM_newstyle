@@ -102,7 +102,7 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
     @Override
     public void showAlbumMessage(Data<HimalayanBean> data) {
         albumTitle.setText(data.getData().getAlbum().getTitle());
-        ImageUtils.loadImage(this, data.getData().getAlbum().getCoverSmall(), albumImage);
+        ImageUtils.loadImage(this, data.getData().getAlbum().getCoverMiddle(), albumImage);
         albumAuthor.setText(data.getData().getUser().getNickname());
         albumPlayCounts.setText(CommonUtils.getOmitAlbumCounts(data.getData().getAlbum().getPlayTimes()));
         albumType.setText(data.getData().getAlbum().getCategoryName());

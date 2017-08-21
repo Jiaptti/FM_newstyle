@@ -29,8 +29,7 @@
 
         <activity
             android:name=".ui.album.AlbumActivity"
-            android:theme="@style/Theme.IMA"
-            android:launchMode="singleTask"/>
+            android:theme="@style/Theme.IMA"/>
 
         <service android:name=".service.AlbumPlayService" />
 
