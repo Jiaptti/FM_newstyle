@@ -47,4 +47,6 @@
 
     <include layout="@layout/now_playing_layout"/>
 
+    <include layout="@layout/net_error_layout"/>
+
 </RelativeLayout>

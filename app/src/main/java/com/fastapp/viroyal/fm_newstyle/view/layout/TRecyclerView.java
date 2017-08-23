@@ -18,10 +18,14 @@ import com.fastapp.viroyal.fm_newstyle.base.BaseViewHolder;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.base.BaseEntity;
+import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
 import com.fastapp.viroyal.fm_newstyle.util.RxSchedulers;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.CommFooterVH;
 
 import java.lang.reflect.ParameterizedType;
+import java.net.ConnectException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,6 +57,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
     private int pageSize = 10;
     private int maxPage = 0;
     private int length = 0;
+    private ErrorBean errorBean;
 
 
     public TRecyclerView(Context context) {
@@ -146,7 +151,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                         } else {
                             mAdatper.setBeans(data.getList(), begin);
                         }
-                        if (begin == 1 && data.getList() == null) {
+                        if (data.getList() == null || data.getData() == null) {
                             setEmpty();
                         }
                     }
@@ -154,7 +159,13 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                     @Override
                     public void call(Throwable throwable) {
                         throwable.printStackTrace();
-                        setEmpty();
+                        Log.i(AppConstant.TAG, "error = " + throwable.getMessage());
+                        if(throwable instanceof SocketTimeoutException) {
+                            mRxManager.post(AppConstant.ERROR_MESSAGE, errorBean);
+                        } else if(throwable instanceof ConnectException){
+
+                        }
+
                     }
                 }));
     }
@@ -175,12 +186,14 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
 
     public TRecyclerView setViewByTab(Class<? extends BaseViewHolder<T>> clazz, int tabType) {
         try {
+            errorBean = new ErrorBean();
             BaseViewHolder mIVH = ((BaseViewHolder) (clazz.getConstructor(View.class)
                     .newInstance(new View(mContext))));
             int type = mIVH.getType();
             this.model = ((Class<T>) ((ParameterizedType) (clazz
                     .getGenericSuperclass())).getActualTypeArguments()[0])
                     .newInstance();
+            errorBean.setClazz(clazz);
             mAdatper.setViewType(clazz, type);
             this.type = tabType;
         } catch (Exception e) {
@@ -191,6 +204,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
 
     public TRecyclerView setViewById(Class<? extends BaseViewHolder<T>> clazz, int id) {
         try {
+            errorBean = new ErrorBean();
             BaseViewHolder mIVH = ((BaseViewHolder) (clazz.getConstructor(View.class)
                     .newInstance(new View(mContext))));
             int type = mIVH.getType();
@@ -198,6 +212,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                     .getGenericSuperclass())).getActualTypeArguments()[0])
                     .newInstance();
             mAdatper.setViewType(clazz, type);
+            errorBean.setClazz(clazz);
             mId = id;
         } catch (Exception e) {
             e.printStackTrace();
@@ -254,6 +269,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                 this.mDates = dates;
             }
             notifyDataSetChanged();
+            mRxManager.post(AppConstant.LOADING_STATUS , null);
         }
 
         public void setBeansById(List<T> dates, int begin) {

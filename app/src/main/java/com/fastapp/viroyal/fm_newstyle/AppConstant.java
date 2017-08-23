@@ -19,6 +19,7 @@ public class AppConstant {
     public static final String MEDIA_START_PLAY = "media_start_play";
     public static final String LOADING_STATUS = "loading_item";
     public static final String PLAY_CURRENT_POSITION = "play_current_position";
+    public static final String ERROR_MESSAGE = "error_message";
 
     //home tab and pagesize
     public static final int PAGESIZE = 10;

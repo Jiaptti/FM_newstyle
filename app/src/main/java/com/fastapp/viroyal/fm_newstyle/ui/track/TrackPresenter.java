@@ -29,7 +29,7 @@ public class TrackPresenter extends TrackContract.Presenter{
                 .doOnSubscribe(new Action0() {
                     @Override
                     public void call() {
-                        view.showLoading();
+//                        view.showLoading();
                     }
                 })
                 .subscribeOn(AndroidSchedulers.mainThread())
@@ -37,7 +37,6 @@ public class TrackPresenter extends TrackContract.Presenter{
                 new Subscriber<TrackInfoBean>() {
                     @Override
                     public void onCompleted() {
-                        view.dismissLoading();
                     }
 
                     @Override
@@ -75,5 +74,10 @@ public class TrackPresenter extends TrackContract.Presenter{
                             }
                         }
                 ));
+    }
+
+    @Override
+    void getNowTrack() {
+        view.setNowPlayerTrack(model.getNowPlayTrack());
     }
 }

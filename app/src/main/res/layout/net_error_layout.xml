@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/net_error_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:visibility="gone">
+
+    <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@mipmap/live_img_default" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="@string/net_error_msg_head"
+        android:textColor="@color/gray_light"
+        android:textSize="@dimen/text_large_primary_size" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:text="@string/net_error_msg_body"
+        android:textColor="@color/gray_light"
+        android:textSize="@dimen/text_regular_primary_size" />
+
+    <TextView
+        android:id="@+id/reload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5.0dip"
+        android:layout_marginTop="20.0dip"
+        android:background="@drawable/bg_preload_btn_selector"
+        android:clickable="true"
+        android:textSize="@dimen/text_regular_primary_size"
+        android:text="@string/reload"
+        android:textColor="@color/black" />
+
+</LinearLayout>

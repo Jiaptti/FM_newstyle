@@ -1,0 +1,19 @@
+package com.fastapp.viroyal.fm_newstyle.model.base;
+
+import com.fastapp.viroyal.fm_newstyle.base.BaseViewHolder;
+
+/**
+ * Created by hanjiaqi on 2017/8/23.
+ */
+
+public class ErrorBean {
+    private Class<? extends BaseViewHolder> clazz;
+
+    public Class getClazz() {
+        return clazz;
+    }
+
+    public void setClazz(Class clazz) {
+        this.clazz = clazz;
+    }
+}

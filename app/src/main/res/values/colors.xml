@@ -21,4 +21,5 @@
     <color name="playerprogress_3_new">#ffe8eef3</color>
     <color name="gray_light">#ffa4a4a4</color>
     <color name="play_mask">#99000000</color>
+    <color name="border_gray">#ffd9dfe5</color>
 </resources>

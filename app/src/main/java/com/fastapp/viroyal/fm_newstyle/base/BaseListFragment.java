@@ -47,12 +47,14 @@ public class BaseListFragment extends Fragment{
         mTRecyclerView = new TRecyclerView(getContext());
         if(getArguments().getInt(AppConstant.TYPE) > 100){
             mTRecyclerView.setViewById(TUtils.forName(getArguments().getString(AppConstant.VH_CLASS)), getArguments().getInt(AppConstant.TYPE));
-            manager.on(AppConstant.UPDATE_ITEM_STATUS, new Action1() {
-                @Override
-                public void call(Object o) {
-                    mTRecyclerView.getAdapter().notifyDataSetChanged();
-                }
-            });
+            if(getArguments().getInt(AppConstant.TYPE) > 100){
+                manager.on(AppConstant.UPDATE_ITEM_STATUS, new Action1() {
+                    @Override
+                    public void call(Object o) {
+                        mTRecyclerView.getAdapter().notifyDataSetChanged();
+                    }
+                });
+            }
         } else {
             mTRecyclerView.setViewByTab(TUtils.forName(getArguments().getString(AppConstant.VH_CLASS)), getArguments().getInt(AppConstant.TYPE));
         }

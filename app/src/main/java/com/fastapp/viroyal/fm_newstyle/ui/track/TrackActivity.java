@@ -1,28 +1,15 @@
 package com.fastapp.viroyal.fm_newstyle.ui.track;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -33,6 +20,7 @@ import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseActivity;
+import com.fastapp.viroyal.fm_newstyle.base.RxManager;
 import com.fastapp.viroyal.fm_newstyle.media.MediaPlayerManager;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
@@ -44,6 +32,7 @@ import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
 
 import butterknife.Bind;
+import rx.functions.Action1;
 
 /**
  * Created by hanjiaqi on 2017/8/3.
@@ -59,6 +48,8 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     SquareImageView trackImg;
     @Bind(R.id.loading)
     SquareImageView playLoadingImg;
+    @Bind(R.id.play_btn_bg)
+    SquareImageView playBtnBg;
     @Bind(R.id.player_backward)
     SquareImageView backward;
     @Bind(R.id.player_forward)
@@ -85,9 +76,11 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     SeekBar playSeekBar;
 
     private Animation operatingAnim;
+    private AnimationDrawable animation;
     private AlbumPlayService.PlayBinder mBinder;
     private NowPlayTrack nowPlayTrack;
     private int position;
+    private RxManager manager = new RxManager();
 
     @Override
     protected int layoutResID() {
@@ -103,11 +96,7 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         if (bundle != null) {
             presenter.getTrack(bundle.getInt(AppConstant.TRACK_ID));
         } else {
-            nowPlayTrack = AppContext.getRealmHelper().getNowPlayingTrack();
-            ImageUtils.loadImage(mContext, nowPlayTrack.getCoverLarge(), trackImg);
-            CommonUtils.setTotalTime(nowPlayTrack.getDuration(), totalTime);
-            CommonUtils.setTotalTime(nowPlayTrack.getDuration(), playerDuration);
-            playTimeChange(mBinder.getCurrentPosition());
+            presenter.getNowTrack();
         }
         trackImg.setOnClickListener(this);
         playPauseButton.setOnClickListener(this);
@@ -116,28 +105,44 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         operatingAnim = AnimationUtils.loadAnimation(this, R.anim.album_rotation);
         operatingAnim.setInterpolator(new LinearInterpolator());
         playSeekBar.setOnSeekBarChangeListener(this);
-        if (mBinder.isPlaying()) {
-            playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
-        } else {
-            playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
-        }
+        playBtnBg.setVisibility(View.GONE);
+        playLoadingImg.setVisibility(View.VISIBLE);
         playLoadingImg.startAnimation(operatingAnim);
+        manager.on(AppConstant.MEDIA_START_PLAY, new Action1() {
+            @Override
+            public void call(Object o) {
+                if (o instanceof Integer) {
+                    switch ((Integer) o) {
+                        case AppConstant.STATUS_PLAY:
+                        case AppConstant.STATUS_RESUME:
+                            dismissPlayLoading();
+                            playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
+                            playPauseButton.setEnabled(true);
+                            break;
+                        case AppConstant.STATUS_PAUSE:
+                            playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
+                            break;
+                    }
+                }
+            }
+        });
     }
 
     @Override
     public void showLoading() {
-//        loadingLayout.setVisibility(View.VISIBLE);
-//        trackContent.setVisibility(View.GONE);
-//        animation = (AnimationDrawable) loadingImg.getBackground();
-//        animation.start();
+        loadingLayout.setVisibility(View.VISIBLE);
+        trackContent.setVisibility(View.GONE);
+        animation = (AnimationDrawable) loadingImg.getBackground();
+        animation.start();
     }
 
     @Override
     public void dismissLoading() {
-//        loadingLayout.setVisibility(View.GONE);
-//        trackContent.setVisibility(View.VISIBLE);
-//        animation.stop();
+        loadingLayout.setVisibility(View.GONE);
+        trackContent.setVisibility(View.VISIBLE);
+        animation.stop();
     }
+
 
     @Override
     public boolean systemUIFullScreen() {
@@ -192,11 +197,20 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     }
 
     @Override
+    public void setNowPlayerTrack(NowPlayTrack nowPlayerTrack) {
+        nowPlayTrack = AppContext.getRealmHelper().getNowPlayingTrack();
+        ImageUtils.loadImage(mContext, nowPlayTrack.getCoverLarge(), trackImg);
+        CommonUtils.setTotalTime(nowPlayTrack.getDuration(), totalTime);
+        CommonUtils.setTotalTime(nowPlayTrack.getDuration(), playerDuration);
+        playTimeChange(mBinder.getCurrentPosition());
+    }
+
+
+    @Override
     public void loadAlbumList(Data<HimalayanBean> list) {
 
     }
 
-    @Override
     public void playTimeChange(int time) {
         CommonUtils.setCurrentTime((time / 1000), currentTime);
         CommonUtils.setCurrentTime((time / 1000), playerCurrentTime);
@@ -209,12 +223,11 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
                 playSeekBar.setProgress((int) pos);
             }
         }
-//        dismissPlayLoading();
     }
 
     private void dismissPlayLoading(){
         if(playLoadingImg != null && playLoadingImg.getAnimation() != null){
-            playLoadingImg.setVisibility(View.VISIBLE);
+            playBtnBg.setVisibility(View.VISIBLE);
             playLoadingImg.clearAnimation();
         }
     }

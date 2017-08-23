@@ -17,8 +17,10 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -26,12 +28,19 @@ import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
+import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
 import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
 import com.fastapp.viroyal.fm_newstyle.ui.track.TrackActivity;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.util.TUtils;
 import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
 import com.fastapp.viroyal.fm_newstyle.view.layout.SwipeBackLayout;
+import com.fastapp.viroyal.fm_newstyle.view.viewholder.CategoryVH;
+
+import org.w3c.dom.Text;
+
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -72,6 +81,7 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         operatingAnim.setInterpolator(new LinearInterpolator());
 
         mActionBar = (Toolbar) findViewById(R.id.tool_bar);
+
         nowPlayingLayout = (FrameLayout) findViewById(R.id.now_playing_layout);
         if(nowPlayingLayout != null){
             nowPlayingLayout.setOnClickListener(new View.OnClickListener() {
@@ -92,7 +102,6 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
                 }
             });
         }
-
         nowPlayingImg = (SquareImageView) findViewById(R.id.now_playing_image);
         nowPlayingStatus = (SquareImageView) findViewById(R.id.now_playing_status);
 
@@ -129,6 +138,7 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
             });
             mActionBar.setPadding(0, 0, 0, 0);
         }
+
         this.initView();
     }
 
@@ -224,6 +234,8 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
     public boolean systemUIFullScreen() {
         return false;
     }
+
+    public void disposeError(){}
 
     public void setActionBarTitle(String title) {
         if (supportActionBar()) {

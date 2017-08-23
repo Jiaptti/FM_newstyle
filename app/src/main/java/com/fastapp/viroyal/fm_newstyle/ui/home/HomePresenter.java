@@ -38,7 +38,6 @@ public class HomePresenter extends HomeContract.Presenter {
         }).subscribe(new Subscriber<String>() {
             @Override
             public void onCompleted() {
-                view.dismissLoading();
             }
 
             @Override

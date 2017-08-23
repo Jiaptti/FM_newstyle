@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import com.fastapp.viroyal.fm_newstyle.base.BaseActivity;
 import com.fastapp.viroyal.fm_newstyle.base.BaseListFragment;
 import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
+import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
 import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
@@ -23,6 +25,7 @@ import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
 import com.fastapp.viroyal.fm_newstyle.view.fragment.AlbumDetailsFragment;
 import com.fastapp.viroyal.fm_newstyle.view.fragment.adapter.FragmentAdapter;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.AlbumVH;
+import com.fastapp.viroyal.fm_newstyle.view.viewholder.CategoryVH;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,6 +62,11 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
     SquareImageView loadingImg;
     private AnimationDrawable animation;
 
+    @Bind(R.id.net_error_layout)
+    LinearLayout errorLayout;
+    @Bind(R.id.reload)
+    TextView reload;
+
     private int albumId;
     private RealmHelper mHelper;
 
@@ -80,6 +88,26 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
             @Override
             public void call(Object o) {
                 dismissLoading();
+            }
+        });
+
+        presenter.getManager().on(AppConstant.ERROR_MESSAGE, new Action1() {
+            @Override
+            public void call(Object o) {
+                ErrorBean errorBean = (ErrorBean)o;
+                if(errorBean.getClazz() == AlbumVH.class){
+                    errorLayout.setVisibility(View.VISIBLE);
+                    albumContent.setVisibility(View.GONE);
+                }
+
+            }
+        });
+        reload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                errorLayout.setVisibility(View.GONE);
+                albumContent.setVisibility(View.VISIBLE);
+                presenter.getAlbumsList(albumId);
             }
         });
     }
