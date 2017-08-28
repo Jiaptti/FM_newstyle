@@ -19,13 +19,13 @@ import rx.functions.Action1;
 public class AlbumPresenter extends AlbumContract.Presenter{
 
     @Override
-    void getAlbumsList(int albumId) {
-        getManager().add(model.getAlbums(albumId)
+    void getAlbumsList(int albumId, int pageSize) {
+        getManager().add(model.getAlbums(albumId, pageSize)
                 .compose(RxSchedulers.<Data<HimalayanBean>>io_main())
                 .doOnSubscribe(new Action0() {
                     @Override
                     public void call() {
-                        view.showLoading();
+//                        view.showLoading();
                     }
                 })
                 .subscribeOn(AndroidSchedulers.mainThread())

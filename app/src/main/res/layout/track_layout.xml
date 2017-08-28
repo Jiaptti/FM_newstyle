@@ -151,7 +151,8 @@
                     android:paddingLeft="25.0dip"
                     android:paddingRight="10.0dip"
                     android:paddingTop="15.0dip"
-                    android:text="列表"
+                    android:clickable="true"
+                    android:text="@string/list"
                     android:textColor="#ff999999"
                     android:textSize="9.0sp" />
 

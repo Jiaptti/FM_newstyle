@@ -77,4 +77,9 @@
         <item name="android:secondaryProgress">0</item>
     </style>
 
+    <style name="anim_popup_window">
+        <item name="android:windowEnterAnimation">@anim/popup_in</item>
+        <item name="android:windowExitAnimation">@anim/popup_out</item>
+    </style>
+
 </resources>

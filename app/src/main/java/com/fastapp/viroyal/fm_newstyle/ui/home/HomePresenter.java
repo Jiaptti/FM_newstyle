@@ -7,6 +7,7 @@ import android.util.Log;
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.base.BaseListFragment;
 import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
+import com.fastapp.viroyal.fm_newstyle.view.fragment.CategoryFragment;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.CategoryVH;
 
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public class HomePresenter extends HomeContract.Presenter {
 
             @Override
             public void onNext(String s) {
-                fragments.add(BaseListFragment.newInstance(CategoryVH.class, CommonUtils.getType(s)));
+                fragments.add(BaseListFragment.newInstance(new CategoryFragment(),CategoryVH.class, CommonUtils.getType(s)));
                 view.showTabFragment(fragments);
             }
         }));

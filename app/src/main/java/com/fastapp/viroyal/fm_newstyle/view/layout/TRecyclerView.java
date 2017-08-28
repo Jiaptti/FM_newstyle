@@ -19,9 +19,13 @@ import com.fastapp.viroyal.fm_newstyle.base.RxManager;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.base.BaseEntity;
 import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
+import com.fastapp.viroyal.fm_newstyle.model.realm.TracksBeanRealm;
 import com.fastapp.viroyal.fm_newstyle.util.RxSchedulers;
+import com.fastapp.viroyal.fm_newstyle.view.viewholder.CategoryVH;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.CommFooterVH;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.net.ConnectException;
 import java.net.SocketException;
@@ -31,6 +35,7 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action0;
 import rx.functions.Action1;
@@ -52,13 +57,13 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
     private T model;
     public CoreAdapter<T> mAdatper = new CoreAdapter<>();
     private RxManager mRxManager;
+    private Data<T> listData;
     private int type = AppConstant.PAGE_CROSSTALK;
     private int mId = 0;
     private int pageSize = 10;
     private int maxPage = 0;
     private int length = 0;
     private ErrorBean errorBean;
-
 
     public TRecyclerView(Context context) {
         super(context);
@@ -91,6 +96,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.smoothScrollToPosition(mAdatper.getItemCount());
         recyclerView.setAdapter(mAdatper);
+        recyclerView.addItemDecoration(new RecycleViewDivider(mContext, LinearLayoutManager.HORIZONTAL));
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             protected int mLastItem;
 
@@ -100,7 +106,12 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                 if (recyclerView.getAdapter() != null && mAdatper.hasMore
                         && mLastItem + 1 == recyclerView.getAdapter().getItemCount()
                         && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    sendRequest();
+                    if (errorBean != null && errorBean.getClazz() == CategoryVH.class ) {
+                        sendRequest();
+                    } else {
+                        loadData();
+                    }
+
                 }
             }
 
@@ -135,40 +146,74 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
             Log.i(AppConstant.TAG, "model is null!");
             return;
         }
-        if (mId > 0) {
-            type = mId;
-            pageSize = pageSize + 10;
-        }
-        mRxManager.add(model.getPageAt(type, begin, getPageSize()).compose(RxSchedulers.io_main())
+//        if (mId > 0) {
+//            type = mId;
+//            pageSize = pageSize + 10;
+//        }
+        mRxManager.add(model.getPageAt(type, begin, getPageSize())
+                .compose(RxSchedulers.io_main())
                 .subscribe(new Action1<Data<T>>() {
                     @Override
                     public void call(Data<T> data) {
-                        if (mId > 0) {
-                            maxPage = data.getData().getTracks().getTotalCount();
-                            List<T> list = (List<T>) data.getData().getTracks().getList();
-                            mAdatper.setBeansById(list.subList(length, list.size()), begin);
-                            length = data.getData().getTracks().getList().size();
-                        } else {
-                            mAdatper.setBeans(data.getList(), begin);
+                        mAdatper.setBeans(data.getList(), begin);
+                        if (data.getList() == null) {
+                            mRxManager.post(AppConstant.LOADING_STATUS, null);
                         }
-                        if (data.getList() == null || data.getData() == null) {
-                            setEmpty();
-                        }
+//                            maxPage = data.getData().getAlbum().getTracks();
+//                            Log.i(AppConstant.TAG, "data.getData().getTracks() = " + data.getData().getTracks());
+//                            List<T> list = (List<T>) data.getData().getTracks().getList();
+//                            mAdatper.setBeansById(list.subList(length, list.size()), begin);
+//                            length = data.getData().getTracks().getList().size();
+
                     }
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
                         throwable.printStackTrace();
                         Log.i(AppConstant.TAG, "error = " + throwable.getMessage());
-                        if(throwable instanceof SocketTimeoutException) {
+                        if (throwable instanceof SocketTimeoutException) {
+                            mRxManager.post(AppConstant.LOADING_STATUS, null);
                             mRxManager.post(AppConstant.ERROR_MESSAGE, errorBean);
-                        } else if(throwable instanceof ConnectException){
+                        } else if (throwable instanceof ConnectException) {
 
+                        } else {
                         }
 
                     }
                 }));
     }
+
+    public void setData(Data<T> data) {
+        this.listData = data;
+        maxPage = data.getData().getTracks().getList().size();
+//        length = 0;
+    }
+
+    public void loadData() {
+        begin++;
+//        if (model == null) {
+//            Log.i(AppConstant.TAG, "model is null!");
+//            return;
+//        }
+        if(listData != null){
+            List<T> list = (List<T>) listData.getData().getTracks().getList();
+            if (length + 10 < maxPage) {
+                list = list.subList(length, length + 10);
+                length += 10;
+            } else {
+                list = list.subList(length, maxPage);
+            }
+            mRxManager.add(Observable.from(list)
+                    .compose(RxSchedulers.<T>io_main())
+                    .subscribe(new Action1<T>() {
+                        @Override
+                        public void call(T data) {
+                            mAdatper.setBeansById(data, begin);
+                        }
+                    }));
+        }
+    }
+
 
     public void refresh() {
         begin = 1;
@@ -179,7 +224,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
     private void setEmpty() {
         if (!isEmpty) {
             isEmpty = true;
-            if(emptyLayout != null)
+            if (emptyLayout != null)
                 emptyLayout.setVisibility(View.VISIBLE);
         }
     }
@@ -220,6 +265,24 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         return this;
     }
 
+    public TRecyclerView setBaseView(Class<? extends BaseViewHolder<T>> clazz){
+        try {
+            BaseViewHolder mIVH = ((BaseViewHolder) (clazz.getConstructor(View.class)
+                    .newInstance(new View(mContext))));
+            int type = mIVH.getType();
+            mAdatper.setViewType(clazz, type);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        return this;
+    }
+
     public class CoreAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private List<T> mDates = new ArrayList<>();
         public boolean hasMore;
@@ -228,12 +291,22 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         private int mItemType, mFootType = CommFooterVH.FOOT_TYPE;
 
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, final int viewType) {
             boolean isFoot = viewType == mFootType;
             try {
-                return (isFoot ? mFootViewClass : mItemViewClass).getConstructor(View.class).newInstance(
-                        LayoutInflater.from(parent.getContext()).inflate(isFoot ? mFootType : mItemType, parent,
-                                false));
+                if (isFoot) {
+                    View view = LayoutInflater.from(parent.getContext()).inflate(mFootType, parent, false);
+                    if (!hasMore) {
+                        view.setVisibility(View.GONE);
+                    }
+                    return (mFootViewClass).getConstructor(View.class).newInstance(view);
+                } else {
+                    View view = LayoutInflater.from(parent.getContext()).inflate(mItemType, parent, false);
+                    return (mItemViewClass).getConstructor(View.class).newInstance(view);
+                }
+//                return (isFoot ? mFootViewClass : mItemViewClass).getConstructor(View.class).newInstance(
+//                        LayoutInflater.from(parent.getContext()).inflate(isFoot ? mFootType : mItemType, parent,
+//                                false));
             } catch (Exception e) {
                 Log.i(AppConstant.TAG, AppContext.getStringById(R.string.wrong_xml));
                 e.printStackTrace();
@@ -269,31 +342,32 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                 this.mDates = dates;
             }
             notifyDataSetChanged();
-            mRxManager.post(AppConstant.LOADING_STATUS , null);
+//            mRxManager.post(AppConstant.LOADING_STATUS , null);
         }
 
-        public void setBeansById(List<T> dates, int begin) {
-            if (dates == null) dates = new ArrayList<>();
-            hasMore = dates.size() < maxPage;
-            if (begin > 1) {
-                this.mDates.addAll(dates);
-            } else {
-                this.mDates = dates;
-            }
+        public void setBeansById(T data, int begin) {
+//            if (datas == null) datas = new ArrayList<>();
+            hasMore = length + 10 < maxPage;
+//            if (begin > 1) {
+//                this.mDates.addAll(datas);
+//            } else {
+//                this.mDates = datas;
+//            }
+            this.mDates.add(data);
             notifyDataSetChanged();
-            mRxManager.post(AppConstant.LOADING_STATUS , null);
+            mRxManager.post(AppConstant.LOADING_STATUS, null);
         }
 
-        public void removeItem(int position) {
-            mDates.remove(position);
-            notifyItemChanged(position);
-        }
+//        public void removeItem(int position) {
+//            mDates.remove(position);
+//            notifyItemChanged(position);
+//        }
 
-        public void updateItem(int position, T data) {
-            mDates.remove(position);
-            mDates.add(position, data);
-            notifyItemChanged(position);
-        }
+//        public void updateItem(int position, T data) {
+//            mDates.remove(position);
+//            mDates.add(position, data);
+//            notifyItemChanged(position);
+//        }
 
         @Override
         public int getItemCount() {

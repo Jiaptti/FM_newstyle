@@ -4,8 +4,10 @@ import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -30,6 +32,7 @@ import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
 import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
+import com.fastapp.viroyal.fm_newstyle.view.popup.PlayListPopupWindow;
 
 import butterknife.Bind;
 import rx.functions.Action1;
@@ -44,6 +47,8 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     @Nullable
     @Bind(R.id.action_bar)
     Toolbar actionBar;
+    @Bind(R.id.coordinator_layout)
+    CoordinatorLayout mainContent;
     @Bind(R.id.track_image)
     SquareImageView trackImg;
     @Bind(R.id.loading)
@@ -70,6 +75,8 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     TextView currentTime;
     @Bind(R.id.total_time)
     TextView totalTime;
+    @Bind(R.id.playlist)
+    TextView playList;
     @Bind(R.id.play_pause)
     ImageButton playPauseButton;
     @Bind(R.id.seek_bar)
@@ -81,6 +88,7 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     private NowPlayTrack nowPlayTrack;
     private int position;
     private RxManager manager = new RxManager();
+    private PlayListPopupWindow listPopupWindow;
 
     @Override
     protected int layoutResID() {
@@ -90,24 +98,26 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     @Override
     protected void initView() {
         mBinder = AppContext.getMediaPlayService();
-        mBinder.setTimeListener(this);
-        mBinder.setPlayBufferingUpdateListener(this);
+        if(mBinder != null){
+            mBinder.setTimeListener(this);
+            mBinder.setPlayBufferingUpdateListener(this);
+        }
         Bundle bundle = getIntent().getBundleExtra(AppConstant.TRACK_BUNDLE);
         if (bundle != null) {
             presenter.getTrack(bundle.getInt(AppConstant.TRACK_ID));
         } else {
             presenter.getNowTrack();
         }
+        listPopupWindow = new PlayListPopupWindow(mContext);
         trackImg.setOnClickListener(this);
         playPauseButton.setOnClickListener(this);
         backward.setOnClickListener(this);
         forward.setOnClickListener(this);
+        playList.setOnClickListener(this);
         operatingAnim = AnimationUtils.loadAnimation(this, R.anim.album_rotation);
         operatingAnim.setInterpolator(new LinearInterpolator());
         playSeekBar.setOnSeekBarChangeListener(this);
-        playBtnBg.setVisibility(View.GONE);
-        playLoadingImg.setVisibility(View.VISIBLE);
-        playLoadingImg.startAnimation(operatingAnim);
+        updatePlayUI();
         manager.on(AppConstant.MEDIA_START_PLAY, new Action1() {
             @Override
             public void call(Object o) {
@@ -115,9 +125,8 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
                     switch ((Integer) o) {
                         case AppConstant.STATUS_PLAY:
                         case AppConstant.STATUS_RESUME:
-                            dismissPlayLoading();
-                            playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
-                            playPauseButton.setEnabled(true);
+                            updatePlayUI();
+                            dismissLoading();
                             break;
                         case AppConstant.STATUS_PAUSE:
                             playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
@@ -140,7 +149,8 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     public void dismissLoading() {
         loadingLayout.setVisibility(View.GONE);
         trackContent.setVisibility(View.VISIBLE);
-        animation.stop();
+        if(animation != null && animation.isRunning())
+            animation.stop();
     }
 
 
@@ -170,21 +180,30 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
                 }
                 break;
             case R.id.play_pause:
-                if (mBinder.isPlaying()) {
-                    mBinder.pauseMedia();
-                    playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
-                } else {
-                    mBinder.resumePlay();
-                    playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
+                if(mBinder != null){
+                    if (mBinder.isPlaying()) {
+                        mBinder.pauseMedia();
+                        playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
+                    } else {
+                        mBinder.resumePlay();
+                        playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
+                    }
                 }
                 break;
             case R.id.player_backward:
-                mBinder.seekTo(mBinder.getCurrentPosition() - 15000);
-                playTimeChange(mBinder.getCurrentPosition());
+                if(mBinder != null){
+                    mBinder.seekTo(mBinder.getCurrentPosition() - 15000);
+                    playTimeChange(mBinder.getCurrentPosition());
+                }
                 break;
             case R.id.player_forward:
-                mBinder.seekTo(mBinder.getCurrentPosition() + 15000);
-                playTimeChange(mBinder.getCurrentPosition());
+                if(mBinder != null){
+                    mBinder.seekTo(mBinder.getCurrentPosition() + 15000);
+                    playTimeChange(mBinder.getCurrentPosition());
+                }
+                break;
+            case R.id.playlist:
+                listPopupWindow.show(mainContent);
                 break;
         }
     }
@@ -194,6 +213,7 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         ImageUtils.loadImage(mContext, trackInfoBean.getCoverLarge(), trackImg);
         CommonUtils.setTotalTime(trackInfoBean.getDuration(), totalTime);
         CommonUtils.setTotalTime(trackInfoBean.getDuration(), playerDuration);
+        presenter.getAlumList(trackInfoBean.getAlbumId(), trackInfoBean.getUserInfo().getTracks());
     }
 
     @Override
@@ -202,33 +222,48 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         ImageUtils.loadImage(mContext, nowPlayTrack.getCoverLarge(), trackImg);
         CommonUtils.setTotalTime(nowPlayTrack.getDuration(), totalTime);
         CommonUtils.setTotalTime(nowPlayTrack.getDuration(), playerDuration);
-        playTimeChange(mBinder.getCurrentPosition());
+        if(mBinder != null){
+            playTimeChange(mBinder.getCurrentPosition());
+        }
     }
 
 
     @Override
-    public void loadAlbumList(Data<HimalayanBean> list) {
-
+    public void loadAlbumList(Data<HimalayanBean> data) {
+        listPopupWindow.setViewData(data);
     }
 
     public void playTimeChange(int time) {
         CommonUtils.setCurrentTime((time / 1000), currentTime);
         CommonUtils.setCurrentTime((time / 1000), playerCurrentTime);
 
-        int position = mBinder.getCurrentPosition();
-        int duration = mBinder.getDuration();
-        if (duration > 0) {
-            if (playSeekBar != null) {
-                long pos = playSeekBar.getMax() * position / duration;
-                playSeekBar.setProgress((int) pos);
+        if(mBinder != null){
+            int position = mBinder.getCurrentPosition();
+            int duration = mBinder.getDuration();
+            if (duration > 0) {
+                if (playSeekBar != null) {
+                    long pos = playSeekBar.getMax() * position / duration;
+                    playSeekBar.setProgress((int) pos);
+                }
             }
         }
     }
 
-    private void dismissPlayLoading(){
-        if(playLoadingImg != null && playLoadingImg.getAnimation() != null){
-            playBtnBg.setVisibility(View.VISIBLE);
-            playLoadingImg.clearAnimation();
+    private void updatePlayUI(){
+        if(mBinder != null){
+            if(mBinder.isPlaying()){
+                if(playLoadingImg != null && playLoadingImg.getAnimation() != null){
+                    playLoadingImg.clearAnimation();
+                }
+                playBtnBg.setVisibility(View.VISIBLE);
+                playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
+                playPauseButton.setEnabled(true);
+            } else {
+                playBtnBg.setVisibility(View.GONE);
+                playLoadingImg.setVisibility(View.VISIBLE);
+                playLoadingImg.startAnimation(operatingAnim);
+                playPauseButton.setEnabled(false);
+            }
         }
     }
 
@@ -240,8 +275,10 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        int duration = mBinder.getDuration();
-        position = ((progress * duration) / 100);
+        if(mBinder != null){
+            int duration = mBinder.getDuration();
+            position = ((progress * duration) / 100);
+        }
     }
 
     @Override

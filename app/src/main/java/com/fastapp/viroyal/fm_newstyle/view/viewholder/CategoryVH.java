@@ -57,6 +57,7 @@ public class CategoryVH extends BaseViewHolder<HimalayanEntity> {
             public void onClick(View view) {
                 Bundle bundle = new Bundle();
                 bundle.putInt(AppConstant.ALBUM_ID, entity.getAlbumId());
+                bundle.putInt(AppConstant.ALBUM_TRACKS, entity.getTracks());
                 Intent intent = new Intent(mContext, AlbumActivity.class);
                 intent.putExtra(AppConstant.ALBUM_BUNDLE,bundle);
                 ActivityCompat.startActivity((Activity) mContext, intent, null);

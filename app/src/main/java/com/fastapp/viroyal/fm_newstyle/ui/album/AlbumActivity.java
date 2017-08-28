@@ -23,6 +23,7 @@ import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
 import com.fastapp.viroyal.fm_newstyle.view.fragment.AlbumDetailsFragment;
+import com.fastapp.viroyal.fm_newstyle.view.fragment.AlbumFragment;
 import com.fastapp.viroyal.fm_newstyle.view.fragment.adapter.FragmentAdapter;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.AlbumVH;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.CategoryVH;
@@ -68,22 +69,30 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
     TextView reload;
 
     private int albumId;
+    private int tracks;
     private RealmHelper mHelper;
+    private Data<HimalayanBean> data;
 
     @Override
     protected int layoutResID() {
         return R.layout.album_layout;
     }
 
+    public Data<HimalayanBean> getData(){
+        return this.data;
+    }
+
     @Override
     protected void initView() {
         Bundle bundle = getIntent().getBundleExtra(AppConstant.ALBUM_BUNDLE);
+        mHelper = AppContext.getRealmHelper();
         if (bundle != null) {
             albumId = bundle.getInt(AppConstant.ALBUM_ID);
-            presenter.getAlbumsList(albumId);
+            tracks = bundle.getInt(AppConstant.ALBUM_TRACKS);
+            presenter.getAlbumsList(albumId, tracks);
         }
         setActionBarTitle(AppContext.getStringById(R.string.album_actionbar_title));
-        mHelper = AppContext.getRealmHelper();
+
         presenter.getManager().on(AppConstant.LOADING_STATUS, new Action1() {
             @Override
             public void call(Object o) {
@@ -107,7 +116,7 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
             public void onClick(View view) {
                 errorLayout.setVisibility(View.GONE);
                 albumContent.setVisibility(View.VISIBLE);
-                presenter.getAlbumsList(albumId);
+                presenter.getAlbumsList(albumId, tracks);
             }
         });
     }
@@ -129,6 +138,7 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
 
     @Override
     public void showAlbumMessage(Data<HimalayanBean> data) {
+        this.data = data;
         albumTitle.setText(data.getData().getAlbum().getTitle());
         ImageUtils.loadImage(this, data.getData().getAlbum().getCoverMiddle(), albumImage);
         albumAuthor.setText(data.getData().getUser().getNickname());
@@ -136,13 +146,13 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
         albumType.setText(data.getData().getAlbum().getCategoryName());
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(AlbumDetailsFragment.newInstance(data));
-        fragments.add(BaseListFragment.newInstance(AlbumVH.class, albumId));
-        albumPager.setAdapter(new FragmentAdapter(getSupportFragmentManager(),fragments,
+        fragments.add(BaseListFragment.newInstance(new AlbumFragment(), AlbumVH.class, albumId));
+        albumPager.setAdapter( new FragmentAdapter(getSupportFragmentManager(),fragments,
                 Arrays.asList(new String[]{AppContext.getStringById(R.string.album_details),
                         AppContext.getStringById(R.string.album_show)+"("+ data.getData().getAlbum().getTracks() +")"})));
         albumTabs.setupWithViewPager(albumPager);
         albumTabs.getTabAt(1).select();
-        mHelper.addAllTracts(data.getData().getTracks().getList());
+//        mHelper.addTrackList(data.getData().getTracks().getList());
     }
 
     @Override

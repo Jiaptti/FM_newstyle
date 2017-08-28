@@ -9,13 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
-import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
-import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
+import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.util.TUtils;
 import com.fastapp.viroyal.fm_newstyle.view.layout.TRecyclerView;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
 
 import rx.functions.Action1;
 
@@ -24,51 +21,26 @@ import rx.functions.Action1;
  */
 
 public class BaseListFragment extends Fragment{
-    private TRecyclerView mTRecyclerView;
-    private RxManager manager = new RxManager();
+    public TRecyclerView mTRecyclerView;
+    public RxManager manager = new RxManager();
 
     /**
      * @param vh 传入VH的类名
      * @param type tab的名字
      * @return
      */
-    public static BaseListFragment newInstance(Class<? extends BaseViewHolder> vh,int type){
+    public static BaseListFragment newInstance(BaseListFragment fragment, Class<? extends BaseViewHolder> vh, int type){
         Bundle bundle = new Bundle();
         bundle.putInt(AppConstant.TYPE, type);
         bundle.putString(AppConstant.VH_CLASS, vh.getCanonicalName());
-        BaseListFragment fragment = new BaseListFragment();
         fragment.setArguments(bundle);
         return fragment;
     }
 
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         mTRecyclerView = new TRecyclerView(getContext());
-        if(getArguments().getInt(AppConstant.TYPE) > 100){
-            mTRecyclerView.setViewById(TUtils.forName(getArguments().getString(AppConstant.VH_CLASS)), getArguments().getInt(AppConstant.TYPE));
-            if(getArguments().getInt(AppConstant.TYPE) > 100){
-                manager.on(AppConstant.UPDATE_ITEM_STATUS, new Action1() {
-                    @Override
-                    public void call(Object o) {
-                        mTRecyclerView.getAdapter().notifyDataSetChanged();
-                    }
-                });
-            }
-        } else {
-            mTRecyclerView.setViewByTab(TUtils.forName(getArguments().getString(AppConstant.VH_CLASS)), getArguments().getInt(AppConstant.TYPE));
-        }
-        return mTRecyclerView;
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if(mTRecyclerView != null) mTRecyclerView.sendRequest();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 }
+
