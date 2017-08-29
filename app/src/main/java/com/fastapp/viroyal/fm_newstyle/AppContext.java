@@ -37,7 +37,6 @@ public class AppContext extends Application{
     private static String sLastToast = "";
     private static int playState = AppConstant.STATUS_NONE;
     private static AlbumPlayService.PlayBinder mBinder;
-    private static Map<String, Data> cacheData;
 
     @Override
     public void onCreate() {
@@ -45,17 +44,6 @@ public class AppContext extends Application{
         mApp = this;
         checkNet();
         bindMediaService();
-        if(cacheData == null){
-            cacheData = new HashMap<>();
-        }
-    }
-
-    public <T> void setListData(Data<T> data){
-        cacheData.put(AppConstant.CACHE_DATA, data);
-    }
-
-    public Data getListData(){
-        return cacheData.get(AppConstant.CACHE_DATA);
     }
 
     public static AlbumPlayService.PlayBinder getMediaPlayService(){

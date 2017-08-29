@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -47,21 +48,23 @@ public class CategoryVH extends BaseViewHolder<HimalayanEntity> {
 
     @Override
     public void onBindViewHolder(final View view, final HimalayanEntity entity) {
-        ImageUtils.loadImage(mContext, entity.getCoverSmall(), albumImage);
-        albumTitle.setText(entity.getTitle());
-        albumIntro.setText(entity.getIntro());
-        playsCounts.setText(CommonUtils.getOmitPlayCounts(entity.getPlaysCounts()));
-        tracksCounts.setText(entity.getTracks() + "");
-        view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Bundle bundle = new Bundle();
-                bundle.putInt(AppConstant.ALBUM_ID, entity.getAlbumId());
-                bundle.putInt(AppConstant.ALBUM_TRACKS, entity.getTracks());
-                Intent intent = new Intent(mContext, AlbumActivity.class);
-                intent.putExtra(AppConstant.ALBUM_BUNDLE,bundle);
-                ActivityCompat.startActivity((Activity) mContext, intent, null);
-            }
-        });
+        if(!entity.isIsPaid()){
+            ImageUtils.loadImage(mContext, entity.getCoverSmall(), albumImage);
+            albumTitle.setText(entity.getTitle());
+            albumIntro.setText(entity.getIntro());
+            playsCounts.setText(CommonUtils.getOmitPlayCounts(entity.getPlaysCounts()));
+            tracksCounts.setText(entity.getTracks() + "");
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Bundle bundle = new Bundle();
+                    bundle.putInt(AppConstant.ALBUM_ID, entity.getAlbumId());
+                    bundle.putInt(AppConstant.ALBUM_TRACKS, entity.getTracks());
+                    Intent intent = new Intent(mContext, AlbumActivity.class);
+                    intent.putExtra(AppConstant.ALBUM_BUNDLE,bundle);
+                    ActivityCompat.startActivity((Activity) mContext, intent, null);
+                }
+            });
+        }
     }
 }

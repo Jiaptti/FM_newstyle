@@ -230,7 +230,7 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
 
     @Override
     public void loadAlbumList(Data<HimalayanBean> data) {
-        listPopupWindow.setViewData(data);
+        listPopupWindow.setViewData(data.getData().getTracks().getList());
     }
 
     public void playTimeChange(int time) {

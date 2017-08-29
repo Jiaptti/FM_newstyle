@@ -48,7 +48,7 @@ public class HomePresenter extends HomeContract.Presenter {
 
             @Override
             public void onNext(String s) {
-                fragments.add(BaseListFragment.newInstance(new CategoryFragment(),CategoryVH.class, CommonUtils.getType(s)));
+                fragments.add(BaseListFragment.newInstance(new CategoryFragment(), CategoryVH.class, CommonUtils.getType(s)));
                 view.showTabFragment(fragments);
             }
         }));

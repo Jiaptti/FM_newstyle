@@ -86,57 +86,6 @@ public class RealmHelper {
         return nowPlayTracks;
     }
 
-//    public void addTrackList(List<TracksBeanList> list){
-//        TracksBeanRealm realm = null;
-//        if(getTracksRealm(list.get(0).getAlbumId()) == null){
-//            for(TracksBeanList entity : list){
-//                realm = new TracksBeanRealm();
-//                realm.setTitle(entity.getTitle());
-//                realm.setCoverSmall(entity.getCoverSmall());
-//                realm.setCreatedAt(entity.getCreatedAt());
-//                realm.setNickname(entity.getNickname());
-//                realm.setDuration(entity.getDuration());
-//                realm.setPlayUrl32(entity.getPlayUrl32());
-//                realm.setTrackId(entity.getTrackId());
-//                realm.setPlaytimes(entity.getPlaytimes());
-//                realm.setPlayPathHq(entity.getPlayPathHq());
-//                realm.setPlayUrl64(entity.getPlayUrl64());
-//                realm.setPlayPathAacv164(entity.getPlayPathAacv164());
-//                realm.setPlayPathAacv224(entity.getPlayPathAacv224());
-//                addTracks(realm);
-//            }
-//        }
-//    }
-//
-//    public void removeAllTracks(int albumId){
-//        if(getTracksRealm(albumId) != null){
-//            mRealm.beginTransaction();
-//            mRealm.clear(TracksBeanRealm.class);
-//            mRealm.commitTransaction();
-//        }
-//    }
-//
-//    public TracksBeanRealm getTracksRealm(String url){
-//        TracksBeanRealm recordRealm = mRealm.where(TracksBeanRealm.class).equalTo("playUrl32", url).findFirst();
-//        return recordRealm;
-//    }
-//
-//    public List<TracksBeanRealm> getAllTracks(){
-//        RealmResults<TracksBeanRealm> results = mRealm.where(TracksBeanRealm.class).findAll();
-//        return mRealm.copyToRealm(results);
-//    }
-//
-//    public TracksBeanRealm getTracksRealm(int albumId){
-//        TracksBeanRealm recordRealm = mRealm.where(TracksBeanRealm.class).equalTo("albumId", albumId).findFirst();
-//        return recordRealm;
-//    }
-//
-//    public void addTracks(TracksBeanRealm entity){
-//        mRealm.beginTransaction();
-//        mRealm.copyToRealm(entity);
-//        mRealm.commitTransaction();
-//    }
-
     public void setNowPlayTrack(TracksBeanList entity){
         NowPlayTrack playTrack = null;
         if(isNowTrack(entity.getPlayUrl32()) == null){

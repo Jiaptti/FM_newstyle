@@ -63,6 +63,13 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
                     }
                 }
             });
+
+            manager.on(AppConstant.MEDIA_START_PLAY, new Action1() {
+                @Override
+                public void call(Object o) {
+
+                }
+            });
         }
     }
 

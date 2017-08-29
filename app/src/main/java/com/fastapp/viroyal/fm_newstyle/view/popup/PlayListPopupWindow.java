@@ -17,6 +17,8 @@ import com.fastapp.viroyal.fm_newstyle.view.layout.TRecyclerView;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.TrackListVH;
 import android.widget.TextView;
 
+import java.util.List;
+
 /**
  * Created by hanjiaqi on 2017/8/24.
  */
@@ -48,7 +50,7 @@ public class PlayListPopupWindow extends PopupWindow{
         });
     }
 
-    public <T> void setViewData(Data<T> data){
+    public <T> void setViewData(List<T> data){
         if(mTRecyclerView != null){
             mTRecyclerView.setData(data);
         }

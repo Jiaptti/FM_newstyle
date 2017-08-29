@@ -19,6 +19,7 @@ import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
@@ -71,14 +72,14 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
     private int albumId;
     private int tracks;
     private RealmHelper mHelper;
-    private Data<HimalayanBean> data;
+    private List<TracksBeanList> data;
 
     @Override
     protected int layoutResID() {
         return R.layout.album_layout;
     }
 
-    public Data<HimalayanBean> getData(){
+    public List<TracksBeanList> getData() {
         return this.data;
     }
 
@@ -103,8 +104,8 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
         presenter.getManager().on(AppConstant.ERROR_MESSAGE, new Action1() {
             @Override
             public void call(Object o) {
-                ErrorBean errorBean = (ErrorBean)o;
-                if(errorBean.getClazz() == AlbumVH.class){
+                ErrorBean errorBean = (ErrorBean) o;
+                if (errorBean.getClazz() == AlbumVH.class) {
                     errorLayout.setVisibility(View.VISIBLE);
                     albumContent.setVisibility(View.GONE);
                 }
@@ -138,7 +139,7 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
 
     @Override
     public void showAlbumMessage(Data<HimalayanBean> data) {
-        this.data = data;
+        this.data = data.getData().getTracks().getList();
         albumTitle.setText(data.getData().getAlbum().getTitle());
         ImageUtils.loadImage(this, data.getData().getAlbum().getCoverMiddle(), albumImage);
         albumAuthor.setText(data.getData().getUser().getNickname());
@@ -147,12 +148,11 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(AlbumDetailsFragment.newInstance(data));
         fragments.add(BaseListFragment.newInstance(new AlbumFragment(), AlbumVH.class, albumId));
-        albumPager.setAdapter( new FragmentAdapter(getSupportFragmentManager(),fragments,
+        albumPager.setAdapter(new FragmentAdapter(getSupportFragmentManager(), fragments,
                 Arrays.asList(new String[]{AppContext.getStringById(R.string.album_details),
-                        AppContext.getStringById(R.string.album_show)+"("+ data.getData().getAlbum().getTracks() +")"})));
+                        AppContext.getStringById(R.string.album_show) + "(" + data.getData().getAlbum().getTracks() + ")"})));
         albumTabs.setupWithViewPager(albumPager);
         albumTabs.getTabAt(1).select();
-//        mHelper.addTrackList(data.getData().getTracks().getList());
     }
 
     @Override
