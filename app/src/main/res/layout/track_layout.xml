@@ -234,4 +234,5 @@
     <include layout="@layout/view_loading_layout" />
     <include layout="@layout/now_playing_layout"
         android:visibility="gone"/>
+    <include layout="@layout/net_error_layout"/>
 </android.support.design.widget.CoordinatorLayout>

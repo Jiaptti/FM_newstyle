@@ -16,8 +16,8 @@ import butterknife.Bind;
  */
 
 public class CommFooterVH extends BaseViewHolder<Object>{
-    public ProgressBar footProgress;
-    public TextView footText;
+    public ProgressBar foot_progress;
+    public TextView foot_text;
     public static final int FOOT_TYPE = R.layout.foot_view_layout;
 
     public CommFooterVH(View itemView) {
@@ -29,17 +29,12 @@ public class CommFooterVH extends BaseViewHolder<Object>{
         return FOOT_TYPE;
     }
 
-    @Override
-    public void initViewHolder(View itemView) {
-        footProgress = (ProgressBar) itemView.findViewById(R.id.foot_progress);
-        footText = (TextView) itemView.findViewById(R.id.foot_text);
-    }
 
     @Override
     public void onBindViewHolder(View view, Object obj) {
         boolean hasmore = (obj != null? true : false);
-        footProgress.setVisibility(hasmore ? View.VISIBLE : View.GONE);
-        footText.setText(hasmore ? AppContext.getStringById(R.string.foot_load_more)
+        foot_progress.setVisibility(hasmore ? View.VISIBLE : View.GONE);
+        foot_text.setText(hasmore ? AppContext.getStringById(R.string.foot_load_more)
                 : AppContext.getStringById(R.string.foot_has_no_more));
     }
 }

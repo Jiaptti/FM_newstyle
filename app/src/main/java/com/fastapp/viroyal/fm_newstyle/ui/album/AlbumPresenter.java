@@ -25,7 +25,7 @@ public class AlbumPresenter extends AlbumContract.Presenter{
                 .doOnSubscribe(new Action0() {
                     @Override
                     public void call() {
-//                        view.showLoading();
+                        view.showLoading();
                     }
                 })
                 .subscribeOn(AndroidSchedulers.mainThread())

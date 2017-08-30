@@ -22,11 +22,11 @@ import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
  */
 
 public class CategoryVH extends BaseViewHolder<HimalayanEntity> {
-    ImageView albumImage;
-    TextView albumTitle;
-    TextView albumIntro;
-    TextView playsCounts;
-    TextView tracksCounts;
+    ImageView category_image;
+    TextView category_title;
+    TextView category_intro;
+    TextView plays_counts;
+    TextView tracks_counts;
 
     public CategoryVH(View itemView) {
         super(itemView);
@@ -38,22 +38,13 @@ public class CategoryVH extends BaseViewHolder<HimalayanEntity> {
     }
 
     @Override
-    public void initViewHolder(View itemView) {
-        albumImage = (ImageView) itemView.findViewById(R.id.category_image);
-        albumTitle = (TextView) itemView.findViewById(R.id.category_title);
-        albumIntro = (TextView) itemView.findViewById(R.id.category_intro);
-        playsCounts = (TextView) itemView.findViewById(R.id.plays_counts);
-        tracksCounts = (TextView) itemView.findViewById(R.id.tracks_counts);
-    }
-
-    @Override
     public void onBindViewHolder(final View view, final HimalayanEntity entity) {
         if(!entity.isIsPaid()){
-            ImageUtils.loadImage(mContext, entity.getCoverSmall(), albumImage);
-            albumTitle.setText(entity.getTitle());
-            albumIntro.setText(entity.getIntro());
-            playsCounts.setText(CommonUtils.getOmitPlayCounts(entity.getPlaysCounts()));
-            tracksCounts.setText(entity.getTracks() + "");
+            ImageUtils.loadImage(mContext, entity.getCoverSmall(), category_image);
+            category_title.setText(entity.getTitle());
+            category_intro.setText(entity.getIntro());
+            plays_counts.setText(CommonUtils.getOmitPlayCounts(entity.getPlaysCounts()));
+            tracks_counts.setText(entity.getTracks() + "");
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

@@ -116,7 +116,6 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                     } else {
                         loadData();
                     }
-
                 }
             }
 
@@ -163,13 +162,13 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                 .subscribe(new Action1<T>() {
                     @Override
                     public void call(T o) {
-                        mAdatper.setBeans(o, begin);
+                        mAdatper.setBeans(o);
                     }
                 }, new Action1<Throwable>() {
                     @Override
                     public void call(Throwable throwable) {
                         throwable.printStackTrace();
-                        Log.i(AppConstant.TAG, "error = " + throwable.getMessage());
+                        Log.i(AppConstant.TAG, "sendRequest error = " + throwable.getMessage());
                         if (throwable instanceof SocketTimeoutException) {
                             mRxManager.post(AppConstant.LOADING_STATUS, null);
                             mRxManager.post(AppConstant.ERROR_MESSAGE, errorBean);
@@ -187,8 +186,17 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         maxPage = listData.size();
     }
 
+    public int getMaxPage(){
+        return maxPage;
+    }
+
+
+    public List getData(){
+        return listData;
+    }
+
     public void loadData() {
-        begin++;
+//        begin++;
         if (listData != null) {
             List<T> list = listData;
             if (length + 10 < maxPage) {
@@ -203,9 +211,9 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                     .subscribe(new Action1<T>() {
                         @Override
                         public void call(T data) {
-                            mAdatper.setBeansById(data, begin);
+                            mAdatper.setBeansById(data);
                         }
-                    }));
+            }));
         }
     }
 
@@ -264,6 +272,9 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         try {
             BaseViewHolder mIVH = ((BaseViewHolder) (clazz.getConstructor(View.class)
                     .newInstance(new View(mContext))));
+            this.model = ((Class<T>) ((ParameterizedType) (clazz
+                    .getGenericSuperclass())).getActualTypeArguments()[0])
+                    .newInstance();
             int type = mIVH.getType();
             mAdatper.setViewType(clazz, type);
         } catch (InstantiationException e) {
@@ -313,6 +324,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
             ((BaseViewHolder) holder).onBindViewHolder(holder.itemView,
                     position + 1 == getItemCount() ? (hasMore ? new Object() : null) : mDates.get(position));
+
         }
 
         @Override
@@ -328,8 +340,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
             notifyDataSetChanged();
         }
 
-        public void setBeans(T data, int begin) {
-//            if (dates == null) dates = new ArrayList<>();
+        public void setBeans(T data) {
 //            hasMore = dates.size() >= AppConstant.PAGESIZE;
             if(data instanceof HimalayanEntity){
                 HimalayanEntity entity = (HimalayanEntity)data;
@@ -337,15 +348,10 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                     this.mDates.add(data);
                 }
             }
-//            if (begin > 1) {
-//                this.mDates.add(data);
-//            } else {
-//                this.mDates = dates;
-//            }
             notifyDataSetChanged();
         }
 
-        public void setBeansById(T data, int begin) {
+        public void setBeansById(T data) {
             hasMore = length + 10 < maxPage;
             this.mDates.add(data);
             notifyDataSetChanged();

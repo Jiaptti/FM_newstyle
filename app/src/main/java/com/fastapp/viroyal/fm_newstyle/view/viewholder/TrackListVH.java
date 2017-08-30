@@ -24,8 +24,8 @@ import rx.functions.Action1;
  */
 
 public class TrackListVH extends BaseViewHolder<TracksBeanList>{
-    private SquareImageView mWaveFlag;
-    private TextView mTrackName;
+    private SquareImageView track_item_wave_flag;
+    private TextView track_item_name;
     private AnimationDrawable animation;
     private RealmHelper helper = AppContext.getRealmHelper();
     private RxManager manager = new RxManager();
@@ -45,7 +45,7 @@ public class TrackListVH extends BaseViewHolder<TracksBeanList>{
                                 break;
                             case AppConstant.STATUS_PAUSE:
                                 animation.stop();
-                                mTrackName.setTextColor(Color.BLACK);
+                                track_item_name.setTextColor(Color.BLACK);
                                 break;
                         }
                     }
@@ -55,28 +55,23 @@ public class TrackListVH extends BaseViewHolder<TracksBeanList>{
     }
 
     @Override
-    public void initViewHolder(View itemView) {
-        mWaveFlag = (SquareImageView) itemView.findViewById(R.id.track_item_wave_flag);
-        mTrackName = (TextView) itemView.findViewById(R.id.track_item_name);
-    }
-
-    @Override
     public int getType() {
         return R.layout.play_list_popup_item_layout;
     }
 
     @Override
     public void onBindViewHolder(View view, TracksBeanList entity) {
-        animation = (AnimationDrawable) mWaveFlag.getBackground();
-        mTrackName.setText(entity.getTitle());
+        animation = (AnimationDrawable) track_item_wave_flag.getBackground();
+        track_item_name.setText(entity.getTitle());
         setPlayStatus(entity);
     }
 
     private void setPlayStatus(TracksBeanList entity) {
         if (helper.getNowPlayingTrack() != null &&
                 helper.getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim())) {
+            track_item_wave_flag.setVisibility(View.VISIBLE);
             if (mBinder.isPlaying()) {
-                mTrackName.setTextColor(Color.RED);
+                track_item_name.setTextColor(Color.RED);
                 if (mBinder != null && mBinder.isPlaying() && !animation.isRunning()) {
                     animation.start();
                 }
@@ -86,8 +81,8 @@ public class TrackListVH extends BaseViewHolder<TracksBeanList>{
                 }
             }
         } else {
-            mWaveFlag.setVisibility(View.GONE);
-            mTrackName.setTextColor(Color.BLACK);
+            track_item_wave_flag.setVisibility(View.GONE);
+            track_item_name.setTextColor(Color.BLACK);
         }
     }
 }

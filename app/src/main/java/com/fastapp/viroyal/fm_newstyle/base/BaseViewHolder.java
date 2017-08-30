@@ -18,11 +18,8 @@ public abstract class BaseViewHolder<T> extends RecyclerView.ViewHolder{
     public BaseViewHolder(View itemView) {
         super(itemView);
         mContext = itemView.getContext();
-        initViewHolder(itemView);
-//        ViewUtil.autoFind(this, itemView);//id与name一致
+        ViewUtil.autoFind(this, itemView);//id与name一致
     }
-
-    public abstract void initViewHolder(View itemView);
 
     /**
      * ViewHolder的Type，同时也是它的LayoutId

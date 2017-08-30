@@ -61,12 +61,12 @@ public class AlbumPlayService extends Service implements MediaPlayerManager.Play
             }  else {
                 playerManager.resumeMediaPlayer();
             }
-            manager.post(AppConstant.UPDATE_ITEM_STATUS, realmHelper.getNowPlayingTrack());
+            manager.post(AppConstant.UPDATE_ITEM_STATUS, AppConstant.STATUS_PLAY);
         }
 
         public void resumePlay(){
             playerManager.resumeMediaPlayer();
-            manager.post(AppConstant.UPDATE_ITEM_STATUS, realmHelper.getNowPlayingTrack());
+            manager.post(AppConstant.UPDATE_ITEM_STATUS, AppConstant.STATUS_RESUME);
         }
 
         public void setPlayBufferingUpdateListener(MediaPlayerManager.PlayBufferingUpdate listener){
@@ -79,7 +79,7 @@ public class AlbumPlayService extends Service implements MediaPlayerManager.Play
 
         public void pauseMedia() {
             playerManager.pauseMediaPlayer();
-            manager.post(AppConstant.UPDATE_ITEM_STATUS, realmHelper.getNowPlayingTrack());
+            manager.post(AppConstant.UPDATE_ITEM_STATUS, AppConstant.STATUS_PAUSE);
         }
 
         public void stopMedia() {

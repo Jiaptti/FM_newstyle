@@ -35,6 +35,16 @@ public class NowPlayTrack extends RealmObject {
     private int comments;
     private int shares;
     private int status;
+    private int maxPage;
+
+    public int getMaxPage() {
+        return maxPage;
+    }
+
+    public void setMaxPage(int maxPage) {
+        this.maxPage = maxPage;
+    }
+
     private boolean isSelected;
 
     public int getTrackId() {

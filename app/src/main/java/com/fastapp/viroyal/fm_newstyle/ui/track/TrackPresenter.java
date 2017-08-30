@@ -4,10 +4,16 @@ package com.fastapp.viroyal.fm_newstyle.ui.track;
 import android.util.Log;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
+import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
+import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TrackInfoBean;
 import com.fastapp.viroyal.fm_newstyle.util.RxSchedulers;
+import com.fastapp.viroyal.fm_newstyle.view.viewholder.TrackListVH;
+
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -17,7 +23,7 @@ import rx.functions.Action0;
  * Created by hanjiaqi on 2017/8/3.
  */
 
-public class TrackPresenter extends TrackContract.Presenter{
+public class TrackPresenter extends TrackContract.Presenter {
     @Override
     protected void onStart() {
     }
@@ -34,23 +40,33 @@ public class TrackPresenter extends TrackContract.Presenter{
                 })
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                new Subscriber<TrackInfoBean>() {
-                    @Override
-                    public void onCompleted() {
-                    }
+                        new Subscriber<TrackInfoBean>() {
+                            @Override
+                            public void onCompleted() {
+                            }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        e.printStackTrace();
-                        Log.i(AppConstant.TAG, e.getMessage());
-                    }
+                            @Override
+                            public void onError(Throwable throwable) {
+                                throwable.printStackTrace();
+                                Log.i(AppConstant.TAG, "getTrack error = " + throwable.getMessage());
+                                if (throwable instanceof SocketTimeoutException) {
+                                    getManager().post(AppConstant.LOADING_STATUS, null);
+                                    ErrorBean errorBean = new ErrorBean();
+                                    errorBean.setClazz(TrackListVH.class);
+                                    getManager().post(AppConstant.ERROR_MESSAGE, errorBean);
+                                } else if (throwable instanceof ConnectException) {
 
-                    @Override
-                    public void onNext(TrackInfoBean trackInfoBean) {
-                        view.setNowPlayerMessage(trackInfoBean);
-                    }
-                }
-        ));
+                                } else {
+
+                                }
+                            }
+
+                            @Override
+                            public void onNext(TrackInfoBean trackInfoBean) {
+                                view.setNowPlayerMessage(trackInfoBean);
+                            }
+                        }
+                ));
     }
 
     @Override
@@ -63,14 +79,24 @@ public class TrackPresenter extends TrackContract.Presenter{
                             }
 
                             @Override
-                            public void onError(Throwable e) {
-                                e.printStackTrace();
-                                Log.i(AppConstant.TAG, e.getMessage());
+                            public void onError(Throwable throwable) {
+                                throwable.printStackTrace();
+                                Log.i(AppConstant.TAG, "getAlumList error = " + throwable.getMessage());
+                                if (throwable instanceof SocketTimeoutException) {
+                                    getManager().post(AppConstant.LOADING_STATUS, null);
+                                    ErrorBean errorBean = new ErrorBean();
+                                    errorBean.setClazz(TrackListVH.class);
+                                    getManager().post(AppConstant.ERROR_MESSAGE, errorBean);
+                                } else if (throwable instanceof ConnectException) {
+
+                                } else {
+
+                                }
                             }
 
                             @Override
                             public void onNext(Data<HimalayanBean> himalayanBeanData) {
-                                view.loadAlbumList(himalayanBeanData);
+                                view.loadAlbumList(himalayanBeanData.getData().getTracks().getList());
                             }
                         }
                 ));
