@@ -1,5 +1,8 @@
 package com.fastapp.viroyal.fm_newstyle.model.entity;
 
+import android.util.Log;
+
+import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.api.Api;
 import com.fastapp.viroyal.fm_newstyle.model.base.BaseEntity;
 

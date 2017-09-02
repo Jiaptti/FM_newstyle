@@ -72,16 +72,12 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
     private int albumId;
     private int tracks;
     private RealmHelper mHelper;
-    private List<TracksBeanList> data;
 
     @Override
     protected int layoutResID() {
         return R.layout.album_layout;
     }
 
-    public List<TracksBeanList> getData() {
-        return this.data;
-    }
 
     @Override
     protected void initView() {
@@ -139,7 +135,6 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
 
     @Override
     public void showAlbumMessage(Data<HimalayanBean> data) {
-        this.data = data.getData().getTracks().getList();
         albumTitle.setText(data.getData().getAlbum().getTitle());
         ImageUtils.loadImage(this, data.getData().getAlbum().getCoverMiddle(), albumImage);
         albumAuthor.setText(data.getData().getUser().getNickname());

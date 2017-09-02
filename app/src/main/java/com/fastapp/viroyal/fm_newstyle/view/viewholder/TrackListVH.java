@@ -4,7 +4,7 @@ import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
@@ -14,6 +14,7 @@ import com.fastapp.viroyal.fm_newstyle.base.BaseViewHolder;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
 import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
+import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
 import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
 import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
 
@@ -33,7 +34,7 @@ public class TrackListVH extends BaseViewHolder<TracksBeanList>{
 
     public TrackListVH(View itemView) {
         super(itemView);
-        if (itemView instanceof LinearLayout) {
+        if (itemView instanceof RelativeLayout) {
             manager.on(AppConstant.MEDIA_START_PLAY, new Action1() {
                 @Override
                 public void call(Object o) {
@@ -41,11 +42,8 @@ public class TrackListVH extends BaseViewHolder<TracksBeanList>{
                         switch ((Integer) o) {
                             case AppConstant.STATUS_PLAY:
                             case AppConstant.STATUS_RESUME:
-                                animation.start();
-                                break;
-                            case AppConstant.STATUS_PAUSE:
-                                animation.stop();
-                                track_item_name.setTextColor(Color.BLACK);
+                                if(animation != null && !animation.isRunning())
+                                    animation.start();
                                 break;
                         }
                     }
@@ -60,25 +58,40 @@ public class TrackListVH extends BaseViewHolder<TracksBeanList>{
     }
 
     @Override
-    public void onBindViewHolder(View view, TracksBeanList entity) {
-        animation = (AnimationDrawable) track_item_wave_flag.getBackground();
+    public void onBindViewHolder(View view, final TracksBeanList entity) {
         track_item_name.setText(entity.getTitle());
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!AppContext.getRealmHelper().getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim())
+                        || (AppContext.getRealmHelper().getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim())
+                            && AppContext.getPlayState() == AppConstant.STATUS_PAUSE)) {
+                    manager.post(AppConstant.CURRENT_POSITION_VIEW, view);
+                    mBinder.playMedia(entity.getPlayUrl32());
+                    helper.setNowPlayTrack(entity);
+                }
+            }
+        });
         setPlayStatus(entity);
     }
 
     private void setPlayStatus(TracksBeanList entity) {
-        if (helper.getNowPlayingTrack() != null &&
-                helper.getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim())) {
+        if (AppContext.getRealmHelper().getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim())) {
+            animation = (AnimationDrawable) track_item_wave_flag.getBackground();
             track_item_wave_flag.setVisibility(View.VISIBLE);
             if (mBinder.isPlaying()) {
-                track_item_name.setTextColor(Color.RED);
-                if (mBinder != null && mBinder.isPlaying() && !animation.isRunning()) {
+                if (animation != null && !animation.isRunning()) {
                     animation.start();
                 }
             } else {
-                if (mBinder != null && !mBinder.isPlaying() && animation.isRunning()) {
+                if (animation != null && animation.isRunning()) {
                     animation.stop();
                 }
+            }
+            if(AppContext.getPlayState() == AppConstant.STATUS_PLAY || AppContext.getPlayState() == AppConstant.STATUS_RESUME){
+                track_item_name.setTextColor(Color.RED);
+            } else {
+                track_item_name.setTextColor(Color.BLACK);
             }
         } else {
             track_item_wave_flag.setVisibility(View.GONE);

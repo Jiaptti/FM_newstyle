@@ -12,12 +12,15 @@ import android.widget.PopupWindow;
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
+import com.fastapp.viroyal.fm_newstyle.base.RxManager;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.view.layout.TRecyclerView;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.TrackListVH;
 import android.widget.TextView;
 
 import java.util.List;
+
+import rx.functions.Action1;
 
 /**
  * Created by hanjiaqi on 2017/8/24.
@@ -27,6 +30,7 @@ public class PlayListPopupWindow extends PopupWindow{
     private Context mContext;
     private TRecyclerView mTRecyclerView;
     private TextView popupClose;
+    private RxManager manager = new RxManager();
 
     public PlayListPopupWindow(Context context){
         this.mContext = context;
@@ -34,7 +38,8 @@ public class PlayListPopupWindow extends PopupWindow{
         setContentView(view);
         mTRecyclerView = (TRecyclerView) view.findViewById(R.id.play_list_view);
         popupClose = (TextView)  view.findViewById(R.id.popup_close);
-        mTRecyclerView.setBaseView(TrackListVH.class);
+        mTRecyclerView.setView(TrackListVH.class, AppContext.getRealmHelper().getNowPlayingTrack().getAlbumId());
+        mTRecyclerView.sendRequest();
         backgroundAlpha(1f);
         setWidth(WindowManager.LayoutParams.MATCH_PARENT);
         setHeight((AppContext.getScreenHeight() / 2) + (AppContext.getScreenHeight() / 4));
@@ -48,12 +53,24 @@ public class PlayListPopupWindow extends PopupWindow{
                     dismiss();
             }
         });
-    }
+        manager.on(AppConstant.UPDATE_ITEM_STATUS, new Action1() {
+            @Override
+            public void call(Object o) {
+                mTRecyclerView.getAdapter().notifyDataSetChanged();
+            }
+        });
 
-    public <T> void setViewData(List<T> data){
-        if(mTRecyclerView != null){
-            mTRecyclerView.setData(data);
-        }
+        manager.on(AppConstant.CURRENT_POSITION_VIEW, new Action1() {
+            @Override
+            public void call(Object o) {
+                int count = mTRecyclerView.getAdapter().getItemCount() - 1;
+                int position = mTRecyclerView.getRecyclerView().getChildAdapterPosition((View) o);
+                if(position + 4 > count){
+                    Log.i(AppConstant.TAG, "CURRENT_POSITION_VIEW");
+                    mTRecyclerView.sendRequest();
+                }
+            }
+        });
     }
 
     OnDismissListener dismissListener = new OnDismissListener() {
@@ -66,9 +83,6 @@ public class PlayListPopupWindow extends PopupWindow{
     public void show(View parent){
         backgroundAlpha(0.7f);
         if(!isShowing()){
-            if(mTRecyclerView != null){
-                mTRecyclerView.loadData();
-            }
             showAtLocation(parent, Gravity.NO_GRAVITY, 0, AppContext.getScreenHeight() / 4);
         } else {
             dismiss();
@@ -80,5 +94,10 @@ public class PlayListPopupWindow extends PopupWindow{
         WindowManager.LayoutParams lp = ((Activity)mContext).getWindow().getAttributes();
         lp.alpha = bgAlpha;
         ((Activity)mContext).getWindow().setAttributes(lp);
+    }
+
+    public void onDestroy(){
+        manager.clear(AppConstant.UPDATE_ITEM_STATUS);
+        manager.clear(AppConstant.CURRENT_POSITION_VIEW);
     }
 }

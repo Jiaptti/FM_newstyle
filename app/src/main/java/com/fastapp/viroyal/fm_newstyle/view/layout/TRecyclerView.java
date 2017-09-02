@@ -24,8 +24,10 @@ import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanEntity;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.model.realm.TracksBeanRealm;
 import com.fastapp.viroyal.fm_newstyle.util.RxSchedulers;
+import com.fastapp.viroyal.fm_newstyle.view.viewholder.AlbumVH;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.CategoryVH;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.CommFooterVH;
+import com.fastapp.viroyal.fm_newstyle.view.viewholder.TrackListVH;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
@@ -62,13 +64,11 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
     private T model;
     public CoreAdapter<T> mAdatper = new CoreAdapter<>();
     private RxManager mRxManager;
-    private List<T> listData;
     private int type = AppConstant.PAGE_CROSSTALK;
-    private int mId = 0;
     private int pageSize = 10;
-    private int maxPage = 0;
-    private int length = 0;
+    private int length = 10;
     private ErrorBean errorBean;
+    private boolean hasMore;
 
     public TRecyclerView(Context context) {
         super(context);
@@ -76,6 +76,9 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         init();
     }
 
+    public RecyclerView getRecyclerView(){
+        return this.recyclerView;
+    }
     public TRecyclerView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
@@ -88,14 +91,15 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         view.setLayoutParams(new LinearLayout.LayoutParams(
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                 android.view.ViewGroup.LayoutParams.MATCH_PARENT));
+        mRxManager = new RxManager();
         addView(view);
         ButterKnife.bind(this, view);
         initView(view);
-        mRxManager = new RxManager();
     }
 
     private void initView(View view) {
         mLayoutManager = new LinearLayoutManager(mContext);
+        recyclerView.scrollToPosition(0);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -108,14 +112,10 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (recyclerView.getAdapter() != null && mAdatper.hasMore
+                if (recyclerView.getAdapter() != null && hasMore
                         && mLastItem + 1 == recyclerView.getAdapter().getItemCount()
                         && newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    if (errorBean != null && errorBean.getClazz() == CategoryVH.class) {
-                        sendRequest();
-                    } else {
-                        loadData();
-                    }
+                    sendRequest();
                 }
             }
 
@@ -142,7 +142,6 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
     }
 
     public void sendRequest() {
-        begin++;
         if (isEmpty) {
             emptyLayout.setVisibility(View.GONE);
         }
@@ -150,13 +149,32 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
             Log.i(AppConstant.TAG, "model is null!");
             return;
         }
-        mRxManager.add(model.getPageAt(type, begin, getPageSize())
-                .distinct()
-                .compose(RxSchedulers.io_main())
+        Observable observable = null;
+        if (errorBean.getClazz() == CategoryVH.class) {
+            begin++;
+            observable = model.getPageAt(type, begin, getPageSize());
+        } else if (errorBean.getClazz() == AlbumVH.class
+                || errorBean.getClazz() == TrackListVH.class) {
+            observable = model.getPageAt(type, begin, length);
+        }
+        mRxManager.add(observable.distinct().compose(RxSchedulers.io_main())
                 .flatMap(new Func1<Data<T>, Observable<T>>() {
                     @Override
                     public Observable<T> call(Data<T> tData) {
-                        return Observable.from(tData.getList());
+                        if (tData.getList() != null) {
+                            hasMore = tData.getList().size() >= AppConstant.PAGESIZE;
+                            return Observable.from(tData.getList());
+                        } else {
+                            List<TracksBeanList> list = tData.getData().getTracks().getList();
+                            hasMore = (list.size() - length) == 0;
+                            if (hasMore) {
+                                list = list.subList(length - 10, length);
+                                length += 10;
+                            } else {
+                                list = list.subList(length - 10, list.size());
+                            }
+                            return (Observable<T>) Observable.from(list);
+                        }
                     }
                 })
                 .subscribe(new Action1<T>() {
@@ -181,48 +199,10 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                 }));
     }
 
-    public void setData(List<T> data) {
-        this.listData = data;
-        maxPage = listData.size();
-    }
-
-    public int getMaxPage(){
-        return maxPage;
-    }
-
-
-    public List getData(){
-        return listData;
-    }
-
-    public void loadData() {
-//        begin++;
-        if (listData != null) {
-            List<T> list = listData;
-            if (length + 10 < maxPage) {
-                list = list.subList(length, length + 10);
-                length += 10;
-            } else {
-                list = list.subList(length, maxPage);
-            }
-            mRxManager.add(Observable.from(list)
-                    .distinct()
-                    .compose(RxSchedulers.<T>io_main())
-                    .subscribe(new Action1<T>() {
-                        @Override
-                        public void call(T data) {
-                            mAdatper.setBeansById(data);
-                        }
-            }));
-        }
-    }
-
-
     public void refresh() {
         begin = 1;
         sendRequest();
     }
-
 
     private void setEmpty() {
         if (!isEmpty) {
@@ -232,7 +212,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         }
     }
 
-    public TRecyclerView setViewByTab(Class<? extends BaseViewHolder<T>> clazz, int tabType) {
+    public TRecyclerView setView(Class<? extends BaseViewHolder<T>> clazz, int tabType) {
         try {
             errorBean = new ErrorBean();
             BaseViewHolder mIVH = ((BaseViewHolder) (clazz.getConstructor(View.class)
@@ -242,6 +222,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                     .getGenericSuperclass())).getActualTypeArguments()[0])
                     .newInstance();
             errorBean.setClazz(clazz);
+            Log.i(AppConstant.TAG, "clazz = " + clazz);
             mAdatper.setViewType(clazz, type);
             this.type = tabType;
         } catch (Exception e) {
@@ -250,48 +231,9 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         return this;
     }
 
-    public TRecyclerView setViewById(Class<? extends BaseViewHolder<T>> clazz, int id) {
-        try {
-            errorBean = new ErrorBean();
-            BaseViewHolder mIVH = ((BaseViewHolder) (clazz.getConstructor(View.class)
-                    .newInstance(new View(mContext))));
-            int type = mIVH.getType();
-            this.model = ((Class<T>) ((ParameterizedType) (clazz
-                    .getGenericSuperclass())).getActualTypeArguments()[0])
-                    .newInstance();
-            mAdatper.setViewType(clazz, type);
-            errorBean.setClazz(clazz);
-            mId = id;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return this;
-    }
-
-    public TRecyclerView setBaseView(Class<? extends BaseViewHolder<T>> clazz) {
-        try {
-            BaseViewHolder mIVH = ((BaseViewHolder) (clazz.getConstructor(View.class)
-                    .newInstance(new View(mContext))));
-            this.model = ((Class<T>) ((ParameterizedType) (clazz
-                    .getGenericSuperclass())).getActualTypeArguments()[0])
-                    .newInstance();
-            int type = mIVH.getType();
-            mAdatper.setViewType(clazz, type);
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-        return this;
-    }
 
     public class CoreAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         private List<T> mDates = new ArrayList<>();
-        public boolean hasMore;
         private Class<? extends BaseViewHolder> mItemViewClass;
         private Class<? extends BaseViewHolder> mFootViewClass = CommFooterVH.class;
         private int mItemType, mFootType = CommFooterVH.FOOT_TYPE;
@@ -324,7 +266,6 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
             ((BaseViewHolder) holder).onBindViewHolder(holder.itemView,
                     position + 1 == getItemCount() ? (hasMore ? new Object() : null) : mDates.get(position));
-
         }
 
         @Override
@@ -341,22 +282,21 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         }
 
         public void setBeans(T data) {
-//            hasMore = dates.size() >= AppConstant.PAGESIZE;
-            if(data instanceof HimalayanEntity){
-                HimalayanEntity entity = (HimalayanEntity)data;
-                if(!entity.isIsPaid()){
+            if (data instanceof HimalayanEntity) {
+                HimalayanEntity entity = (HimalayanEntity) data;
+                if (!entity.isIsPaid()) {
                     this.mDates.add(data);
+                }
+            } else {
+                this.mDates.add(data);
+                notifyDataSetChanged();
+                if (errorBean.getClazz() == AlbumVH.class && length == 20) {
+                    mRxManager.post(AppConstant.LOADING_STATUS, null);
                 }
             }
             notifyDataSetChanged();
         }
 
-        public void setBeansById(T data) {
-            hasMore = length + 10 < maxPage;
-            this.mDates.add(data);
-            notifyDataSetChanged();
-            mRxManager.post(AppConstant.LOADING_STATUS, null);
-        }
 
         @Override
         public int getItemCount() {
@@ -368,5 +308,6 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         ButterKnife.unbind(this);
+        mRxManager.clear();
     }
 }

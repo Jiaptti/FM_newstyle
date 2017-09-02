@@ -4,8 +4,13 @@ import android.util.Log;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
+import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
 import com.fastapp.viroyal.fm_newstyle.util.RxSchedulers;
+import com.fastapp.viroyal.fm_newstyle.view.viewholder.AlbumVH;
+
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
@@ -35,8 +40,19 @@ public class AlbumPresenter extends AlbumContract.Presenter{
             }
 
             @Override
-            public void onError(Throwable e) {
-                e.printStackTrace();
+            public void onError(Throwable throwable) {
+                throwable.printStackTrace();
+                Log.i(AppConstant.TAG, "AlbumPresenter error = " + throwable.getMessage());
+                if (throwable instanceof SocketTimeoutException) {
+                    ErrorBean errorBean = new ErrorBean();
+                    errorBean.setClazz(AlbumVH.class);
+                    getManager().post(AppConstant.LOADING_STATUS, null);
+                    getManager().post(AppConstant.ERROR_MESSAGE, errorBean);
+                } else if (throwable instanceof ConnectException) {
+
+                } else {
+
+                }
             }
 
             @Override

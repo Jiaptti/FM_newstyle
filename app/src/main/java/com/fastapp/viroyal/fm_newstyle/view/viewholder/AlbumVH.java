@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -63,12 +64,6 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
                     }
                 }
             });
-
-            manager.on(AppConstant.MEDIA_START_PLAY, new Action1() {
-                @Override
-                public void call(Object o) {
-                }
-            });
         }
     }
 
@@ -116,12 +111,8 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
                     Intent intent = new Intent(mContext, TrackActivity.class);
                     mContext.startActivity(intent);
                 } else {
-                    mBinder.playMedia(entity.getPlayUrl32());
                     helper.setNowPlayTrack(entity);
-                    Bundle bundle = new Bundle();
-                    bundle.putInt(AppConstant.TRACK_ID, entity.getTrackId());
                     Intent intent = new Intent(mContext, TrackActivity.class);
-                    intent.putExtra(AppConstant.TRACK_BUNDLE, bundle);
                     mContext.startActivity(intent);
                 }
             }

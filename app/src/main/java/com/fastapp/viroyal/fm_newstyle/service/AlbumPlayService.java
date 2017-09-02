@@ -59,14 +59,15 @@ public class AlbumPlayService extends Service implements MediaPlayerManager.Play
                 playerManager.setPlayerCompleteListener(AlbumPlayService.this);
                 this.playUrl = url;
             }  else {
-                playerManager.resumeMediaPlayer();
+                if(!playerManager.isPlaying())
+                    playerManager.resumeMediaPlayer();
             }
             manager.post(AppConstant.UPDATE_ITEM_STATUS, AppConstant.STATUS_PLAY);
         }
 
         public void resumePlay(){
             playerManager.resumeMediaPlayer();
-            manager.post(AppConstant.UPDATE_ITEM_STATUS, AppConstant.STATUS_RESUME);
+//            manager.post(AppConstant.UPDATE_ITEM_STATUS, AppConstant.STATUS_RESUME);
         }
 
         public void setPlayBufferingUpdateListener(MediaPlayerManager.PlayBufferingUpdate listener){

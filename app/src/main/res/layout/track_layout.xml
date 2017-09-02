@@ -208,7 +208,7 @@
                     android:padding="15.0dip"
                     android:src="@drawable/player_toolbar_next_bg" />
 
-                <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
+                <ImageButton
                     android:id="@+id/previous"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

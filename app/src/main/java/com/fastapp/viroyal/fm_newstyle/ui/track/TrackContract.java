@@ -20,20 +20,19 @@ import rx.Observable;
 
 public interface TrackContract {
     interface View extends BaseView{
-        void setNowPlayerMessage(TrackInfoBean trackInfoBean);
+//        void setNowPlayerMessage(TrackInfoBean trackInfoBean);
         void loadAlbumList(List<TracksBeanList> list);
         void setNowPlayerTrack(NowPlayTrack nowPlayerTrack);
     }
 
     interface Model extends BaseModel{
-        Observable<TrackInfoBean> getTrackInfoBean(int trackId);
+//        Observable<TrackInfoBean> getTrackInfoBean(int trackId);
         Observable<Data<HimalayanBean>> getAlbumList(int albumId, int pageSize);
         NowPlayTrack getNowPlayTrack();
-        List<TracksBeanList> getTracksList();
     }
 
     abstract class Presenter extends BasePresenter<View, Model>{
-        abstract void getTrack(int trackId);
+//        abstract void getTrack(int trackId);
         abstract void getAlumList(int albumId, int pageSize);
         abstract void getNowTrack();
     }

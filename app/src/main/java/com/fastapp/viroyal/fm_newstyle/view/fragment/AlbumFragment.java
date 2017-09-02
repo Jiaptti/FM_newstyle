@@ -29,20 +29,18 @@ public class AlbumFragment extends BaseListFragment{
             manager.on(AppConstant.UPDATE_ITEM_STATUS, new Action1() {
                 @Override
                 public void call(Object o) {
-                    AppContext.getRealmHelper().getNowPlayingTrack().setMaxPage(mTRecyclerView.getMaxPage());
                     mTRecyclerView.getAdapter().notifyDataSetChanged();
                 }
             });
         }
-        return mTRecyclerView.setViewById(TUtils.forName(getArguments().getString(AppConstant.VH_CLASS)), getArguments().getInt(AppConstant.TYPE));
+        return mTRecyclerView.setView(TUtils.forName(getArguments().getString(AppConstant.VH_CLASS)), getArguments().getInt(AppConstant.TYPE));
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if(mTRecyclerView != null && ((AlbumActivity)getActivity()).getData() != null){
-            mTRecyclerView.setData(((AlbumActivity)getActivity()).getData());
-            mTRecyclerView.loadData();
+        if(mTRecyclerView != null){
+            mTRecyclerView.sendRequest();
         }
     }
 

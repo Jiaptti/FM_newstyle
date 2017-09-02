@@ -87,6 +87,9 @@ public class RealmHelper {
         if(isNowTrack(entity.getPlayUrl32()) == null){
             playTrack = new NowPlayTrack();
             playTrack.setTitle(entity.getTitle());
+            playTrack.setTrackId(entity.getTrackId());
+            playTrack.setDuration(entity.getDuration());
+            playTrack.setAlbumId(entity.getAlbumId());
             playTrack.setCoverSmall(entity.getCoverSmall());
             playTrack.setCoverLarge(entity.getCoverLarge());
             playTrack.setCoverMiddle(entity.getCoverMiddle());
@@ -103,54 +106,5 @@ public class RealmHelper {
             playTrack.setSelected(entity.isSelected());
             setNowTrack(playTrack);
         }
-    }
-
-    public void addTrackList(List<TracksBeanList> data){
-        TracksBeanRealm tracksBeanRealm = null;
-        if(!isExitTrackList(data.get(0).getAlbumId())){
-            removeTrackList();
-            Log.i(AppConstant.TAG, "add");
-            for(TracksBeanList entity : data){
-                tracksBeanRealm = new TracksBeanRealm();
-                tracksBeanRealm.setAlbumId(entity.getAlbumId());
-                tracksBeanRealm.setTitle(entity.getTitle());
-                tracksBeanRealm.setCoverSmall(entity.getCoverSmall());
-                tracksBeanRealm.setCoverLarge(entity.getCoverLarge());
-                tracksBeanRealm.setCoverMiddle(entity.getCoverMiddle());
-                tracksBeanRealm.setCreatedAt(entity.getCreatedAt());
-                tracksBeanRealm.setNickname(entity.getNickname());
-                tracksBeanRealm.setDuration(entity.getDuration());
-                tracksBeanRealm.setPlayUrl32(entity.getPlayUrl32());
-                tracksBeanRealm.setTrackId(entity.getTrackId());
-                tracksBeanRealm.setPlaytimes(entity.getPlaytimes());
-                tracksBeanRealm.setPlayPathHq(entity.getPlayPathHq());
-                tracksBeanRealm.setPlayUrl64(entity.getPlayUrl64());
-                tracksBeanRealm.setPlayPathAacv164(entity.getPlayPathAacv164());
-                tracksBeanRealm.setPlayPathAacv224(entity.getPlayPathAacv224());
-                addTrackList(tracksBeanRealm);
-            }
-        }
-    }
-
-    public List<TracksBeanRealm> getAllTracks(){
-        RealmResults<TracksBeanRealm> results = mRealm.where(TracksBeanRealm.class).findAll();
-        return mRealm.copyToRealm(results);
-    }
-
-    public void removeTrackList(){
-        mRealm.beginTransaction();
-        mRealm.clear(TracksBeanRealm.class);
-        mRealm.commitTransaction();
-    }
-
-    public void addTrackList(TracksBeanRealm tracksBeanRealm){
-        mRealm.beginTransaction();
-        mRealm.copyToRealm(tracksBeanRealm);
-        mRealm.commitTransaction();
-    }
-
-    public boolean isExitTrackList(int albumId){
-        TracksBeanRealm tracksBeanRealm = mRealm.where(TracksBeanRealm.class).equalTo("albumId", albumId).findFirst();
-        return tracksBeanRealm != null;
     }
 }

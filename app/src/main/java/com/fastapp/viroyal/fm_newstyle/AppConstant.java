@@ -5,7 +5,7 @@ package com.fastapp.viroyal.fm_newstyle;
  */
 
 public class AppConstant {
-    public static final String TAG = "FM";
+    public static final String TAG = "tests";
     public static final String TYPE = "type";
     public static final String SIMPLE_TYPE = "simple_type";
     public static final String VH_CLASS = "vh_class";
@@ -19,9 +19,8 @@ public class AppConstant {
     public static final String UPDATE_ITEM_STATUS = "update_item";
     public static final String MEDIA_START_PLAY = "media_start_play";
     public static final String LOADING_STATUS = "loading_item";
-    public static final String PLAY_CURRENT_POSITION = "play_current_position";
     public static final String ERROR_MESSAGE = "error_message";
-    public static final String CACHE_DATA ="cache_data";
+    public static final String CURRENT_POSITION_VIEW ="current_position_view";
 
     //home tab and pagesize
     public static final int PAGESIZE = 10;

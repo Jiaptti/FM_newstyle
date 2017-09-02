@@ -92,16 +92,17 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     LinearLayout errorLayout;
     @Bind(R.id.reload)
     TextView reload;
+    @Bind(R.id.previous)
+    ImageButton prev;
+    @Bind(R.id.next)
+    ImageButton next;
 
     private Animation operatingAnim;
-    private AnimationDrawable animation;
     private AlbumPlayService.PlayBinder mBinder;
     private NowPlayTrack nowPlayTrack;
     private int position;
     private RxManager manager = new RxManager();
     private PlayListPopupWindow listPopupWindow;
-    private int trackId;
-    private Bundle bundle;
 
     @Override
     protected int layoutResID() {
@@ -116,18 +117,14 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
             mBinder.setTimeListener(this);
             mBinder.setPlayBufferingUpdateListener(this);
         }
-        bundle = getIntent().getBundleExtra(AppConstant.TRACK_BUNDLE);
-        if (bundle != null) {
-            trackId = bundle.getInt(AppConstant.TRACK_ID);
-            presenter.getTrack(trackId);
-        } else {
-            presenter.getNowTrack();
-        }
+        presenter.getNowTrack();
         trackImg.setOnClickListener(this);
         playPauseButton.setOnClickListener(this);
         backward.setOnClickListener(this);
         forward.setOnClickListener(this);
         playList.setOnClickListener(this);
+        prev.setOnClickListener(this);
+        next.setOnClickListener(this);
         operatingAnim = AnimationUtils.loadAnimation(this, R.anim.album_rotation);
         operatingAnim.setInterpolator(new LinearInterpolator());
         playSeekBar.setOnSeekBarChangeListener(this);
@@ -140,10 +137,10 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
                         case AppConstant.STATUS_PLAY:
                         case AppConstant.STATUS_RESUME:
                             updatePlayUI();
+                            presenter.getNowTrack();
                             break;
                         case AppConstant.STATUS_PAUSE:
-                            if(playPauseButton != null)
-                                playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
+                            playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
                             break;
                     }
                 }
@@ -158,7 +155,6 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
                     errorLayout.setVisibility(View.VISIBLE);
                     trackContent.setVisibility(View.GONE);
                 }
-
             }
         });
         reload.setOnClickListener(new View.OnClickListener() {
@@ -166,25 +162,16 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
             public void onClick(View view) {
                 errorLayout.setVisibility(View.GONE);
                 trackContent.setVisibility(View.VISIBLE);
-                presenter.getTrack(trackId);
             }
         });
     }
 
     @Override
     public void showLoading() {
-//        loadingLayout.setVisibility(View.VISIBLE);
-//        trackContent.setVisibility(View.GONE);
-//        animation = (AnimationDrawable) loadingImg.getBackground();
-//        animation.start();
     }
 
     @Override
     public void dismissLoading() {
-//        loadingLayout.setVisibility(View.GONE);
-//        trackContent.setVisibility(View.VISIBLE);
-//        if(animation != null && animation.isRunning())
-//            animation.stop();
     }
 
 
@@ -193,14 +180,14 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         return true;
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
 
     @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
+        listPopupWindow.onDestroy();
+        listPopupWindow = null;
+        manager.clear(AppConstant.MEDIA_START_PLAY);
+        manager.clear(AppConstant.UPDATE_ITEM_STATUS);
     }
 
     @Override
@@ -239,16 +226,21 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
             case R.id.playlist:
                 listPopupWindow.show(mainContent);
                 break;
+            case R.id.previous:
+
+                break;
+            case R.id.next:
+
+                break;
         }
     }
 
-    @Override
-    public void setNowPlayerMessage(TrackInfoBean trackInfoBean) {
-        ImageUtils.loadImage(mContext, trackInfoBean.getCoverLarge(), trackImg);
-        CommonUtils.setTotalTime(trackInfoBean.getDuration(), totalTime);
-        CommonUtils.setTotalTime(trackInfoBean.getDuration(), playerDuration);
-        presenter.getAlumList(trackInfoBean.getAlbumId(), trackInfoBean.getUserInfo().getTracks());
-    }
+//    @Override
+//    public void setNowPlayerMessage(TrackInfoBean trackInfoBean) {
+//        ImageUtils.loadImage(mContext, trackInfoBean.getCoverLarge(), trackImg);
+//        CommonUtils.setTotalTime(trackInfoBean.getDuration(), totalTime);
+//        CommonUtils.setTotalTime(trackInfoBean.getDuration(), playerDuration);
+//    }
 
     @Override
     public void setNowPlayerTrack(NowPlayTrack nowPlayerTrack) {
@@ -259,13 +251,12 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         if(mBinder != null){
             playTimeChange(mBinder.getCurrentPosition());
         }
-        presenter.getAlumList(nowPlayTrack.getAlbumId(), nowPlayTrack.getMaxPage());
+        mBinder.playMedia(nowPlayTrack.getPlayUrl32());
     }
 
 
     @Override
     public void loadAlbumList(List<TracksBeanList> data) {
-        listPopupWindow.setViewData(data);
     }
 
     public void playTimeChange(int time) {
