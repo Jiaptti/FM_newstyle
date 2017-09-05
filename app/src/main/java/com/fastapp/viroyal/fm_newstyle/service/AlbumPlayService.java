@@ -3,32 +3,20 @@ package com.fastapp.viroyal.fm_newstyle.service;
 import android.app.Service;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.*;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.util.Log;
-import android.widget.SeekBar;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
-import com.fastapp.viroyal.fm_newstyle.AppContext;
-import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
-import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.media.MediaPlayerManager;
-import com.fastapp.viroyal.fm_newstyle.model.realm.TracksBeanRealm;
-
-import java.io.IOException;
 
 /**
  * Created by hanjiaqi on 2017/7/19.
  */
 
-public class AlbumPlayService extends Service implements MediaPlayerManager.PlayCompleteListener{
+public class AlbumPlayService extends Service{
     private PlayBinder playBinder;
-    private RealmHelper realmHelper;
     private RxManager manager = new RxManager();
     private MediaPlayerManager playerManager;
 
@@ -36,7 +24,6 @@ public class AlbumPlayService extends Service implements MediaPlayerManager.Play
     public void onCreate() {
         super.onCreate();
         playBinder = new PlayBinder();
-        realmHelper = AppContext.getRealmHelper();
         playerManager = MediaPlayerManager.newInstance();
     }
 
@@ -46,17 +33,12 @@ public class AlbumPlayService extends Service implements MediaPlayerManager.Play
         return playBinder;
     }
 
-    @Override
-    public void playMusicComplete() {
-    }
-
     public class PlayBinder extends Binder {
         public String playUrl;
 
         public void playMedia(String url) {
             if (playUrl == null || !playUrl.equals(url)) {
                 playerManager.playFM(url);
-                playerManager.setPlayerCompleteListener(AlbumPlayService.this);
                 this.playUrl = url;
             }  else {
                 if(!playerManager.isPlaying())
@@ -101,6 +83,10 @@ public class AlbumPlayService extends Service implements MediaPlayerManager.Play
 
         public void seekTo(int time){
             playerManager.seekTo(time);
+        }
+
+        public void setPlayCompleteListener(MediaPlayerManager.PlayCompleteListener listener){
+            playerManager.setPlayerCompleteListener(listener);
         }
     }
 

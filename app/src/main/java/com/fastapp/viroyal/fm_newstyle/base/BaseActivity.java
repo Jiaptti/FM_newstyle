@@ -107,19 +107,20 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
 
         if (supportBottomPlay()) {
             setPlayViewStatue();
-            presenter.getManager().on(AppConstant.MEDIA_START_PLAY, new Action1() {
-                @Override
-                public void call(Object obj) {
-                    playNowImgAnimation();
-                }
-            });
-            presenter.getManager().on(AppConstant.UPDATE_ITEM_STATUS, new Action1() {
-                @Override
-                public void call(Object o) {
-                    setPlayViewStatue();
-                }
-            });
         }
+        presenter.getManager().on(AppConstant.MEDIA_START_PLAY, new Action1() {
+            @Override
+            public void call(Object obj) {
+                playNowImgAnimation();
+                setPlayViewStatue();
+            }
+        });
+//        presenter.getManager().on(AppConstant.UPDATE_ITEM_STATUS, new Action1() {
+//            @Override
+//            public void call(Object o) {
+//                setPlayViewStatue();
+//            }
+//        });
 
         if (systemUIFullScreen()) {
             fullScreen();
@@ -147,26 +148,18 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
                 || AppContext.getPlayState() == AppConstant.STATUS_RESUME) && operatingAnim != null) {
             nowPlayingImg.startAnimation(operatingAnim);
             nowPlayingStatus.setBackgroundResource(R.mipmap.play_icon_bg);
-        } else if (AppContext.getPlayState() == AppConstant.STATUS_PAUSE) {
+        } else if (AppContext.getPlayState() == AppConstant.STATUS_PAUSE || AppContext.getPlayState() == AppConstant.STATUS_STOP) {
             nowPlayingImg.clearAnimation();
         }
     }
 
     private void setPlayViewStatue() {
         if (AppContext.getPlayState() == AppConstant.STATUS_PLAY
-                || AppContext.getPlayState() == AppConstant.STATUS_RESUME) {
-            String url = String.valueOf(nowPlayingImg.getTag());
-            if (!url.equalsIgnoreCase(realmHelper.getNowPlayingTrack().getCoverSmall())) {
-                ImageUtils.loadCircleImage(AppContext.getAppContext(), realmHelper.getNowPlayingTrack().getCoverSmall(), nowPlayingImg);
-            }
-        } else if (AppContext.getPlayState() == AppConstant.STATUS_PAUSE) {
+                || AppContext.getPlayState() == AppConstant.STATUS_RESUME
+                 || AppContext.getPlayState() == AppConstant.STATUS_NONE) {
+            ImageUtils.loadCircleImage(AppContext.getAppContext(), realmHelper.getNowPlayingTrack().getCoverSmall(), nowPlayingImg);
+        } else if (AppContext.getPlayState() == AppConstant.STATUS_PAUSE || AppContext.getPlayState() == AppConstant.STATUS_STOP) {
             nowPlayingStatus.setBackgroundResource(R.mipmap.play_icon_pause);
-        } else if (AppContext.getPlayState() == AppConstant.STATUS_NONE) {
-            NowPlayTrack nowPlayTrack = realmHelper.getNowPlayingTrack();
-            if (nowPlayTrack != null) {
-                nowPlayingImg.setTag(R.id.tracks_image_tag, nowPlayTrack.getCoverSmall());
-                ImageUtils.loadCircleImage(AppContext.getAppContext(), nowPlayTrack.getCoverSmall(), nowPlayingImg);
-            }
         }
     }
 

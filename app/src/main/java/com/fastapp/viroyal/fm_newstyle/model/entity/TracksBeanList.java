@@ -41,14 +41,15 @@ public class TracksBeanList extends BaseEntity{
     private int comments;
     private int shares;
     private int status;
-    private boolean isSelected;
+    private int position;
 
-    public boolean isSelected() {
-        return isSelected;
+
+    public int getPosition() {
+        return position;
     }
 
-    public void setSelected(boolean selected) {
-        isSelected = selected;
+    public void setPosition(int position) {
+        this.position = position;
     }
 
     public int getTrackId() {
@@ -277,6 +278,7 @@ public class TracksBeanList extends BaseEntity{
 
     @Override
     public Observable getPageAt(int categoryId, int pageId, int pageSize) {
-        return Api.getInstance().getApiService().getAlbumsList(categoryId, pageSize);
+        Observable observable = Api.getInstance().getApiService().getAlbumsList(categoryId, pageSize);
+        return observable;
     }
 }

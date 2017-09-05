@@ -68,7 +68,10 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
     private int pageSize = 10;
     private int length = 10;
     private ErrorBean errorBean;
-    private boolean hasMore;
+    public boolean hasMore;
+    private boolean hasFinished;
+    private Observable observable;
+    private boolean isLoading;
 
     public TRecyclerView(Context context) {
         super(context);
@@ -76,9 +79,6 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         init();
     }
 
-    public RecyclerView getRecyclerView(){
-        return this.recyclerView;
-    }
     public TRecyclerView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mContext = context;
@@ -112,7 +112,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                if (recyclerView.getAdapter() != null && hasMore
+                if (recyclerView.getAdapter() != null && hasMore && !isLoading
                         && mLastItem + 1 == recyclerView.getAdapter().getItemCount()
                         && newState == RecyclerView.SCROLL_STATE_IDLE) {
                     sendRequest();
@@ -149,7 +149,6 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
             Log.i(AppConstant.TAG, "model is null!");
             return;
         }
-        Observable observable = null;
         if (errorBean.getClazz() == CategoryVH.class) {
             begin++;
             observable = model.getPageAt(type, begin, getPageSize());
@@ -157,7 +156,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                 || errorBean.getClazz() == TrackListVH.class) {
             observable = model.getPageAt(type, begin, length);
         }
-        mRxManager.add(observable.distinct().compose(RxSchedulers.io_main())
+        mRxManager.add(observable.compose(RxSchedulers.io_main())
                 .flatMap(new Func1<Data<T>, Observable<T>>() {
                     @Override
                     public Observable<T> call(Data<T> tData) {
@@ -172,21 +171,22 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                                 length += 10;
                             } else {
                                 list = list.subList(length - 10, list.size());
+                                hasFinished = true;
                             }
                             return (Observable<T>) Observable.from(list);
                         }
                     }
                 })
-                .subscribe(new Action1<T>() {
+                .distinct()
+                .subscribe(new Subscriber<T>() {
                     @Override
-                    public void call(T o) {
-                        mAdatper.setBeans(o);
+                    public void onCompleted() {
                     }
-                }, new Action1<Throwable>() {
+
                     @Override
-                    public void call(Throwable throwable) {
+                    public void onError(Throwable throwable) {
                         throwable.printStackTrace();
-                        Log.i(AppConstant.TAG, "sendRequest error = " + throwable.getMessage());
+                        Log.i(AppConstant.TAG, "sendRequest error = " + throwable.getMessage() + " errorBean = " + errorBean);
                         if (throwable instanceof SocketTimeoutException) {
                             mRxManager.post(AppConstant.LOADING_STATUS, null);
                             mRxManager.post(AppConstant.ERROR_MESSAGE, errorBean);
@@ -196,12 +196,21 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
 
                         }
                     }
+
+                    @Override
+                    public void onNext(T o) {
+                        mAdatper.setBeans(o);
+                    }
                 }));
     }
 
     public void refresh() {
         begin = 1;
         sendRequest();
+    }
+
+    public boolean hasFinished(){
+        return hasFinished;
     }
 
     private void setEmpty() {
@@ -222,7 +231,6 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                     .getGenericSuperclass())).getActualTypeArguments()[0])
                     .newInstance();
             errorBean.setClazz(clazz);
-            Log.i(AppConstant.TAG, "clazz = " + clazz);
             mAdatper.setViewType(clazz, type);
             this.type = tabType;
         } catch (Exception e) {
@@ -233,7 +241,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
 
 
     public class CoreAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-        private List<T> mDates = new ArrayList<>();
+        private List<T> mDatas = new ArrayList<>();
         private Class<? extends BaseViewHolder> mItemViewClass;
         private Class<? extends BaseViewHolder> mFootViewClass = CommFooterVH.class;
         private int mItemType, mFootType = CommFooterVH.FOOT_TYPE;
@@ -265,7 +273,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         @Override
         public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
             ((BaseViewHolder) holder).onBindViewHolder(holder.itemView,
-                    position + 1 == getItemCount() ? (hasMore ? new Object() : null) : mDates.get(position));
+                    position + 1 == getItemCount() ? (hasMore ? new Object() : null) : mDatas.get(position));
         }
 
         @Override
@@ -276,8 +284,9 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         public void setViewType(Class<? extends BaseViewHolder> tagClass, int type) {
             mItemType = type;
             mItemViewClass = tagClass;
-            mDates = new ArrayList<>();
+            mDatas = new ArrayList<>();
             hasMore = true;
+            hasFinished = false;
             notifyDataSetChanged();
         }
 
@@ -285,29 +294,36 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
             if (data instanceof HimalayanEntity) {
                 HimalayanEntity entity = (HimalayanEntity) data;
                 if (!entity.isIsPaid()) {
-                    this.mDates.add(data);
+                    this.mDatas.add(data);
                 }
             } else {
-                this.mDates.add(data);
+                this.mDatas.add(data);
                 notifyDataSetChanged();
                 if (errorBean.getClazz() == AlbumVH.class && length == 20) {
                     mRxManager.post(AppConstant.LOADING_STATUS, null);
                 }
             }
+            isLoading = false;
             notifyDataSetChanged();
+        }
+
+        public List<T> getData() {
+            return mDatas;
         }
 
 
         @Override
         public int getItemCount() {
-            return mDates.size() + 1;
+            return mDatas.size() + 1;
         }
     }
 
     @Override
-    protected void onDetachedFromWindow() {
+    public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         ButterKnife.unbind(this);
-        mRxManager.clear();
+        if (!AppContext.isFromWindow()) {
+            mRxManager.clear();
+        }
     }
 }

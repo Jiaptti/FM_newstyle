@@ -21,6 +21,7 @@ public class AppConstant {
     public static final String LOADING_STATUS = "loading_item";
     public static final String ERROR_MESSAGE = "error_message";
     public static final String CURRENT_POSITION_VIEW ="current_position_view";
+    public static final String UPDATE_TRACKS_UI="update_tracks_ui";
 
     //home tab and pagesize
     public static final int PAGESIZE = 10;

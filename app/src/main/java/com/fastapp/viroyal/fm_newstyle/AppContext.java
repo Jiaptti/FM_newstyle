@@ -38,6 +38,16 @@ public class AppContext extends Application{
     private static int playState = AppConstant.STATUS_NONE;
     private static AlbumPlayService.PlayBinder mBinder;
 
+    public static boolean isFromWindow() {
+        return fromWindow;
+    }
+
+    public static void setFromWindow(boolean fromWindow) {
+        AppContext.fromWindow = fromWindow;
+    }
+
+    private static boolean fromWindow = false;
+
     @Override
     public void onCreate() {
         super.onCreate();

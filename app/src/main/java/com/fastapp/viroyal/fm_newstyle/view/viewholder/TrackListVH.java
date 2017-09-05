@@ -66,9 +66,11 @@ public class TrackListVH extends BaseViewHolder<TracksBeanList>{
                 if (!AppContext.getRealmHelper().getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim())
                         || (AppContext.getRealmHelper().getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim())
                             && AppContext.getPlayState() == AppConstant.STATUS_PAUSE)) {
-                    manager.post(AppConstant.CURRENT_POSITION_VIEW, view);
-                    mBinder.playMedia(entity.getPlayUrl32());
+                    entity.setPosition(getPosition());
                     helper.setNowPlayTrack(entity);
+                    mBinder.playMedia(entity.getPlayUrl32());
+                    manager.post(AppConstant.CURRENT_POSITION_VIEW, null);
+                    manager.post(AppConstant.UPDATE_TRACKS_UI, null);
                 }
             }
         });

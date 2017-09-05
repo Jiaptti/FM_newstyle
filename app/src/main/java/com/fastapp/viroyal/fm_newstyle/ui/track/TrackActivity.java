@@ -50,7 +50,7 @@ import rx.functions.Action1;
 
 public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> implements TrackContract.View, View.OnClickListener
         , MediaPlayerManager.PlayTimeChangeListener, MediaPlayerManager.PlayBufferingUpdate
-        , SeekBar.OnSeekBarChangeListener {
+        , SeekBar.OnSeekBarChangeListener, MediaPlayerManager.PlayCompleteListener {
     @Nullable
     @Bind(R.id.action_bar)
     Toolbar actionBar;
@@ -99,9 +99,7 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
 
     private Animation operatingAnim;
     private AlbumPlayService.PlayBinder mBinder;
-    private NowPlayTrack nowPlayTrack;
     private int position;
-    private RxManager manager = new RxManager();
     private PlayListPopupWindow listPopupWindow;
 
     @Override
@@ -113,8 +111,9 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     protected void initView() {
         mBinder = AppContext.getMediaPlayService();
         listPopupWindow = new PlayListPopupWindow(mContext);
-        if(mBinder != null){
+        if (mBinder != null) {
             mBinder.setTimeListener(this);
+            mBinder.setPlayCompleteListener(this);
             mBinder.setPlayBufferingUpdateListener(this);
         }
         presenter.getNowTrack();
@@ -128,19 +127,28 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         operatingAnim = AnimationUtils.loadAnimation(this, R.anim.album_rotation);
         operatingAnim.setInterpolator(new LinearInterpolator());
         playSeekBar.setOnSeekBarChangeListener(this);
-        updatePlayUI();
-        manager.on(AppConstant.MEDIA_START_PLAY, new Action1() {
+        if(!mBinder.isPlaying()){
+            prepareLoadUI();
+        } else{
+            playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
+        }
+        presenter.getManager().on(AppConstant.MEDIA_START_PLAY, new Action1() {
             @Override
             public void call(Object o) {
                 if (o instanceof Integer) {
                     switch ((Integer) o) {
                         case AppConstant.STATUS_PLAY:
                         case AppConstant.STATUS_RESUME:
-                            updatePlayUI();
+                            Log.i(AppConstant.TAG, "finishLoadUI()");
+                            finishLoadUI();
                             presenter.getNowTrack();
                             break;
                         case AppConstant.STATUS_PAUSE:
                             playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
+                            break;
+                        case AppConstant.STATUS_STOP:
+                            playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
+                            finishLoadUI();
                             break;
                     }
                 }
@@ -164,6 +172,13 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
                 trackContent.setVisibility(View.VISIBLE);
             }
         });
+
+        presenter.getManager().on(AppConstant.UPDATE_TRACKS_UI, new Action1() {
+            @Override
+            public void call(Object o) {
+                prepareLoadUI();
+            }
+        });
     }
 
     @Override
@@ -184,10 +199,12 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        listPopupWindow.onDestroy();
+        listPopupWindow.destroyManager();
         listPopupWindow = null;
-        manager.clear(AppConstant.MEDIA_START_PLAY);
-        manager.clear(AppConstant.UPDATE_ITEM_STATUS);
+        presenter.getManager().clear(AppConstant.MEDIA_START_PLAY);
+        presenter.getManager().clear(AppConstant.ERROR_MESSAGE);
+        presenter.getManager().clear(AppConstant.UPDATE_TRACKS_UI);
+        AppContext.setFromWindow(false);
     }
 
     @Override
@@ -201,7 +218,7 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
                 }
                 break;
             case R.id.play_pause:
-                if(mBinder != null){
+                if (mBinder != null) {
                     if (mBinder.isPlaying()) {
                         mBinder.pauseMedia();
                         playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
@@ -212,13 +229,13 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
                 }
                 break;
             case R.id.player_backward:
-                if(mBinder != null){
+                if (mBinder != null) {
                     mBinder.seekTo(mBinder.getCurrentPosition() - 15000);
                     playTimeChange(mBinder.getCurrentPosition());
                 }
                 break;
             case R.id.player_forward:
-                if(mBinder != null){
+                if (mBinder != null) {
                     mBinder.seekTo(mBinder.getCurrentPosition() + 15000);
                     playTimeChange(mBinder.getCurrentPosition());
                 }
@@ -227,31 +244,25 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
                 listPopupWindow.show(mainContent);
                 break;
             case R.id.previous:
-
+                listPopupWindow.playPrev();
+                prepareLoadUI();
                 break;
             case R.id.next:
-
+                listPopupWindow.playNext();
+                prepareLoadUI();
                 break;
         }
     }
 
-//    @Override
-//    public void setNowPlayerMessage(TrackInfoBean trackInfoBean) {
-//        ImageUtils.loadImage(mContext, trackInfoBean.getCoverLarge(), trackImg);
-//        CommonUtils.setTotalTime(trackInfoBean.getDuration(), totalTime);
-//        CommonUtils.setTotalTime(trackInfoBean.getDuration(), playerDuration);
-//    }
-
     @Override
     public void setNowPlayerTrack(NowPlayTrack nowPlayerTrack) {
-        nowPlayTrack = AppContext.getRealmHelper().getNowPlayingTrack();
-        ImageUtils.loadImage(mContext, nowPlayTrack.getCoverLarge(), trackImg);
-        CommonUtils.setTotalTime(nowPlayTrack.getDuration(), totalTime);
-        CommonUtils.setTotalTime(nowPlayTrack.getDuration(), playerDuration);
-        if(mBinder != null){
+        ImageUtils.loadImage(mContext, AppContext.getRealmHelper().getNowPlayingTrack().getCoverLarge(), trackImg);
+        CommonUtils.setTotalTime(AppContext.getRealmHelper().getNowPlayingTrack().getDuration(), totalTime);
+        CommonUtils.setTotalTime(AppContext.getRealmHelper().getNowPlayingTrack().getDuration(), playerDuration);
+        if (mBinder != null) {
             playTimeChange(mBinder.getCurrentPosition());
         }
-        mBinder.playMedia(nowPlayTrack.getPlayUrl32());
+        mBinder.playMedia(AppContext.getRealmHelper().getNowPlayingTrack().getPlayUrl32());
     }
 
 
@@ -263,7 +274,7 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         CommonUtils.setCurrentTime((time / 1000), currentTime);
         CommonUtils.setCurrentTime((time / 1000), playerCurrentTime);
 
-        if(mBinder != null){
+        if (mBinder != null) {
             int position = mBinder.getCurrentPosition();
             int duration = mBinder.getDuration();
             if (duration > 0) {
@@ -275,22 +286,33 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         }
     }
 
-    private void updatePlayUI(){
-        if(mBinder != null && playBtnBg != null){
-            if(mBinder.isPlaying()){
-                if(playLoadingImg != null && playLoadingImg.getAnimation() != null){
-                    playLoadingImg.clearAnimation();
-                }
-                playBtnBg.setVisibility(View.VISIBLE);
-                playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
-                playPauseButton.setEnabled(true);
-            } else {
-                playBtnBg.setVisibility(View.GONE);
-                playLoadingImg.setVisibility(View.VISIBLE);
-                playLoadingImg.startAnimation(operatingAnim);
-                playPauseButton.setEnabled(false);
-            }
+
+    private void finishLoadUI() {
+        if (playLoadingImg != null && playLoadingImg.getAnimation() != null) {
+            playLoadingImg.clearAnimation();
         }
+        playBtnBg.setVisibility(View.VISIBLE);
+        playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
+        playPauseButton.setEnabled(true);
+        prev.setEnabled(true);
+        playList.setEnabled(true);
+        if (AppContext.getRealmHelper().getNowPlayingTrack().getPosition() == 0) {
+            prev.setEnabled(false);
+        }
+        if (listPopupWindow.hasMore()) {
+            next.setEnabled(true);
+        }
+    }
+
+    private void prepareLoadUI() {
+            playBtnBg.setVisibility(View.GONE);
+            playLoadingImg.setVisibility(View.VISIBLE);
+            playLoadingImg.startAnimation(operatingAnim);
+            playPauseButton.setEnabled(false);
+            prev.setEnabled(false);
+            next.setEnabled(false);
+            playList.setEnabled(false);
+            playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
     }
 
     @Override
@@ -301,7 +323,7 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        if(mBinder != null){
+        if (mBinder != null) {
             int duration = mBinder.getDuration();
             position = ((progress * duration) / 100);
         }
@@ -315,5 +337,15 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
         mBinder.seekTo(position);
+    }
+
+    @Override
+    public void playMusicComplete() {
+        if(listPopupWindow.hasMore()){
+            listPopupWindow.playNext();
+            prepareLoadUI();
+        } else {
+            mBinder.stopMedia();
+        }
     }
 }

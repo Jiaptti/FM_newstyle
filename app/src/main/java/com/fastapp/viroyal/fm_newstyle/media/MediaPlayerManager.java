@@ -8,13 +8,10 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
-import android.widget.SeekBar;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
-import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
-import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
 
 import java.io.IOException;
 
@@ -84,6 +81,11 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
                 e.printStackTrace();
             }
         }
+        manager.post(AppConstant.MEDIA_START_PLAY, AppConstant.STATUS_STOP);
+    }
+
+    public void onDestroy(){
+        stopFM();
         listener = null;
         timeListener = null;
         bufferListener = null;
@@ -96,10 +98,6 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
         if(timeChangeHandler != null){
             timeChangeHandler.removeCallbacksAndMessages(null);
         }
-    }
-
-    public void onDestroy(){
-        stopFM();
         if (mediaPlayer != null) {
             mediaPlayer.setOnPreparedListener(null);
             mediaPlayer.setOnCompletionListener(null);
@@ -108,6 +106,7 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
             position = 0;
             AppContext.setPlayState(AppConstant.STATUS_NONE);
         }
+        manager.clear(AppConstant.MEDIA_START_PLAY);
     }
 
     private void initPlayer() {
@@ -126,7 +125,6 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
     public void playFM(String url) {
         this.url = url;
         playHandler.sendEmptyMessage(AppConstant.STATUS_PLAY);
-        timeChangeHandler.postAtTime(TimeChangeRunnable, 1000);
         AppContext.setPlayState(AppConstant.STATUS_PLAY);
     }
 
@@ -246,7 +244,7 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
                         super.handleMessage(msg);
                         switch (msg.what) {
                             case AppConstant.STATUS_UPDATE_TIME:
-                                if(timeListener != null)
+                                if(timeListener != null && mediaPlayer.isPlaying())
                                     timeListener.playTimeChange(mediaPlayer.getCurrentPosition());
                                 break;
                         }
@@ -270,7 +268,10 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        playFMComplete();
+        if(mediaPlayer.getCurrentPosition() > 0 && !mediaPlayer.isPlaying()){
+            stopMediaPlayer();
+            playFMComplete();
+        }
     }
 
     @Override
@@ -288,6 +289,8 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
     public void onPrepared(MediaPlayer mediaPlayer) {
         if (mediaPlayer != null && AppContext.getPlayState() != AppConstant.STATUS_PAUSE) {
             mediaPlayer.start();
+            timeChangeHandler.removeCallbacks(TimeChangeRunnable);
+            timeChangeHandler.postAtTime(TimeChangeRunnable, 1000);
             manager.post(AppConstant.MEDIA_START_PLAY, AppConstant.STATUS_PLAY);
         }
     }

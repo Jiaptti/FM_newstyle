@@ -57,6 +57,7 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
                                 animation.start();
                                 break;
                             case AppConstant.STATUS_PAUSE:
+                            case AppConstant.STATUS_STOP:
                                 animation.stop();
                                 album_item_name.setTextColor(Color.BLACK);
                                 break;
@@ -96,9 +97,11 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
                             helper.setNowPlayTrack(entity);
                         }
                     } else if (AppContext.getPlayState() == AppConstant.STATUS_NONE
-                            || AppContext.getPlayState() == AppConstant.STATUS_PAUSE) {
+                            || AppContext.getPlayState() == AppConstant.STATUS_PAUSE
+                            || AppContext.getPlayState() == AppConstant.STATUS_STOP) {
                         mBinder.playMedia(entity.getPlayUrl32());
                         helper.setNowPlayTrack(entity);
+                        entity.setPosition(getPosition());
                     }
                 }
             }
@@ -107,10 +110,11 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
         album_content_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mBinder.isPlaying()){
+                if(mBinder.isPlaying() && helper.getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim())){
                     Intent intent = new Intent(mContext, TrackActivity.class);
                     mContext.startActivity(intent);
                 } else {
+                    entity.setPosition(getPosition());
                     helper.setNowPlayTrack(entity);
                     Intent intent = new Intent(mContext, TrackActivity.class);
                     mContext.startActivity(intent);

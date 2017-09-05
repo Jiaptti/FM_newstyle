@@ -36,6 +36,15 @@ public class NowPlayTrack extends RealmObject {
     private int shares;
     private int status;
     private int maxPage;
+    private int position;
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
 
     public int getMaxPage() {
         return maxPage;
