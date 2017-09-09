@@ -76,7 +76,9 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
     private void stopFM() {
         if (mediaPlayer != null) {
             try {
-                mediaPlayer.stop();
+                mediaPlayer.pause();
+                mediaPlayer.seekTo(0);
+                position = mediaPlayer.getCurrentPosition();
             } catch (IllegalStateException e) {
                 e.printStackTrace();
             }

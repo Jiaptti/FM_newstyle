@@ -6,10 +6,15 @@ import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
+import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
+import com.fastapp.viroyal.fm_newstyle.data.TrackListCache;
 import com.fastapp.viroyal.fm_newstyle.media.MediaPlayerManager;
+
+import java.util.List;
 
 /**
  * Created by hanjiaqi on 2017/7/19.
@@ -19,12 +24,14 @@ public class AlbumPlayService extends Service{
     private PlayBinder playBinder;
     private RxManager manager = new RxManager();
     private MediaPlayerManager playerManager;
+    private TrackListCache cache;
 
     @Override
     public void onCreate() {
         super.onCreate();
         playBinder = new PlayBinder();
         playerManager = MediaPlayerManager.newInstance();
+        cache = TrackListCache.getInstance();
     }
 
     @Nullable
@@ -88,6 +95,16 @@ public class AlbumPlayService extends Service{
         public void setPlayCompleteListener(MediaPlayerManager.PlayCompleteListener listener){
             playerManager.setPlayerCompleteListener(listener);
         }
+
+        public void setData(List data){
+            cache.clearCache();
+            cache.setCacheData(data);
+        }
+
+        public List getData(){
+            return cache.getCacheData();
+        }
+
     }
 
     @Override

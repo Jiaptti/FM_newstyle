@@ -1,8 +1,6 @@
 package com.fastapp.viroyal.fm_newstyle.ui.track;
 
-import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
-import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.widget.NestedScrollView;
@@ -22,13 +20,9 @@ import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseActivity;
-import com.fastapp.viroyal.fm_newstyle.base.RxManager;
-import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
+import com.fastapp.viroyal.fm_newstyle.data.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.media.MediaPlayerManager;
-import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
-import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
-import com.fastapp.viroyal.fm_newstyle.model.entity.TrackInfoBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
 import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
@@ -36,7 +30,6 @@ import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
 import com.fastapp.viroyal.fm_newstyle.view.popup.PlayListPopupWindow;
-import com.fastapp.viroyal.fm_newstyle.view.viewholder.AlbumVH;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.TrackListVH;
 
 import java.util.List;
@@ -101,6 +94,7 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     private AlbumPlayService.PlayBinder mBinder;
     private int position;
     private PlayListPopupWindow listPopupWindow;
+    private RealmHelper helper;
 
     @Override
     protected int layoutResID() {
@@ -111,6 +105,7 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
     protected void initView() {
         mBinder = AppContext.getMediaPlayService();
         listPopupWindow = new PlayListPopupWindow(mContext);
+        helper = AppContext.getRealmHelper();
         if (mBinder != null) {
             mBinder.setTimeListener(this);
             mBinder.setPlayCompleteListener(this);
@@ -127,10 +122,10 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         operatingAnim = AnimationUtils.loadAnimation(this, R.anim.album_rotation);
         operatingAnim.setInterpolator(new LinearInterpolator());
         playSeekBar.setOnSeekBarChangeListener(this);
-        if(!mBinder.isPlaying()){
+        if (!mBinder.isPlaying()) {
             prepareLoadUI();
-        } else{
-            playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
+        } else {
+            finishLoadUI();
         }
         presenter.getManager().on(AppConstant.MEDIA_START_PLAY, new Action1() {
             @Override
@@ -139,15 +134,13 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
                     switch ((Integer) o) {
                         case AppConstant.STATUS_PLAY:
                         case AppConstant.STATUS_RESUME:
-                            Log.i(AppConstant.TAG, "finishLoadUI()");
                             finishLoadUI();
                             presenter.getNowTrack();
                             break;
                         case AppConstant.STATUS_PAUSE:
-                            playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
+                            finishLoadUI();
                             break;
                         case AppConstant.STATUS_STOP:
-                            playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
                             finishLoadUI();
                             break;
                     }
@@ -205,6 +198,8 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         presenter.getManager().clear(AppConstant.ERROR_MESSAGE);
         presenter.getManager().clear(AppConstant.UPDATE_TRACKS_UI);
         AppContext.setFromWindow(false);
+        if (operatingAnim != null)
+            operatingAnim = null;
     }
 
     @Override
@@ -221,11 +216,12 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
                 if (mBinder != null) {
                     if (mBinder.isPlaying()) {
                         mBinder.pauseMedia();
-                        playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
                     } else {
+                        if (AppContext.getPlayState() != AppConstant.STATUS_STOP)
+                            prepareLoadUI();
                         mBinder.resumePlay();
-                        playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
                     }
+                    finishLoadUI();
                 }
                 break;
             case R.id.player_backward:
@@ -256,13 +252,14 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
 
     @Override
     public void setNowPlayerTrack(NowPlayTrack nowPlayerTrack) {
-        ImageUtils.loadImage(mContext, AppContext.getRealmHelper().getNowPlayingTrack().getCoverLarge(), trackImg);
-        CommonUtils.setTotalTime(AppContext.getRealmHelper().getNowPlayingTrack().getDuration(), totalTime);
-        CommonUtils.setTotalTime(AppContext.getRealmHelper().getNowPlayingTrack().getDuration(), playerDuration);
+        ImageUtils.loadImage(mContext, helper.getNowPlayingTrack().getCoverLarge(), trackImg);
+        CommonUtils.setTotalTime(helper.getNowPlayingTrack().getDuration(), totalTime);
+        CommonUtils.setTotalTime(helper.getNowPlayingTrack().getDuration(), playerDuration);
         if (mBinder != null) {
             playTimeChange(mBinder.getCurrentPosition());
         }
-        mBinder.playMedia(AppContext.getRealmHelper().getNowPlayingTrack().getPlayUrl32());
+        if (AppContext.getPlayState() != AppConstant.STATUS_STOP)
+            mBinder.playMedia(helper.getNowPlayingTrack().getPlayUrl32());
     }
 
 
@@ -292,27 +289,29 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
             playLoadingImg.clearAnimation();
         }
         playBtnBg.setVisibility(View.VISIBLE);
-        playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
-        playPauseButton.setEnabled(true);
-        prev.setEnabled(true);
-        playList.setEnabled(true);
-        if (AppContext.getRealmHelper().getNowPlayingTrack().getPosition() == 0) {
-            prev.setEnabled(false);
+        if(mBinder.isPlaying()){
+            playPauseButton.setBackgroundResource(R.drawable.player_toolbar_pause_bg);
+        } else {
+            playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
         }
-        if (listPopupWindow.hasMore()) {
+        playPauseButton.setEnabled(true);
+        if (helper.getNowPlayingTrack().getPosition() == 0) {
+            prev.setEnabled(false);
+        } else {
+            prev.setEnabled(true);
+        }
+        if (listPopupWindow.hasNext()) {
             next.setEnabled(true);
+        } else {
+            next.setEnabled(false);
         }
     }
 
     private void prepareLoadUI() {
-            playBtnBg.setVisibility(View.GONE);
-            playLoadingImg.setVisibility(View.VISIBLE);
-            playLoadingImg.startAnimation(operatingAnim);
-            playPauseButton.setEnabled(false);
-            prev.setEnabled(false);
-            next.setEnabled(false);
-            playList.setEnabled(false);
-            playPauseButton.setBackgroundResource(R.drawable.player_toolbar_play_bg);
+        playBtnBg.setVisibility(View.GONE);
+        playLoadingImg.setVisibility(View.VISIBLE);
+        playLoadingImg.startAnimation(operatingAnim);
+        playPauseButton.setEnabled(false);
     }
 
     @Override
@@ -341,11 +340,12 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
 
     @Override
     public void playMusicComplete() {
-        if(listPopupWindow.hasMore()){
+        if (listPopupWindow.hasNext()) {
             listPopupWindow.playNext();
             prepareLoadUI();
         } else {
             mBinder.stopMedia();
+            presenter.getNowTrack();
         }
     }
 }

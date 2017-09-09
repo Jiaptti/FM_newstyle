@@ -1,6 +1,7 @@
 package com.fastapp.viroyal.fm_newstyle.model.base;
 
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBean;
 
 import java.util.List;
 
@@ -13,6 +14,7 @@ public class Data<T> {
     public int ret;
     private HimalayanBean data;
     private String msg;
+
     public int getRet() {
         return ret;
     }

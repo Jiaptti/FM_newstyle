@@ -1,14 +1,16 @@
 package com.fastapp.viroyal.fm_newstyle;
 
+import android.annotation.TargetApi;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.*;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,15 +19,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
-import com.fastapp.viroyal.fm_newstyle.model.base.Data;
+import com.fastapp.viroyal.fm_newstyle.data.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
 import com.fastapp.viroyal.fm_newstyle.util.NetWorkUtils;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import io.realm.Realm;
 
 /**
  * Created by hanjiaqi on 2017/6/27.
@@ -38,6 +34,16 @@ public class AppContext extends Application{
     private static int playState = AppConstant.STATUS_NONE;
     private static AlbumPlayService.PlayBinder mBinder;
 
+    public static int getTempPageId() {
+        return tempPageId;
+    }
+
+    public static void setTempPageId(int tempPageId) {
+        AppContext.tempPageId = tempPageId;
+    }
+
+    private static int tempPageId = 1;
+
     public static boolean isFromWindow() {
         return fromWindow;
     }
@@ -48,12 +54,39 @@ public class AppContext extends Application{
 
     private static boolean fromWindow = false;
 
+    private static boolean sIsAtLeastGB;
+
+    static {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            sIsAtLeastGB = true;
+        }
+    }
+
+
+
     @Override
     public void onCreate() {
         super.onCreate();
         mApp = this;
         checkNet();
         bindMediaService();
+    }
+
+    public static SharedPreferences getPersistPreferences() {
+        return mApp.getSharedPreferences(AppConstant.PREF_NAME, Context.MODE_PRIVATE);
+    }
+
+    public static Editor getEditor(){
+        return getPersistPreferences().edit();
+    }
+
+    @TargetApi(Build.VERSION_CODES.GINGERBREAD)
+    public static void apply(Editor editor) {
+        if (sIsAtLeastGB) {
+            editor.apply();
+        } else {
+            editor.commit();
+        }
     }
 
     public static AlbumPlayService.PlayBinder getMediaPlayService(){

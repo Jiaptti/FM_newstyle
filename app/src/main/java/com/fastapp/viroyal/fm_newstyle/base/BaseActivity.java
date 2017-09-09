@@ -10,39 +10,25 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
-import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
-import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
-import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
+import com.fastapp.viroyal.fm_newstyle.data.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
 import com.fastapp.viroyal.fm_newstyle.ui.track.TrackActivity;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.util.TUtils;
 import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
-import com.fastapp.viroyal.fm_newstyle.view.layout.SwipeBackLayout;
-import com.fastapp.viroyal.fm_newstyle.view.viewholder.CategoryVH;
 
-import org.w3c.dom.Text;
-
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
-
-import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.functions.Action1;
 
@@ -92,12 +78,14 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
                         mContext.startActivity(intent);
                     } else {
                         NowPlayTrack entity = AppContext.getRealmHelper().getNowPlayingTrack();
-                        AppContext.getMediaPlayService().playMedia(entity.getPlayUrl32());
-                        Bundle bundle = new Bundle();
-                        bundle.putInt(AppConstant.TRACK_ID, entity.getTrackId());
-                        Intent intent = new Intent(mContext, TrackActivity.class);
-                        intent.putExtra(AppConstant.TRACK_BUNDLE, bundle);
-                        mContext.startActivity(intent);
+                        if(entity != null){
+                            AppContext.getMediaPlayService().playMedia(entity.getPlayUrl32());
+                            Bundle bundle = new Bundle();
+                            bundle.putInt(AppConstant.TRACK_ID, entity.getTrackId());
+                            Intent intent = new Intent(mContext, TrackActivity.class);
+                            intent.putExtra(AppConstant.TRACK_BUNDLE, bundle);
+                            mContext.startActivity(intent);
+                        }
                     }
                 }
             });
@@ -108,6 +96,7 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         if (supportBottomPlay()) {
             setPlayViewStatue();
         }
+        playNowImgAnimation();
         presenter.getManager().on(AppConstant.MEDIA_START_PLAY, new Action1() {
             @Override
             public void call(Object obj) {
@@ -154,13 +143,14 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
     }
 
     private void setPlayViewStatue() {
-        if (AppContext.getPlayState() == AppConstant.STATUS_PLAY
+        if (realmHelper.getNowPlayingTrack() == null &&(AppContext.getPlayState() == AppConstant.STATUS_PLAY
                 || AppContext.getPlayState() == AppConstant.STATUS_RESUME
-                 || AppContext.getPlayState() == AppConstant.STATUS_NONE) {
-            ImageUtils.loadCircleImage(AppContext.getAppContext(), realmHelper.getNowPlayingTrack().getCoverSmall(), nowPlayingImg);
+                 || AppContext.getPlayState() == AppConstant.STATUS_NONE)) {
+                nowPlayingStatus.setBackgroundResource(R.mipmap.play_icon_default);
         } else if (AppContext.getPlayState() == AppConstant.STATUS_PAUSE || AppContext.getPlayState() == AppConstant.STATUS_STOP) {
             nowPlayingStatus.setBackgroundResource(R.mipmap.play_icon_pause);
         }
+        ImageUtils.loadCircleImage(AppContext.getAppContext(), realmHelper.getNowPlayingTrack().getCoverSmall(), nowPlayingImg);
     }
 
     private void initActionBar(Toolbar actionBar) {

@@ -13,10 +13,8 @@ import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
-import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
-import com.fastapp.viroyal.fm_newstyle.model.base.Data;
+import com.fastapp.viroyal.fm_newstyle.data.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
-import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
 import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
 import com.fastapp.viroyal.fm_newstyle.view.layout.TRecyclerView;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.TrackListVH;
@@ -48,7 +46,8 @@ public class PlayListPopupWindow extends PopupWindow{
         mTRecyclerView = (TRecyclerView) view.findViewById(R.id.play_list_view);
         popupClose = (TextView)  view.findViewById(R.id.popup_close);
         mTRecyclerView.setView(TrackListVH.class, realmHelper.getNowPlayingTrack().getAlbumId());
-        mTRecyclerView.sendRequest();
+        initData();
+        mTRecyclerView.getRecyclerView().scrollToPosition(realmHelper.getNowPlayingTrack().getPosition());
         backgroundAlpha(1f);
         setWidth(WindowManager.LayoutParams.MATCH_PARENT);
         setHeight((AppContext.getScreenHeight() / 2) + (AppContext.getScreenHeight() / 4));
@@ -77,10 +76,23 @@ public class PlayListPopupWindow extends PopupWindow{
         });
     }
 
+    private void initData(){
+        int index = AppContext.getPersistPreferences().getInt(AppConstant.CACHE_PAGEID, 1);
+        if(index > 1 && mBinder.getData() == null){
+            for(int i = 1; i < index; i++){
+                Log.i(AppConstant.TAG, "sendRequest");
+                mTRecyclerView.sendRequest();
+            }
+        } else {
+            mTRecyclerView.sendRequest();
+        }
+
+    }
+
     private void loadListData(){
         int count = mTRecyclerView.getAdapter().getItemCount() - 1;
         int position = realmHelper.getNowPlayingTrack().getPosition() + 4;
-        if(position + 4 > count && !mTRecyclerView.hasFinished()){
+        if(position > count && mTRecyclerView.hasMore()){
             mTRecyclerView.sendRequest();
         }
     }
@@ -93,7 +105,7 @@ public class PlayListPopupWindow extends PopupWindow{
     public void playNext(){
         List<TracksBeanList> beanList = mTRecyclerView.getAdapter().getData();
         TracksBeanList entity = beanList.get(realmHelper.getNowPlayingTrack().getPosition() + 1);
-        entity.setPosition(realmHelper.getNowPlayingTrack().getPosition() + 1);
+        entity.setPosition(realmHelper.getNowPlayingTrack().getPosition());
         realmHelper.setNowPlayTrack(entity);
         mBinder.playMedia(realmHelper.getNowPlayingTrack().getPlayUrl32());
         loadListData();
@@ -124,8 +136,8 @@ public class PlayListPopupWindow extends PopupWindow{
         }
     }
 
-    public boolean hasMore(){
-        int count = mTRecyclerView.getAdapter().getItemCount() - 1;
+    public boolean hasNext(){
+        int count = AppContext.getPersistPreferences().getInt(AppConstant.MAX_PAGE, 0);
         return ((realmHelper.getNowPlayingTrack().getPosition() + 1) != count);
     }
 

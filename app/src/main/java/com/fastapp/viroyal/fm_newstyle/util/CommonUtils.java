@@ -126,6 +126,7 @@ public class CommonUtils {
                     currentTime.setText((time / 60) + ":" + (time % 60));
                 }
             }
+            currentTime.invalidate();
         }
     }
 

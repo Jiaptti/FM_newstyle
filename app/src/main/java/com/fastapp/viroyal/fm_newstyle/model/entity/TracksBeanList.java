@@ -278,7 +278,7 @@ public class TracksBeanList extends BaseEntity{
 
     @Override
     public Observable getPageAt(int categoryId, int pageId, int pageSize) {
-        Observable observable = Api.getInstance().getApiService().getAlbumsList(categoryId, pageSize);
+        Observable observable = Api.getInstance().getApiService().getTrackList(categoryId, pageId, pageSize);
         return observable;
     }
 }

@@ -3,7 +3,7 @@ package com.fastapp.viroyal.fm_newstyle.model.entity;
 import java.util.List;
 
 /**
- * Created by hanjiaqi on 2017/7/6.
+ * Created by hanjiaqi on 2017/9/7.
  */
 
 public class TracksBean {

@@ -28,47 +28,6 @@ public class TrackPresenter extends TrackContract.Presenter {
     protected void onStart() {
     }
 
-//    @Override
-//    void getTrack(int trackId) {
-//        getManager().add(model.getTrackInfoBean(trackId)
-//                .compose(RxSchedulers.<TrackInfoBean>io_main())
-//                .doOnSubscribe(new Action0() {
-//                    @Override
-//                    public void call() {
-////                        view.showLoading();
-//                    }
-//                })
-//                .subscribeOn(AndroidSchedulers.mainThread())
-//                .subscribe(
-//                        new Subscriber<TrackInfoBean>() {
-//                            @Override
-//                            public void onCompleted() {
-//                            }
-//
-//                            @Override
-//                            public void onError(Throwable throwable) {
-//                                throwable.printStackTrace();
-//                                Log.i(AppConstant.TAG, "getTrack error = " + throwable.getMessage());
-//                                if (throwable instanceof SocketTimeoutException) {
-//                                    getManager().post(AppConstant.LOADING_STATUS, null);
-//                                    ErrorBean errorBean = new ErrorBean();
-//                                    errorBean.setClazz(TrackListVH.class);
-//                                    getManager().post(AppConstant.ERROR_MESSAGE, errorBean);
-//                                } else if (throwable instanceof ConnectException) {
-//
-//                                } else {
-//
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onNext(TrackInfoBean trackInfoBean) {
-//                                view.setNowPlayerMessage(trackInfoBean);
-//                            }
-//                        }
-//                ));
-//    }
-
     @Override
     void getAlumList(int albumId, int pageSize) {
         getManager().add(model.getAlbumList(albumId, pageSize)

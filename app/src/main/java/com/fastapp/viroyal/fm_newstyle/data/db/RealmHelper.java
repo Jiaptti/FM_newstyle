@@ -1,4 +1,4 @@
-package com.fastapp.viroyal.fm_newstyle.db;
+package com.fastapp.viroyal.fm_newstyle.data.db;
 
 import android.content.Context;
 import android.util.Log;
@@ -6,13 +6,9 @@ import android.util.Log;
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
-import com.fastapp.viroyal.fm_newstyle.model.realm.TracksBeanRealm;
-
-import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
-import io.realm.RealmResults;
 
 /**
  * Created by hanjiaqi on 2017/7/24.
@@ -86,6 +82,7 @@ public class RealmHelper {
         NowPlayTrack playTrack = null;
         if(isNowTrack(entity.getPlayUrl32()) == null){
             playTrack = new NowPlayTrack();
+            playTrack.setTrackId(entity.getTrackId());
             playTrack.setTitle(entity.getTitle());
             playTrack.setTrackId(entity.getTrackId());
             playTrack.setDuration(entity.getDuration());

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimationDrawable;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -16,7 +15,7 @@ import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseViewHolder;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
-import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
+import com.fastapp.viroyal.fm_newstyle.data.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
 import com.fastapp.viroyal.fm_newstyle.ui.track.TrackActivity;
@@ -89,7 +88,7 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
                 if (mBinder != null) {
                     if (mBinder.isPlaying() || AppContext.getPlayState() == AppConstant.STATUS_RESUME
                             || AppContext.getPlayState() == AppConstant.STATUS_PLAY) {
-                        if (helper.getNowPlayingTrack().getTitle().equals(entity.getTitle())) {
+                        if (helper.getNowPlayingTrack().getTrackId() == entity.getTrackId()) {
                             mBinder.pauseMedia();
                         } else {
                             mBinder.stopMedia();
@@ -99,6 +98,7 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
                     } else if (AppContext.getPlayState() == AppConstant.STATUS_NONE
                             || AppContext.getPlayState() == AppConstant.STATUS_PAUSE
                             || AppContext.getPlayState() == AppConstant.STATUS_STOP) {
+                        AppContext.apply(AppContext.getEditor().putInt(AppConstant.CACHE_PAGEID, AppContext.getTempPageId()));
                         mBinder.playMedia(entity.getPlayUrl32());
                         helper.setNowPlayTrack(entity);
                         entity.setPosition(getPosition());
@@ -110,7 +110,7 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
         album_content_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mBinder.isPlaying() && helper.getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim())){
+                if(mBinder.isPlaying() && helper.getNowPlayingTrack().getTrackId() == entity.getTrackId()){
                     Intent intent = new Intent(mContext, TrackActivity.class);
                     mContext.startActivity(intent);
                 } else {
@@ -119,6 +119,7 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
                     Intent intent = new Intent(mContext, TrackActivity.class);
                     mContext.startActivity(intent);
                 }
+                AppContext.apply(AppContext.getEditor().putInt(AppConstant.CACHE_PAGEID, AppContext.getTempPageId()));
             }
         });
         setPlayStatus(entity);
@@ -126,7 +127,7 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
 
     private void setPlayStatus(TracksBeanList entity) {
         if (helper.getNowPlayingTrack() != null &&
-                helper.getNowPlayingTrack().getTitle().trim().equalsIgnoreCase(entity.getTitle().trim())) {
+                helper.getNowPlayingTrack().getTrackId() ==entity.getTrackId()) {
             if ((AppContext.getPlayState() == AppConstant.STATUS_PLAY || AppContext.getPlayState() == AppConstant.STATUS_RESUME)) {
                 album_item_name.setTextColor(Color.RED);
                 if (mBinder != null && mBinder.isPlaying() && !animation.isRunning()) {

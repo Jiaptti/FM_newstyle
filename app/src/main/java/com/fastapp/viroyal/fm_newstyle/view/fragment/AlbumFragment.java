@@ -30,6 +30,7 @@ public class AlbumFragment extends BaseListFragment{
                 @Override
                 public void call(Object o) {
                     mTRecyclerView.getAdapter().notifyDataSetChanged();
+                    AppContext.apply(AppContext.getEditor().putInt(AppConstant.MAX_PAGE, mTRecyclerView.getMaxCount()));
                 }
             });
         }
@@ -43,6 +44,14 @@ public class AlbumFragment extends BaseListFragment{
             mTRecyclerView.sendRequest();
         }
     }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.i(AppConstant.TAG, "onDetach ");
+        manager.clear(AppConstant.UPDATE_ITEM_STATUS);
+    }
+
 
     @Override
     public void onDestroy() {

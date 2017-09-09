@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -15,11 +14,10 @@ import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseActivity;
 import com.fastapp.viroyal.fm_newstyle.base.BaseListFragment;
-import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
+import com.fastapp.viroyal.fm_newstyle.data.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
-import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
@@ -27,7 +25,6 @@ import com.fastapp.viroyal.fm_newstyle.view.fragment.AlbumDetailsFragment;
 import com.fastapp.viroyal.fm_newstyle.view.fragment.AlbumFragment;
 import com.fastapp.viroyal.fm_newstyle.view.fragment.adapter.FragmentAdapter;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.AlbumVH;
-import com.fastapp.viroyal.fm_newstyle.view.viewholder.CategoryVH;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -105,7 +102,6 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
                     errorLayout.setVisibility(View.VISIBLE);
                     albumContent.setVisibility(View.GONE);
                 }
-
             }
         });
         reload.setOnClickListener(new View.OnClickListener() {
