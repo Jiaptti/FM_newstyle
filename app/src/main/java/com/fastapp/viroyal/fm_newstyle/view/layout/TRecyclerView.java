@@ -16,16 +16,16 @@ import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseViewHolder;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
-import com.fastapp.viroyal.fm_newstyle.data.TrackListCache;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.base.BaseEntity;
 import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanEntity;
+import com.fastapp.viroyal.fm_newstyle.model.entity.RankingTracksBean;
+import com.fastapp.viroyal.fm_newstyle.model.entity.RankingTracks;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksData;
 import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
 import com.fastapp.viroyal.fm_newstyle.util.RxSchedulers;
-import com.fastapp.viroyal.fm_newstyle.util.Test;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.AlbumVH;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.CategoryVH;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.CommFooterVH;
@@ -40,7 +40,6 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.Observable;
-import rx.Subscriber;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -160,15 +159,15 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         } else if (errorBean.getClazz() == AlbumVH.class) {
             observable = getTrackModel(type, begin);
             AppContext.setTempPageId(begin);
-        } else {
+        } else if(errorBean.getClazz() == TrackListVH.class){
             if (mBinder.getData() != null && begin == 1) {
                 observable = Observable.from(mBinder.getData());
                 begin = AppContext.getPersistPreferences().getInt(AppConstant.CACHE_PAGEID, 1);
-                Log.i(AppConstant.TAG, "from data begin = " + begin);
             } else {
-                Log.i(AppConstant.TAG, "from net begin = " + begin);
                 observable = getTrackModel(type, begin);
             }
+        } else{
+            observable = getRankingModel(type, begin);
         }
         mRxManager.add(observable.subscribe(
                 new Action1<T>() {
@@ -191,6 +190,16 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                         }
                     }
                 }));
+    }
+
+    private Observable getRankingModel(int type, int begin){
+        return model.getPageAt(type, begin, getPageSize()).compose(RxSchedulers.io_main())
+                .flatMap(new Func1<RankingTracks, Observable<RankingTracksBean>>() {
+                    @Override
+                    public Observable<RankingTracksBean> call(RankingTracks rankingTracks) {
+                        return Observable.from(rankingTracks.getList());
+                    }
+                });
     }
 
     private Observable getTrackModel(int type, int begin) {
@@ -312,7 +321,14 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                     this.mDatas.add(data);
                 }
             } else {
-                this.mDatas.add(data);
+                if(data instanceof RankingTracksBean){
+                    RankingTracksBean entity = (RankingTracksBean) data;
+                    if (!entity.isIsPaid()) {
+                        this.mDatas.add(data);
+                    }
+                } else {
+                    this.mDatas.add(data);
+                }
                 notifyDataSetChanged();
                 mBinder.setData(mDatas);
                 if (errorBean.getClazz() == AlbumVH.class && begin == 1)

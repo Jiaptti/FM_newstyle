@@ -24,6 +24,7 @@ import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.data.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
+import com.fastapp.viroyal.fm_newstyle.ui.ranking.RankingActivity;
 import com.fastapp.viroyal.fm_newstyle.ui.track.TrackActivity;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.util.TUtils;
@@ -84,6 +85,9 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
                             bundle.putInt(AppConstant.TRACK_ID, entity.getTrackId());
                             Intent intent = new Intent(mContext, TrackActivity.class);
                             intent.putExtra(AppConstant.TRACK_BUNDLE, bundle);
+                            mContext.startActivity(intent);
+                        } else {
+                            Intent intent = new Intent(mContext, RankingActivity.class);
                             mContext.startActivity(intent);
                         }
                     }
@@ -149,8 +153,9 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
                 nowPlayingStatus.setBackgroundResource(R.mipmap.play_icon_default);
         } else if (AppContext.getPlayState() == AppConstant.STATUS_PAUSE || AppContext.getPlayState() == AppConstant.STATUS_STOP) {
             nowPlayingStatus.setBackgroundResource(R.mipmap.play_icon_pause);
+            if(realmHelper.getNowPlayingTrack() != null)
+                ImageUtils.loadCircleImage(AppContext.getAppContext(), realmHelper.getNowPlayingTrack().getCoverSmall(), nowPlayingImg);
         }
-        ImageUtils.loadCircleImage(AppContext.getAppContext(), realmHelper.getNowPlayingTrack().getCoverSmall(), nowPlayingImg);
     }
 
     private void initActionBar(Toolbar actionBar) {

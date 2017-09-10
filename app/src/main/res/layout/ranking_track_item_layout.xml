@@ -5,20 +5,20 @@
     android:orientation="horizontal">
 
     <FrameLayout
-        android:id="@+id/album_image_layout"
+        android:id="@+id/ranking_image_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_margin="10dip">
 
         <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
-            android:id="@+id/album_item_image"
+            android:id="@+id/ranking_item_image"
             android:layout_width="50dip"
             android:layout_height="50dip"
             android:layout_gravity="center"/>
 
         <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
-            android:id="@+id/album_play_status"
+            android:id="@+id/ranking_play_status"
             android:layout_width="40dip"
             android:layout_height="40dip"
             android:layout_gravity="center"
@@ -26,7 +26,7 @@
     </FrameLayout>
 
     <RelativeLayout
-        android:id="@+id/album_content_layout"
+        android:id="@+id/ranking_content_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dip"
@@ -34,7 +34,7 @@
         android:clickable="true">
 
         <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
-            android:id="@+id/play_flag_wave"
+            android:id="@+id/ranking_flag_wave"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dip"
@@ -43,7 +43,7 @@
 
 
         <TextView
-            android:id="@+id/album_item_name"
+            android:id="@+id/ranking_item_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
@@ -55,7 +55,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/album_item_name"
+            android:layout_below="@+id/ranking_item_name"
             android:layout_marginTop="10dip"
             android:layout_marginRight="10dip"
             android:layout_alignParentBottom="true"
@@ -64,13 +64,13 @@
             android:paddingLeft="15dip">
 
             <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
-                android:id="@+id/play_times_image"
+                android:id="@+id/ranking_play_bg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@mipmap/ic_item_playtimes_count"/>
 
             <TextView
-                android:id="@+id/album_play_times"
+                android:id="@+id/ranking_play_times"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/text_light"
@@ -78,14 +78,14 @@
                 android:textSize="@dimen/text_third_size" />
 
             <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
-                android:id="@+id/duration_image"
+                android:id="@+id/ranking_duration_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@mipmap/ic_item_duration"
                 android:layout_marginLeft="20dp" />
 
             <TextView
-                android:id="@+id/album_plays_duration"
+                android:id="@+id/ranking_plays_duration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/text_light"
@@ -95,7 +95,7 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/times_ago"
+            android:id="@+id/ranking_times_ago"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"

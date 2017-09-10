@@ -39,6 +39,12 @@
             android:theme="@style/Theme.IMA"
             android:screenOrientation="portrait">
         </activity>
+
+        <activity
+            android:name=".ui.ranking.RankingActivity"
+            android:theme="@style/Theme.IMA"
+            android:screenOrientation="portrait">
+        </activity>
     </application>
 
 </manifest>

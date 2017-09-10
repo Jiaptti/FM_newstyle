@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
+import com.fastapp.viroyal.fm_newstyle.model.entity.RankingTracksBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
 
@@ -98,6 +99,29 @@ public class RealmHelper {
             playTrack.setPlaytimes(entity.getPlaytimes());
             playTrack.setPlayPathHq(entity.getPlayPathHq());
             playTrack.setPlayUrl64(entity.getPlayUrl64());
+            playTrack.setPlayPathAacv164(entity.getPlayPathAacv164());
+            playTrack.setPlayPathAacv224(entity.getPlayPathAacv224());
+            playTrack.setPosition(entity.getPosition());
+            setNowTrack(playTrack);
+        }
+    }
+
+    public void setNowPlayTrack(RankingTracksBean entity){
+        NowPlayTrack playTrack = null;
+        if(isNowTrack(entity.getPlayPath32()) == null){
+            playTrack = new NowPlayTrack();
+            playTrack.setTrackId(entity.getTrackId());
+            playTrack.setTitle(entity.getTitle());
+            playTrack.setTrackId(entity.getTrackId());
+            playTrack.setDuration(entity.getDuration());
+            playTrack.setAlbumId(entity.getAlbumId());
+            playTrack.setCoverLarge(entity.getCoverSmall());
+            playTrack.setCreatedAt(entity.getCreatedAt());
+            playTrack.setNickname(entity.getNickname());
+            playTrack.setDuration(entity.getDuration());
+            playTrack.setPlayUrl32(entity.getPlayPath32());
+            playTrack.setTrackId(entity.getTrackId());
+            playTrack.setPlaytimes(entity.getPlaysCounts());
             playTrack.setPlayPathAacv164(entity.getPlayPathAacv164());
             playTrack.setPlayPathAacv224(entity.getPlayPathAacv224());
             playTrack.setPosition(entity.getPosition());
