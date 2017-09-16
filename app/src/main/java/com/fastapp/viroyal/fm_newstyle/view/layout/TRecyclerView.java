@@ -187,9 +187,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
                 } else {
                     observable = getTrackModel(type, begin);
                 }
-                if(begin > AppContext.getPersistPreferences().getInt(AppConstant.CACHE_PAGEID, 0)){
-                    AppContext.apply(AppContext.getEditor().putInt(AppConstant.CACHE_PAGEID, begin));
-                }
+                AppContext.setTempPageId(begin);
             }
         } else {
             observable = getRankingModel(type, begin);

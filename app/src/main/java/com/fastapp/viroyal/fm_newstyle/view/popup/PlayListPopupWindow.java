@@ -77,11 +77,13 @@ public class PlayListPopupWindow extends PopupWindow{
     public void initListData(int albumId){
         mTRecyclerView.setView(TrackListVH.class, albumId);
         mTRecyclerView.sendRequest();
-//        mTRecyclerView.getRecyclerView().scrollToPosition(realmHelper.getNowPlayingTrack().getPosition());
     }
 
     private void saveData(){
         JsonUtils.createJson(mTRecyclerView.getAdapter().getData());
+        AppContext.apply(AppContext.getEditor().putInt(AppConstant.MAX_COUNT, mTRecyclerView.getMaxCount()));
+        AppContext.apply(AppContext.getEditor().putInt(AppConstant.MAX_PAGE_ID, mTRecyclerView.getMaxPageId()));
+        AppContext.apply(AppContext.getEditor().putInt(AppConstant.CACHE_PAGEID, AppContext.getTempPageId()));
     }
 
     private void loadListData(){
