@@ -14,8 +14,9 @@ import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseViewHolder;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
-import com.fastapp.viroyal.fm_newstyle.data.db.RealmHelper;
-import com.fastapp.viroyal.fm_newstyle.model.entity.RankingTracksBean;
+import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
+import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
 import com.fastapp.viroyal.fm_newstyle.ui.track.TrackActivity;
 import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
@@ -28,7 +29,7 @@ import rx.functions.Action1;
  * Created by Administrator on 2017/9/10.
  */
 
-public class RankingVH extends BaseViewHolder<RankingTracksBean>{
+public class RankingVH extends BaseViewHolder<TracksBeanList>{
     private TextView ranking_item_name;
     private TextView ranking_play_times;
     private SquareImageView ranking_item_image;
@@ -41,9 +42,11 @@ public class RankingVH extends BaseViewHolder<RankingTracksBean>{
     private AnimationDrawable animation;
     private RealmHelper helper = AppContext.getRealmHelper();
     private RxManager manager = new RxManager();
+    private ErrorBean errorBean = new ErrorBean();
 
     public RankingVH(View itemView) {
         super(itemView);
+        errorBean.setClazz(RankingVH.class);
         if (itemView instanceof LinearLayout) {
             manager.on(AppConstant.MEDIA_START_PLAY, new Action1() {
                 @Override
@@ -72,11 +75,15 @@ public class RankingVH extends BaseViewHolder<RankingTracksBean>{
     }
 
     @Override
-    public void onBindViewHolder(View view, final RankingTracksBean entity) {
+    public void onBindViewHolder(View view, final TracksBeanList entity) {
         animation = (AnimationDrawable) ranking_flag_wave.getBackground();
         ranking_item_name.setText(entity.getTitle());
         ranking_flag_wave.setVisibility(View.VISIBLE);
-        ranking_play_times.setText(CommonUtils.getOmitPlayCounts(entity.getPlaysCounts()));
+        if(entity.getPlaytimes() == 0){
+            ranking_play_times.setText(CommonUtils.getOmitPlayCounts(entity.getPlaysCounts()));
+        } else {
+            ranking_play_times.setText(CommonUtils.getOmitPlayCounts(entity.getPlaytimes()));
+        }
         ImageUtils.loadCircleImage(mContext, entity.getCoverSmall(), ranking_item_image);
         ranking_item_image.setColorFilter(Color.GRAY, PorterDuff.Mode.MULTIPLY);
         ranking_times_ago.setText(CommonUtils.getIntervalDays(entity.getCreatedAt()));
@@ -90,17 +97,20 @@ public class RankingVH extends BaseViewHolder<RankingTracksBean>{
                         if (helper.getNowPlayingTrack().getTrackId() == entity.getTrackId()) {
                             mBinder.pauseMedia();
                         } else {
-                            mBinder.stopMedia();
-                            mBinder.playMedia(entity.getPlayPath32());
+                            entity.setFromTrack(true);
                             helper.setNowPlayTrack(entity);
+                            mBinder.playMedia(helper.getNowPlayingTrack().getPlayUrl32());
+                            manager.post(AppConstant.SAVE_DATA, errorBean);
                         }
                     } else if (AppContext.getPlayState() == AppConstant.STATUS_NONE
                             || AppContext.getPlayState() == AppConstant.STATUS_PAUSE
                             || AppContext.getPlayState() == AppConstant.STATUS_STOP) {
                         AppContext.apply(AppContext.getEditor().putInt(AppConstant.CACHE_PAGEID, AppContext.getTempPageId()));
-                        mBinder.playMedia(entity.getPlayPath32());
-                        helper.setNowPlayTrack(entity);
                         entity.setPosition(getPosition());
+                        entity.setFromTrack(true);
+                        helper.setNowPlayTrack(entity);
+                        manager.post(AppConstant.SAVE_DATA, errorBean);
+                        mBinder.playMedia(helper.getNowPlayingTrack().getPlayUrl32());
                     }
                 }
             }
@@ -109,24 +119,27 @@ public class RankingVH extends BaseViewHolder<RankingTracksBean>{
         ranking_content_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mBinder.isPlaying() && helper.getNowPlayingTrack().getTrackId() == entity.getTrackId()){
-                    Intent intent = new Intent(mContext, TrackActivity.class);
-                    mContext.startActivity(intent);
-                } else {
+                if(helper.getNowPlayingTrack() == null){
                     entity.setPosition(getPosition());
-                    helper.setNowPlayTrack(entity);
-                    Intent intent = new Intent(mContext, TrackActivity.class);
-                    mContext.startActivity(intent);
+                    entity.setFromTrack(true);
+                } else {
+                    if(!mBinder.isPlaying() && helper.getNowPlayingTrack().getTrackId() != entity.getTrackId()){
+                        entity.setPosition(getPosition());
+                        entity.setFromTrack(true);
+                    }
                 }
-                AppContext.apply(AppContext.getEditor().putInt(AppConstant.CACHE_PAGEID, AppContext.getTempPageId()));
+                Intent intent = new Intent(mContext, TrackActivity.class);
+                intent.putExtra(AppConstant.TRACK_BUNDLE, entity);
+                mContext.startActivity(intent);
+                manager.post(AppConstant.SAVE_DATA, errorBean);
             }
         });
         setPlayStatus(entity);
     }
 
-    private void setPlayStatus(RankingTracksBean entity) {
+    private void setPlayStatus(TracksBeanList entity) {
         if (helper.getNowPlayingTrack() != null &&
-                helper.getNowPlayingTrack().getTrackId() ==entity.getTrackId()) {
+                helper.getNowPlayingTrack().getTrackId() == entity.getTrackId()) {
             if ((AppContext.getPlayState() == AppConstant.STATUS_PLAY || AppContext.getPlayState() == AppConstant.STATUS_RESUME)) {
                 ranking_item_name.setTextColor(Color.RED);
                 if (mBinder != null && mBinder.isPlaying() && !animation.isRunning()) {

@@ -28,7 +28,7 @@ public class RankingTracks {
     private int top;
     private int totalCount;
     private List<CategoriesBean> categories;
-    private List<RankingTracksBean> list;
+    private List<TracksBeanList> list;
 
     public String getCalcPeriod() {
         return calcPeriod;
@@ -198,11 +198,11 @@ public class RankingTracks {
         this.categories = categories;
     }
 
-    public List<RankingTracksBean> getList() {
+    public List<TracksBeanList> getList() {
         return list;
     }
 
-    public void setList(List<RankingTracksBean> list) {
+    public void setList(List<TracksBeanList> list) {
         this.list = list;
     }
 

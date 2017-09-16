@@ -33,8 +33,8 @@ public class HomeActivity extends BaseActivity<HomePresenter, HomeModel> impleme
     LinearLayout errorLayout;
     @Bind(R.id.reload)
     TextView reload;
-
     private long firstClickTime;
+
 
     @Override
     protected int layoutResID() {
@@ -91,6 +91,7 @@ public class HomeActivity extends BaseActivity<HomePresenter, HomeModel> impleme
     @Override
     public void onBackPressed() {
         if(System.currentTimeMillis() - firstClickTime < 2000){
+            AppContext.getInstance().unBindMediaService();
             super.onBackPressed();
         } else {
             firstClickTime = System.currentTimeMillis();

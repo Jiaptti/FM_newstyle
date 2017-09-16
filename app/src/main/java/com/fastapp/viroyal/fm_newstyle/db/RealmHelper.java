@@ -1,10 +1,8 @@
-package com.fastapp.viroyal.fm_newstyle.data.db;
+package com.fastapp.viroyal.fm_newstyle.db;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
-import com.fastapp.viroyal.fm_newstyle.model.entity.RankingTracksBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
 
@@ -33,28 +31,6 @@ public class RealmHelper {
         }
         return instance;
     }
-
-
-//    public TracksBeanRealm getNextTracks(String url){
-//        RealmResults<TracksBeanRealm> results = mRealm.where(TracksBeanRealm.class).findAll();
-//        List<TracksBeanRealm> list = mRealm.copyToRealm(results);
-//        int position = list.indexOf(getTracksRealm(url));
-//        if(list.get(position + 1) != null){
-//            return list.get(position + 1);
-//        }
-//        return null;
-//    }
-//
-//    public TracksBeanRealm getPreTracks(String url){
-//        RealmResults<TracksBeanRealm> results = mRealm.where(TracksBeanRealm.class).findAll();
-//        List<TracksBeanRealm> list = mRealm.copyToRealm(results);
-//        int position = list.indexOf(getTracksRealm(url));
-//        if(list.get(position - 1) != null){
-//            return list.get(position - 1);
-//        }
-//        return null;
-//    }
-//
 
     public void removeNowPlayTrack(){
         mRealm.beginTransaction();
@@ -88,40 +64,31 @@ public class RealmHelper {
             playTrack.setTrackId(entity.getTrackId());
             playTrack.setDuration(entity.getDuration());
             playTrack.setAlbumId(entity.getAlbumId());
+            playTrack.setFromTrack(entity.getFromTrack());
+            playTrack.setAlbumTitle(entity.getAlbumTitle());
+            if(entity.getCoverLarge() != null){
+                playTrack.setCoverLarge(entity.getCoverLarge());
+            } else if(entity.getCoverMiddle() != null){
+                playTrack.setCoverMiddle(entity.getCoverMiddle());
+            }
             playTrack.setCoverSmall(entity.getCoverSmall());
-            playTrack.setCoverLarge(entity.getCoverLarge());
-            playTrack.setCoverMiddle(entity.getCoverMiddle());
             playTrack.setCreatedAt(entity.getCreatedAt());
             playTrack.setNickname(entity.getNickname());
             playTrack.setDuration(entity.getDuration());
-            playTrack.setPlayUrl32(entity.getPlayUrl32());
+            if(entity.getPlayUrl32() == null){
+                playTrack.setPlayUrl32(entity.getPlayPath32());
+            } else {
+                playTrack.setPlayUrl32(entity.getPlayUrl32());
+            }
             playTrack.setTrackId(entity.getTrackId());
-            playTrack.setPlaytimes(entity.getPlaytimes());
+            if(entity.getPlaytimes() == 0){
+                playTrack.setPlaytimes(entity.getPlaysCounts());
+            } else {
+                playTrack.setPlaytimes(entity.getPlaytimes());
+            }
+
             playTrack.setPlayPathHq(entity.getPlayPathHq());
             playTrack.setPlayUrl64(entity.getPlayUrl64());
-            playTrack.setPlayPathAacv164(entity.getPlayPathAacv164());
-            playTrack.setPlayPathAacv224(entity.getPlayPathAacv224());
-            playTrack.setPosition(entity.getPosition());
-            setNowTrack(playTrack);
-        }
-    }
-
-    public void setNowPlayTrack(RankingTracksBean entity){
-        NowPlayTrack playTrack = null;
-        if(isNowTrack(entity.getPlayPath32()) == null){
-            playTrack = new NowPlayTrack();
-            playTrack.setTrackId(entity.getTrackId());
-            playTrack.setTitle(entity.getTitle());
-            playTrack.setTrackId(entity.getTrackId());
-            playTrack.setDuration(entity.getDuration());
-            playTrack.setAlbumId(entity.getAlbumId());
-            playTrack.setCoverLarge(entity.getCoverSmall());
-            playTrack.setCreatedAt(entity.getCreatedAt());
-            playTrack.setNickname(entity.getNickname());
-            playTrack.setDuration(entity.getDuration());
-            playTrack.setPlayUrl32(entity.getPlayPath32());
-            playTrack.setTrackId(entity.getTrackId());
-            playTrack.setPlaytimes(entity.getPlaysCounts());
             playTrack.setPlayPathAacv164(entity.getPlayPathAacv164());
             playTrack.setPlayPathAacv224(entity.getPlayPathAacv224());
             playTrack.setPosition(entity.getPosition());

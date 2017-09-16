@@ -19,7 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.fastapp.viroyal.fm_newstyle.data.db.RealmHelper;
+import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
 import com.fastapp.viroyal.fm_newstyle.util.NetWorkUtils;
 
@@ -56,13 +56,17 @@ public class AppContext extends Application{
 
     private static boolean sIsAtLeastGB;
 
+    private boolean isBound;
+
     static {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
             sIsAtLeastGB = true;
         }
     }
 
-
+    public static AppContext getInstance() {
+        return mApp;
+    }
 
     @Override
     public void onCreate() {
@@ -96,8 +100,8 @@ public class AppContext extends Application{
         return null;
     }
 
-    private void bindMediaService(){
-        bindService(new Intent(mApp, AlbumPlayService.class), connection, Context.BIND_AUTO_CREATE);
+    public void bindMediaService(){
+        isBound = bindService(new Intent(mApp, AlbumPlayService.class), connection, Context.BIND_AUTO_CREATE);
     }
 
     public static RealmHelper getRealmHelper(){
@@ -179,6 +183,13 @@ public class AppContext extends Application{
                 sLastToast = message;
                 sLastToastTime = System.currentTimeMillis();
             }
+        }
+    }
+
+    public void unBindMediaService(){
+        if(isBound){
+            unbindService(connection);
+            isBound = false;
         }
     }
 

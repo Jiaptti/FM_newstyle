@@ -23,5 +23,6 @@
         android:textColor="@color/black"
         android:layout_marginLeft="15dp"
         android:layout_toRightOf="@+id/track_item_wave_flag"
+        android:singleLine="true"
         android:textSize="@dimen/text_regular_primary_size" />
 </RelativeLayout>

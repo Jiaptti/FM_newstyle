@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.AnimationDrawable;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -15,7 +14,8 @@ import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseViewHolder;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
-import com.fastapp.viroyal.fm_newstyle.data.db.RealmHelper;
+import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
+import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
 import com.fastapp.viroyal.fm_newstyle.ui.track.TrackActivity;
@@ -42,9 +42,11 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
     private AnimationDrawable animation;
     private RealmHelper helper = AppContext.getRealmHelper();
     private RxManager manager = new RxManager();
+    private ErrorBean errorBean = new ErrorBean();
 
     public AlbumVH(View itemView) {
         super(itemView);
+        errorBean.setClazz(AlbumVH.class);
         if (itemView instanceof LinearLayout) {
             manager.on(AppConstant.MEDIA_START_PLAY, new Action1() {
                 @Override
@@ -93,15 +95,19 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
                         } else {
                             mBinder.stopMedia();
                             mBinder.playMedia(entity.getPlayUrl32());
+                            manager.post(AppConstant.SAVE_DATA, null);
                             helper.setNowPlayTrack(entity);
+                            manager.post(AppConstant.SAVE_DATA, errorBean);
                         }
                     } else if (AppContext.getPlayState() == AppConstant.STATUS_NONE
                             || AppContext.getPlayState() == AppConstant.STATUS_PAUSE
                             || AppContext.getPlayState() == AppConstant.STATUS_STOP) {
                         AppContext.apply(AppContext.getEditor().putInt(AppConstant.CACHE_PAGEID, AppContext.getTempPageId()));
-                        mBinder.playMedia(entity.getPlayUrl32());
-                        helper.setNowPlayTrack(entity);
                         entity.setPosition(getPosition());
+                        entity.setFromTrack(false);
+                        helper.setNowPlayTrack(entity);
+                        mBinder.playMedia(entity.getPlayUrl32());
+                        manager.post(AppConstant.SAVE_DATA, errorBean);
                     }
                 }
             }
@@ -110,16 +116,21 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
         album_content_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(mBinder.isPlaying() && helper.getNowPlayingTrack().getTrackId() == entity.getTrackId()){
-                    Intent intent = new Intent(mContext, TrackActivity.class);
-                    mContext.startActivity(intent);
-                } else {
+                if(helper.getNowPlayingTrack() == null){
                     entity.setPosition(getPosition());
+                    entity.setFromTrack(false);
                     helper.setNowPlayTrack(entity);
-                    Intent intent = new Intent(mContext, TrackActivity.class);
-                    mContext.startActivity(intent);
+                } else {
+                    if(!mBinder.isPlaying() && helper.getNowPlayingTrack().getTrackId() != entity.getTrackId()){
+                        entity.setPosition(getPosition());
+                        entity.setFromTrack(false);
+                        helper.setNowPlayTrack(entity);
+                    }
                 }
-                AppContext.apply(AppContext.getEditor().putInt(AppConstant.CACHE_PAGEID, AppContext.getTempPageId()));
+                Intent intent = new Intent(mContext, TrackActivity.class);
+                intent.putExtra(AppConstant.TRACK_BUNDLE, entity);
+                mContext.startActivity(intent);
+                manager.post(AppConstant.SAVE_DATA, errorBean);
             }
         });
         setPlayStatus(entity);

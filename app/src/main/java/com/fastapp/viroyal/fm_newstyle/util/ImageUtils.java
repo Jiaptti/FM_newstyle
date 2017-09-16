@@ -18,7 +18,6 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.R;
-import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
 import java.util.concurrent.ExecutionException;
 
@@ -31,6 +30,7 @@ public class ImageUtils {
     public static void loadImage(Context context, String url, ImageView view) {
         Glide.with(context)
                 .load(url)
+                .placeholder(R.mipmap.player_cover_default)
                 .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                 .preload();
 

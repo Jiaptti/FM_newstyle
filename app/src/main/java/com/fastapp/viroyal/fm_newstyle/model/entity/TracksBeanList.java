@@ -23,6 +23,7 @@ public class TracksBeanList extends BaseEntity{
     private String title;
     private int duration;
     private int albumId;
+    private int rankingId;
     private boolean isPaid;
     private boolean isVideo;
     private boolean isDraft;
@@ -42,7 +43,158 @@ public class TracksBeanList extends BaseEntity{
     private int shares;
     private int status;
     private int position;
+    private String albumTitle;
+    private int commentsCounts;
+    private int favoritesCounts;
+    private int id;
+    private boolean isAuthorized;
+    private boolean isFree;
+    private String playPath32;
+    private String playPath64;
+    private int playsCounts;
+    private int priceTypeId;
+    private int sampleDuration;
+    private int sharesCounts;
+    private long updatedAt;
+    private String tags;
+    private boolean fromTrack;
+    private String intro;
 
+    public String getIntro() {
+        return intro;
+    }
+
+    public void setIntro(String intro) {
+        this.intro = intro;
+    }
+
+    public boolean getFromTrack() {
+        return fromTrack;
+    }
+
+    public void setFromTrack(boolean fromTrack) {
+        this.fromTrack = fromTrack;
+    }
+
+    public int getRankingId() {
+        return rankingId;
+    }
+
+    public void setRankingId(int rankingId) {
+        this.rankingId = rankingId;
+    }
+
+    public String getAlbumTitle() {
+        return albumTitle;
+    }
+
+    public void setAlbumTitle(String albumTitle) {
+        this.albumTitle = albumTitle;
+    }
+
+    public int getCommentsCounts() {
+        return commentsCounts;
+    }
+
+    public void setCommentsCounts(int commentsCounts) {
+        this.commentsCounts = commentsCounts;
+    }
+
+    public int getFavoritesCounts() {
+        return favoritesCounts;
+    }
+
+    public void setFavoritesCounts(int favoritesCounts) {
+        this.favoritesCounts = favoritesCounts;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public boolean isAuthorized() {
+        return isAuthorized;
+    }
+
+    public void setAuthorized(boolean authorized) {
+        isAuthorized = authorized;
+    }
+
+    public boolean isFree() {
+        return isFree;
+    }
+
+    public void setFree(boolean free) {
+        isFree = free;
+    }
+
+    public String getPlayPath32() {
+        return playPath32;
+    }
+
+    public void setPlayPath32(String playPath32) {
+        this.playPath32 = playPath32;
+    }
+
+    public String getPlayPath64() {
+        return playPath64;
+    }
+
+    public void setPlayPath64(String playPath64) {
+        this.playPath64 = playPath64;
+    }
+
+    public int getPlaysCounts() {
+        return playsCounts;
+    }
+
+    public void setPlaysCounts(int playsCounts) {
+        this.playsCounts = playsCounts;
+    }
+
+    public int getPriceTypeId() {
+        return priceTypeId;
+    }
+
+    public void setPriceTypeId(int priceTypeId) {
+        this.priceTypeId = priceTypeId;
+    }
+
+    public int getSampleDuration() {
+        return sampleDuration;
+    }
+
+    public void setSampleDuration(int sampleDuration) {
+        this.sampleDuration = sampleDuration;
+    }
+
+    public int getSharesCounts() {
+        return sharesCounts;
+    }
+
+    public void setSharesCounts(int sharesCounts) {
+        this.sharesCounts = sharesCounts;
+    }
+
+    public long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(long updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
 
     public int getPosition() {
         return position;
@@ -278,7 +430,10 @@ public class TracksBeanList extends BaseEntity{
 
     @Override
     public Observable getPageAt(int categoryId, int pageId, int pageSize) {
-        Observable observable = Api.getInstance().getApiService().getTrackList(categoryId, pageId, pageSize);
-        return observable;
+        if(categoryId == 57){
+            return Api.getInstance().getApiService().getHotTracksList(categoryId, pageId, pageSize, "android", "main", "5.4.93");
+        } else {
+             return Api.getInstance().getApiService().getTrackList(categoryId, pageId, pageSize);
+        }
     }
 }

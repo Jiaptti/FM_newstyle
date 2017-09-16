@@ -11,6 +11,7 @@
     <dimen name="text_large_primary_size">16.0sp</dimen>
     <dimen name="actionbar_size">48sp</dimen>
     <dimen name="text_size_large">18sp</dimen>
-
+    <dimen name="content_size_large">23sp</dimen>
+    <dimen name="title_size_large">25sp</dimen>
     <dimen name="player_time_size">38sp</dimen>
 </resources>

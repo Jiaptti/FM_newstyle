@@ -7,6 +7,7 @@ import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TrackInfoBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksInfo;
 import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
 
 import java.util.List;
@@ -20,20 +21,18 @@ import rx.Observable;
 
 public interface TrackContract {
     interface View extends BaseView{
-//        void setNowPlayerMessage(TrackInfoBean trackInfoBean);
-        void loadAlbumList(List<TracksBeanList> list);
         void setNowPlayerTrack(NowPlayTrack nowPlayerTrack);
+        void initTracksInfo(TracksInfo tracksInfo);
     }
 
     interface Model extends BaseModel{
-//        Observable<TrackInfoBean> getTrackInfoBean(int trackId);
-        Observable<Data<HimalayanBean>> getAlbumList(int albumId, int pageSize);
+//        Observable<Data<HimalayanBean>> getAlbumList(int albumId, int pageSize);
         NowPlayTrack getNowPlayTrack();
+        Observable<TracksInfo> getTracksInfo(int trackId);
     }
 
     abstract class Presenter extends BasePresenter<View, Model>{
-//        abstract void getTrack(int trackId);
-        abstract void getAlumList(int albumId, int pageSize);
+        abstract void getTracksInfo(int trackId);
         abstract void getNowTrack();
     }
 }

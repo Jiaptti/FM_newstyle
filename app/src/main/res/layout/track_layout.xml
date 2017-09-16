@@ -113,6 +113,7 @@
             </FrameLayout>
 
             <RelativeLayout
+                android:id="@+id/play_control"
                 android:layout_width="match_parent"
                 android:layout_height="100.0dp"
                 android:layout_below="@+id/seek_bar"
@@ -145,13 +146,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
+                    android:clickable="true"
                     android:drawableTop="@mipmap/player_toolbar_playlist_normal"
                     android:gravity="center"
                     android:paddingBottom="10.0dip"
                     android:paddingLeft="25.0dip"
                     android:paddingRight="10.0dip"
                     android:paddingTop="15.0dip"
-                    android:clickable="true"
                     android:text="@string/list"
                     android:textColor="#ff999999"
                     android:textSize="9.0sp" />
@@ -194,8 +195,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:visibility="gone"
-                    android:background="@mipmap/player_loading" />
+                    android:background="@mipmap/player_loading"
+                    android:visibility="gone" />
 
                 <ImageButton
                     android:id="@+id/next"
@@ -228,11 +229,23 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/player_content" />
+
+            <View
+                android:id="@+id/space_view"
+                android:layout_width="match_parent"
+                android:layout_height="10dip"
+                android:layout_alignBottom="@+id/play_control"
+                android:layout_marginTop="30dip"
+                android:background="@color/light_gray" />
+
+            <include layout="@layout/track_info_content"></include>
+
         </RelativeLayout>
+
     </android.support.v4.widget.NestedScrollView>
 
-    <include layout="@layout/view_loading_layout" />
-    <include layout="@layout/now_playing_layout"
-        android:visibility="gone"/>
-    <include layout="@layout/net_error_layout"/>
+    <include
+        layout="@layout/now_playing_layout"
+        android:visibility="gone" />
+
 </android.support.design.widget.CoordinatorLayout>

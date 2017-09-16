@@ -11,7 +11,7 @@ import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseViewHolder;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
-import com.fastapp.viroyal.fm_newstyle.data.db.RealmHelper;
+import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
 import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
@@ -64,6 +64,9 @@ public class TrackListVH extends BaseViewHolder<TracksBeanList>{
                 if (helper.getNowPlayingTrack().getTrackId() != entity.getTrackId()
                         || (helper.getNowPlayingTrack().getTrackId() == entity.getTrackId()
                         && AppContext.getPlayState() == AppConstant.STATUS_PAUSE)) {
+                    if(AppContext.getRealmHelper().getNowPlayingTrack().isFromTrack()){
+                        entity.setFromTrack(true);
+                    }
                     entity.setPosition(getPosition());
                     helper.setNowPlayTrack(entity);
                     mBinder.playMedia(entity.getPlayUrl32());

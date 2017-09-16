@@ -49,7 +49,7 @@
             android:layout_gravity="left"
             android:textColor="@color/black"
             android:layout_marginRight="50dip"
-            android:layout_toRightOf="@+id/play_flag_wave"
+            android:layout_toRightOf="@+id/ranking_flag_wave"
             android:textSize="@dimen/text_regular_primary_size" />
 
         <LinearLayout

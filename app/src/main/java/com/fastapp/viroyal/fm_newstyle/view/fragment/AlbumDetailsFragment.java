@@ -9,18 +9,17 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.fastapp.viroyal.fm_newstyle.R;
-import com.fastapp.viroyal.fm_newstyle.model.base.Data;
-import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
+import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanEntity;
 
 /**
  * Created by hanjiaqi on 2017/7/20.
  */
 
 public class AlbumDetailsFragment extends Fragment{
-    private static Data<HimalayanBean> entity;
+    private static HimalayanEntity entity;
     private TextView mAlbumDes;
 
-    public static AlbumDetailsFragment newInstance(Data<HimalayanBean> data){
+    public static AlbumDetailsFragment newInstance(HimalayanEntity data){
         Bundle bundle = new Bundle();
         AlbumDetailsFragment fragment = new AlbumDetailsFragment();
         entity = data;
@@ -34,7 +33,7 @@ public class AlbumDetailsFragment extends Fragment{
         View view = inflater.inflate(R.layout.album_detalis_layout,container,false);
         mAlbumDes = (TextView) view.findViewById(R.id.album_content_desc);
         if(entity != null)
-            mAlbumDes.setText(entity.getData().getAlbum().getIntro());
+            mAlbumDes.setText(entity.getIntro());
         return view;
     }
 }

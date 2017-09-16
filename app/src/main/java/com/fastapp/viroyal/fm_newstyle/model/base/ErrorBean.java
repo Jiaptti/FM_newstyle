@@ -8,6 +8,15 @@ import com.fastapp.viroyal.fm_newstyle.base.BaseViewHolder;
 
 public class ErrorBean {
     private Class<? extends BaseViewHolder> clazz;
+    private int code;
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
 
     public Class getClazz() {
         return clazz;

@@ -1,9 +1,9 @@
 package com.fastapp.viroyal.fm_newstyle.ui.album;
 
 import android.graphics.drawable.AnimationDrawable;
-import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -14,10 +14,8 @@ import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseActivity;
 import com.fastapp.viroyal.fm_newstyle.base.BaseListFragment;
-import com.fastapp.viroyal.fm_newstyle.data.db.RealmHelper;
-import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
-import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
+import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanEntity;
 import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
@@ -38,6 +36,7 @@ import rx.functions.Action1;
  */
 
 public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> implements AlbumContract.View {
+    public static final String TRANSLATE_VIEW = "share_img";
     @Bind(R.id.album_title)
     TextView albumTitle;
     @Bind(R.id.album_image)
@@ -66,10 +65,6 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
     @Bind(R.id.reload)
     TextView reload;
 
-    private int albumId;
-    private int tracks;
-    private RealmHelper mHelper;
-
     @Override
     protected int layoutResID() {
         return R.layout.album_layout;
@@ -78,19 +73,16 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
 
     @Override
     protected void initView() {
-        Bundle bundle = getIntent().getBundleExtra(AppConstant.ALBUM_BUNDLE);
-        mHelper = AppContext.getRealmHelper();
-        if (bundle != null) {
-            albumId = bundle.getInt(AppConstant.ALBUM_ID);
-            tracks = bundle.getInt(AppConstant.ALBUM_TRACKS);
-            presenter.getAlbumsList(albumId, tracks);
+        HimalayanEntity himalayanEntity = (HimalayanEntity) getIntent().getSerializableExtra(AppConstant.ALBUM_BUNDLE);
+        if (himalayanEntity != null) {
+            initData(himalayanEntity);
         }
         setActionBarTitle(AppContext.getStringById(R.string.album_actionbar_title));
-
+        ViewCompat.setTransitionName(albumImage, TRANSLATE_VIEW);
         presenter.getManager().on(AppConstant.LOADING_STATUS, new Action1() {
             @Override
             public void call(Object o) {
-                dismissLoading();
+//                dismissLoading();
             }
         });
 
@@ -109,9 +101,27 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
             public void onClick(View view) {
                 errorLayout.setVisibility(View.GONE);
                 albumContent.setVisibility(View.VISIBLE);
-                presenter.getAlbumsList(albumId, tracks);
+//                presenter.getAlbumsList(albumId, tracks);
             }
         });
+
+
+    }
+
+    private void initData(HimalayanEntity himalayanEntity){
+        albumTitle.setText(himalayanEntity.getTitle());
+        ImageUtils.loadImage(mContext, himalayanEntity.getCoverSmall(), albumImage);
+        albumAuthor.setText(himalayanEntity.getNickname());
+        albumPlayCounts.setText(CommonUtils.getOmitAlbumCounts(himalayanEntity.getPlaysCounts()));
+        albumType.setText(himalayanEntity.getCategoryName());
+        List<Fragment> fragments = new ArrayList<>();
+        fragments.add(AlbumDetailsFragment.newInstance(himalayanEntity));
+        fragments.add(BaseListFragment.newInstance(new AlbumFragment(), AlbumVH.class, himalayanEntity.getAlbumId()));
+        albumPager.setAdapter(new FragmentAdapter(getSupportFragmentManager(), fragments,
+                Arrays.asList(new String[]{AppContext.getStringById(R.string.album_details),
+                        AppContext.getStringById(R.string.album_show) + "(" + himalayanEntity.getTracks() + ")"})));
+        albumTabs.setupWithViewPager(albumPager);
+        albumTabs.getTabAt(1).select();
     }
 
     @Override
@@ -129,22 +139,6 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
         return true;
     }
 
-    @Override
-    public void showAlbumMessage(Data<HimalayanBean> data) {
-        albumTitle.setText(data.getData().getAlbum().getTitle());
-        ImageUtils.loadImage(this, data.getData().getAlbum().getCoverMiddle(), albumImage);
-        albumAuthor.setText(data.getData().getUser().getNickname());
-        albumPlayCounts.setText(CommonUtils.getOmitAlbumCounts(data.getData().getAlbum().getPlayTimes()));
-        albumType.setText(data.getData().getAlbum().getCategoryName());
-        List<Fragment> fragments = new ArrayList<>();
-        fragments.add(AlbumDetailsFragment.newInstance(data));
-        fragments.add(BaseListFragment.newInstance(new AlbumFragment(), AlbumVH.class, albumId));
-        albumPager.setAdapter(new FragmentAdapter(getSupportFragmentManager(), fragments,
-                Arrays.asList(new String[]{AppContext.getStringById(R.string.album_details),
-                        AppContext.getStringById(R.string.album_show) + "(" + data.getData().getAlbum().getTracks() + ")"})));
-        albumTabs.setupWithViewPager(albumPager);
-        albumTabs.getTabAt(1).select();
-    }
 
     @Override
     public void showLoading() {

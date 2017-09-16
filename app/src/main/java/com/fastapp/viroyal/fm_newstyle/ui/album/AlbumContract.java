@@ -18,7 +18,7 @@ public interface AlbumContract {
     }
 
     interface View extends BaseView{
-        void showAlbumMessage(Data<HimalayanBean> himalayanBeanData);
+//        void showAlbumMessage(Data<HimalayanBean> himalayanBeanData);
     }
 
     abstract class Presenter extends BasePresenter<View, Model>{

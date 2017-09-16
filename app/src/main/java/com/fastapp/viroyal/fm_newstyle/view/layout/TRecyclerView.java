@@ -1,6 +1,7 @@
 package com.fastapp.viroyal.fm_newstyle.view.layout;
 
 import android.content.Context;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,17 +15,18 @@ import android.widget.LinearLayout;
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
+import com.fastapp.viroyal.fm_newstyle.base.BaseSubscriber;
 import com.fastapp.viroyal.fm_newstyle.base.BaseViewHolder;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
+import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.base.BaseEntity;
 import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanEntity;
-import com.fastapp.viroyal.fm_newstyle.model.entity.RankingTracksBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.RankingTracks;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksData;
-import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
+import com.fastapp.viroyal.fm_newstyle.util.JsonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.RxSchedulers;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.AlbumVH;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.CategoryVH;
@@ -32,42 +34,43 @@ import com.fastapp.viroyal.fm_newstyle.view.viewholder.CommFooterVH;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.TrackListVH;
 
 import java.lang.reflect.ParameterizedType;
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.Observable;
-import rx.functions.Action1;
 import rx.functions.Func1;
 
 /**
  * Created by hanjiaqi on 2017/6/29.
  */
 
-public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
+public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements SwipeRefreshLayout.OnRefreshListener{
     private Context mContext;
+    @Bind(R.id.swiperefresh)
+    SwipeRefreshLayout mSwipeRefreshLayout;
     @Bind(R.id.recycle_list)
     RecyclerView recyclerView;
     @Bind(R.id.empty_layout)
     LinearLayout emptyLayout;
     private LinearLayoutManager mLayoutManager;
-    private int begin;
-    private boolean isEmpty = false;
+    public int begin;
     private T model;
     public CoreAdapter<T> mAdatper = new CoreAdapter<>();
-    private RxManager mRxManager;
+    public RxManager mRxManager;
     private int type = AppConstant.PAGE_CROSSTALK;
     private int pageSize = 10;
-    private ErrorBean errorBean;
+    public ErrorBean errorBean;
     public boolean hasMore;
     private Observable observable;
-    private boolean isLoading;
+    private boolean isLoading = false;
+    private boolean inFoot = false;
     private int maxCount;
-    private AlbumPlayService.PlayBinder mBinder;
-
+    private int maxPageId;
+    private String title;
+    private RealmHelper helper = AppContext.getRealmHelper();
+    
     public TRecyclerView(Context context) {
         super(context);
         mContext = context;
@@ -89,7 +92,6 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         mRxManager = new RxManager();
         addView(view);
         ButterKnife.bind(this, view);
-        mBinder = AppContext.getMediaPlayService();
         initView(view);
     }
 
@@ -98,6 +100,8 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
     }
 
     private void initView(View view) {
+        mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
         mLayoutManager = new LinearLayoutManager(mContext);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setHasFixedSize(true);
@@ -132,6 +136,25 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         });
     }
 
+    public void setRefreshLoadingState() {
+        if (mSwipeRefreshLayout != null) {
+            mSwipeRefreshLayout.setRefreshing(true);
+            mSwipeRefreshLayout.setEnabled(false);
+        }
+    }
+
+
+    public void setRefreshLoadedState() {
+        if (mSwipeRefreshLayout != null) {
+            mSwipeRefreshLayout.setRefreshing(false);
+            mSwipeRefreshLayout.setEnabled(true);
+        }
+    }
+
+    public int getMaxPageId(){
+        return maxPageId;
+    }
+
     private int getPageSize() {
         return pageSize;
     }
@@ -140,16 +163,9 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         return mAdatper;
     }
 
-    public int getCurrentPageID(){
-        return begin;
-    }
-
     public void sendRequest() {
         begin++;
         isLoading = true;
-        if (isEmpty) {
-            emptyLayout.setVisibility(View.GONE);
-        }
         if (model == null) {
             Log.i(AppConstant.TAG, "model is null!");
             return;
@@ -159,56 +175,55 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
         } else if (errorBean.getClazz() == AlbumVH.class) {
             observable = getTrackModel(type, begin);
             AppContext.setTempPageId(begin);
-        } else if(errorBean.getClazz() == TrackListVH.class){
-            if (mBinder.getData() != null && begin == 1) {
-                observable = Observable.from(mBinder.getData());
+        } else if (errorBean.getClazz() == TrackListVH.class) {
+            List<TracksBeanList> list = JsonUtils.getListJson();
+            if (list != null && begin == 1) {
+                observable = Observable.from(list);
                 begin = AppContext.getPersistPreferences().getInt(AppConstant.CACHE_PAGEID, 1);
+                maxPageId = AppContext.getPersistPreferences().getInt(AppConstant.MAX_PAGE_ID, 1);
             } else {
-                observable = getTrackModel(type, begin);
+                if (helper.getNowPlayingTrack().isFromTrack()) {
+                    observable = getRankingModel(AppConstant.HOT_TRACKS_ID, begin);
+                } else {
+                    observable = getTrackModel(type, begin);
+                }
+                if(begin > AppContext.getPersistPreferences().getInt(AppConstant.CACHE_PAGEID, 0)){
+                    AppContext.apply(AppContext.getEditor().putInt(AppConstant.CACHE_PAGEID, begin));
+                }
             }
-        } else{
+        } else {
             observable = getRankingModel(type, begin);
+            AppContext.setTempPageId(begin);
         }
         mRxManager.add(observable.subscribe(
-                new Action1<T>() {
+                new BaseSubscriber<T>(mContext, this){
                     @Override
-                    public void call(T o) {
+                    public void onNext(T o) {
                         mAdatper.setBeans(o, begin);
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        throwable.printStackTrace();
-                        Log.i(AppConstant.TAG, "sendRequest error = " + throwable.getMessage() + " errorBean = " + errorBean.getClazz());
-                        if (throwable instanceof SocketTimeoutException) {
-                            mRxManager.post(AppConstant.LOADING_STATUS, null);
-                            mRxManager.post(AppConstant.ERROR_MESSAGE, errorBean);
-                        } else if (throwable instanceof ConnectException) {
-
-                        } else {
-
-                        }
                     }
                 }));
     }
 
-    private Observable getRankingModel(int type, int begin){
+    private Observable getRankingModel(int type,final int begin) {
         return model.getPageAt(type, begin, getPageSize()).compose(RxSchedulers.io_main())
-                .flatMap(new Func1<RankingTracks, Observable<RankingTracksBean>>() {
+                .flatMap(new Func1<RankingTracks, Observable<TracksBeanList>>() {
                     @Override
-                    public Observable<RankingTracksBean> call(RankingTracks rankingTracks) {
+                    public Observable<TracksBeanList> call(RankingTracks rankingTracks) {
+                        maxPageId = rankingTracks.getMaxPageId();
+                        hasMore = begin <= maxPageId;
                         return Observable.from(rankingTracks.getList());
                     }
                 });
     }
 
-    private Observable getTrackModel(int type, int begin) {
+    private synchronized Observable getTrackModel(int type, final int begin) {
         return model.getPageAt(type, begin, getPageSize()).compose(RxSchedulers.io_main())
                 .flatMap(new Func1<TracksData, Observable<TracksBeanList>>() {
                     @Override
                     public Observable<TracksBeanList> call(TracksData data) {
+                        maxPageId = data.getData().getMaxPageId();
                         maxCount = data.getData().getTotalCount();
-                        hasMore = data.getData().getList().size() >= AppConstant.PAGESIZE;
+                        hasMore = begin <= maxPageId;
                         return Observable.from(data.getData().getList());
                     }
                 });
@@ -230,20 +245,15 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
     }
 
     public void refresh() {
-        begin = 1;
-        sendRequest();
+        if(errorBean.getClazz() != TrackListVH.class){
+            begin = 0;
+            mAdatper.getData().clear();
+            sendRequest();
+        }
     }
 
     public boolean hasMore() {
         return hasMore;
-    }
-
-    private void setEmpty() {
-        if (!isEmpty) {
-            isEmpty = true;
-            if (emptyLayout != null)
-                emptyLayout.setVisibility(View.VISIBLE);
-        }
     }
 
     public TRecyclerView setView(Class<? extends BaseViewHolder<T>> clazz, int tabType) {
@@ -262,6 +272,18 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
             e.printStackTrace();
         }
         return this;
+    }
+
+    public void setFragmentTitle(String title) {
+        this.title = title;
+    }
+
+    @Override
+    public void onRefresh() {
+        if(recyclerView != null)
+            recyclerView.scrollToPosition(0);
+        refresh();
+        setRefreshLoadingState();
     }
 
 
@@ -285,9 +307,6 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
                     View view = LayoutInflater.from(parent.getContext()).inflate(mItemType, parent, false);
                     return (mItemViewClass).getConstructor(View.class).newInstance(view);
                 }
-//                return (isFoot ? mFootViewClass : mItemViewClass).getConstructor(View.class).newInstance(
-//                        LayoutInflater.from(parent.getContext()).inflate(isFoot ? mFootType : mItemType, parent,
-//                                false));
             } catch (Exception e) {
                 Log.i(AppConstant.TAG, AppContext.getStringById(R.string.wrong_xml));
                 e.printStackTrace();
@@ -297,8 +316,17 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
 
         @Override
         public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
+            inFoot = position + 1 == getItemCount();
+            if(errorBean.getClazz() == TrackListVH.class || errorBean.getClazz() == AlbumVH.class && helper.getNowPlayingTrack() != null){
+                if(((position == helper.getNowPlayingTrack().getPosition()+1)
+                        && getItemViewType(helper.getNowPlayingTrack().getPosition() + 1) ==  CommFooterVH.FOOT_TYPE)
+                       || (begin == maxPageId && inFoot)){
+                    inFoot = true;
+                    hasMore = false;
+                }
+            }
             ((BaseViewHolder) holder).onBindViewHolder(holder.itemView,
-                    position + 1 == getItemCount() ? (hasMore ? new Object() : null) : mDatas.get(position));
+                    inFoot ? (hasMore ? new Object() : null) : mDatas.get(position));
         }
 
         @Override
@@ -318,22 +346,21 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout {
             if (data instanceof HimalayanEntity) {
                 HimalayanEntity entity = (HimalayanEntity) data;
                 if (!entity.isIsPaid()) {
+                    entity.setCategoryName(title);
                     this.mDatas.add(data);
                 }
             } else {
-                if(data instanceof RankingTracksBean){
-                    RankingTracksBean entity = (RankingTracksBean) data;
-                    if (!entity.isIsPaid()) {
+                if (data instanceof TracksBeanList) {
+                    TracksBeanList entity = (TracksBeanList) data;
+                    if (!entity.isPaid()) {
                         this.mDatas.add(data);
                     }
                 } else {
                     this.mDatas.add(data);
                 }
                 notifyDataSetChanged();
-                mBinder.setData(mDatas);
                 if (errorBean.getClazz() == AlbumVH.class && begin == 1)
                     mRxManager.post(AppConstant.LOADING_STATUS, null);
-
             }
             isLoading = false;
             notifyDataSetChanged();

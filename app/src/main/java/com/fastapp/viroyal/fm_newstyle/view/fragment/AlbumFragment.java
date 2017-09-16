@@ -1,8 +1,6 @@
 package com.fastapp.viroyal.fm_newstyle.view.fragment;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,8 +10,11 @@ import android.view.ViewGroup;
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.base.BaseListFragment;
-import com.fastapp.viroyal.fm_newstyle.ui.album.AlbumActivity;
+import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
+import com.fastapp.viroyal.fm_newstyle.util.JsonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.TUtils;
+import com.fastapp.viroyal.fm_newstyle.view.viewholder.AlbumVH;
+
 
 import rx.functions.Action1;
 
@@ -30,7 +31,17 @@ public class AlbumFragment extends BaseListFragment{
                 @Override
                 public void call(Object o) {
                     mTRecyclerView.getAdapter().notifyDataSetChanged();
-                    AppContext.apply(AppContext.getEditor().putInt(AppConstant.MAX_PAGE, mTRecyclerView.getMaxCount()));
+                }
+            });
+            manager.on(AppConstant.SAVE_DATA, new Action1() {
+                @Override
+                public void call(Object o) {
+                    if(o instanceof ErrorBean && ((ErrorBean)o).getClazz() == AlbumVH.class){
+                        JsonUtils.createJson(mTRecyclerView.getAdapter().getData());
+                        AppContext.apply(AppContext.getEditor().putInt(AppConstant.MAX_COUNT, mTRecyclerView.getMaxCount()));
+                        AppContext.apply(AppContext.getEditor().putInt(AppConstant.MAX_PAGE_ID, mTRecyclerView.getMaxPageId()));
+                        AppContext.apply(AppContext.getEditor().putInt(AppConstant.CACHE_PAGEID, AppContext.getTempPageId()));
+                    }
                 }
             });
         }
@@ -48,14 +59,7 @@ public class AlbumFragment extends BaseListFragment{
     @Override
     public void onDetach() {
         super.onDetach();
-        Log.i(AppConstant.TAG, "onDetach ");
         manager.clear(AppConstant.UPDATE_ITEM_STATUS);
-    }
-
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        manager.clear(AppConstant.UPDATE_ITEM_STATUS);
+        manager.clear(AppConstant.SAVE_DATA);
     }
 }

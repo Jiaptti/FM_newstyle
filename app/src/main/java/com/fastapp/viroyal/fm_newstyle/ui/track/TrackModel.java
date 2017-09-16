@@ -8,6 +8,7 @@ import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TrackInfoBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksInfo;
 import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
 import com.fastapp.viroyal.fm_newstyle.model.realm.TracksBeanRealm;
 
@@ -21,19 +22,15 @@ import rx.Observable;
  */
 
 public class TrackModel implements TrackContract.Model {
-//    @Override
-//    public Observable<TrackInfoBean> getTrackInfoBean(int trackId) {
-//        return Api.getInstance().getApiService().getTrackInfo(trackId);
-//    }
-
-    @Override
-    public Observable<Data<HimalayanBean>> getAlbumList(int albumId, int pageSize) {
-        return Api.getInstance().getApiService().getAlbumsList(albumId, pageSize);
-    }
 
 
     @Override
     public NowPlayTrack getNowPlayTrack() {
         return AppContext.getRealmHelper().getNowPlayingTrack();
+    }
+
+    @Override
+    public Observable<TracksInfo> getTracksInfo(int trackId) {
+        return Api.getInstance().getApiService().getTracksInfo(trackId);
     }
 }

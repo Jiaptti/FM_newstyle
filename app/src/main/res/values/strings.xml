@@ -39,10 +39,15 @@
     <string name="player_total_time">"--:--"</string>
 
     <string name="net_error_msg_head">"喵～网络偷懒啦～"</string>
+    <string name="net_error_msg">"网络偷懒啦~"</string>
     <string name="net_error_msg_body">"再试一次，伦家已经在飞来的路上了"</string>
     <string name="reload">"重新加载"</string>
+
+    <string name="ranking_list">"今日最火"</string>
 
     <string name="close">"关闭"</string>
     <string name="list">"列表"</string>
     <string name="load_success">"成功"</string>
+    <string name="track_play_thousands_counts">"万次播放"</string>
+    <string name="track_play_counts">"次播放"</string>
 </resources>

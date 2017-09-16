@@ -27,6 +27,7 @@ public class NowPlayTrack extends RealmObject {
     private String coverLarge;
     private String nickname;
     private String smallLogo;
+    private String albumTitle;
     private int userSource;
     private int opType;
     private boolean isPublic;
@@ -37,6 +38,32 @@ public class NowPlayTrack extends RealmObject {
     private int status;
     private int maxPage;
     private int position;
+    private boolean fromTrack;
+    private String intro;
+
+    public String getIntro() {
+        return intro;
+    }
+
+    public void setIntro(String intro) {
+        this.intro = intro;
+    }
+
+    public String getAlbumTitle() {
+        return albumTitle;
+    }
+
+    public void setAlbumTitle(String albumTitle) {
+        this.albumTitle = albumTitle;
+    }
+
+    public boolean isFromTrack() {
+        return fromTrack;
+    }
+
+    public void setFromTrack(boolean fromTrack) {
+        this.fromTrack = fromTrack;
+    }
 
     public int getPosition() {
         return position;

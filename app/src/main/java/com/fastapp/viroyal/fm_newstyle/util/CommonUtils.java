@@ -1,20 +1,24 @@
 package com.fastapp.viroyal.fm_newstyle.util;
 
-import android.util.Log;
 import android.widget.TextView;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by hanjiaqi on 2017/7/14.
  */
 
-public class CommonUtils {
+public class CommonUtils{
     public static String getOmitPlayCounts(int playCounts){
         if(playCounts > 0 && playCounts < 10000){
             return playCounts + "";
@@ -26,6 +30,20 @@ public class CommonUtils {
             return (tempCounts + "." + ((playCounts - tempCounts * 10000) / 1000))+ AppContext.getStringById(R.string.ten_thousand);
         } else {
             return playCounts / 100000000 + AppContext.getStringById(R.string.ten_thousand);
+        }
+    }
+
+    public static String getOmitOrderCounts(int orderCounts){
+        if(orderCounts > 0 && orderCounts < 10000){
+            return orderCounts + "" + AppContext.getStringById(R.string.track_play_counts);
+        } else if(orderCounts > 10000 && orderCounts < 100000000){
+            int tempCounts = orderCounts / 10000;
+            if(((orderCounts - tempCounts * 10000) / 1000) == 0){
+                return tempCounts + AppContext.getStringById(R.string.track_play_thousands_counts);
+            }
+            return (tempCounts + "." + ((orderCounts - tempCounts * 10000) / 1000))+ AppContext.getStringById(R.string.track_play_thousands_counts);
+        } else {
+            return orderCounts / 100000000 + AppContext.getStringById(R.string.track_play_counts);
         }
     }
 
@@ -41,6 +59,13 @@ public class CommonUtils {
         } else {
             return playCounts / 100000000 + AppContext.getStringById(R.string.ten_thousand_times);
         }
+    }
+
+    public static String getCreatedTime(long time){
+        Date date = new Date(time);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.YEAR) + "-" +(calendar.get(Calendar.MONTH) + 1) + "-" +calendar.get(Calendar.DAY_OF_MONTH);
     }
 
     public static String getIntervalDays(long time){
@@ -90,6 +115,17 @@ public class CommonUtils {
         return type;
     }
 
+    public static String getTtile(int type){
+        if(type == AppConstant.PAGE_CROSSTALK){
+            return AppContext.getStringById(R.string.tabs_crosstalk_sketch);
+        } else if(type == AppConstant.PAGE_STORY ){
+            return AppContext.getStringById(R.string.tabs_exquisite_article);
+        } else if(type == AppConstant.PAGE_BOOK){
+            return AppContext.getStringById(R.string.tabs_literati_writings);
+        }
+        return AppContext.getStringById(R.string.app_name);
+    }
+
     public static String[] getAllTabs(){
         String[] tabs = {AppContext.getStringById(R.string.tabs_crosstalk_sketch),
                 AppContext.getStringById(R.string.tabs_exquisite_article),
@@ -129,5 +165,4 @@ public class CommonUtils {
             currentTime.invalidate();
         }
     }
-
 }

@@ -100,15 +100,11 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
         if(timeChangeHandler != null){
             timeChangeHandler.removeCallbacksAndMessages(null);
         }
-        if (mediaPlayer != null) {
-            mediaPlayer.setOnPreparedListener(null);
-            mediaPlayer.setOnCompletionListener(null);
-            mediaPlayer.release();
-            mediaPlayer = null;
+        if(mediaPlayer != null){
+            mediaPlayer.seekTo(0);
             position = 0;
-            AppContext.setPlayState(AppConstant.STATUS_NONE);
         }
-        manager.clear(AppConstant.MEDIA_START_PLAY);
+        AppContext.setPlayState(AppConstant.STATUS_NONE);
     }
 
     private void initPlayer() {

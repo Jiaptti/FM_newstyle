@@ -21,10 +21,10 @@
         android:id="@+id/content_view_pager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tabs"
-        />
+        android:layout_below="@+id/tabs" />
 
-    <include layout="@layout/now_playing_layout"/>
-    <include layout="@layout/net_error_layout"/>
+    <include layout="@layout/now_playing_layout" />
+
+    <include layout="@layout/net_error_layout" />
 
 </RelativeLayout>

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -48,12 +49,8 @@ public class CategoryVH extends BaseViewHolder<HimalayanEntity> {
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Bundle bundle = new Bundle();
-                    bundle.putInt(AppConstant.ALBUM_ID, entity.getAlbumId());
-                    bundle.putInt(AppConstant.ALBUM_TRACKS, entity.getTracks());
-                    Intent intent = new Intent(mContext, AlbumActivity.class);
-                    intent.putExtra(AppConstant.ALBUM_BUNDLE,bundle);
-                    ActivityCompat.startActivity((Activity) mContext, intent, null);
+                    ActivityCompat.startActivity((Activity) mContext, new Intent(mContext, AlbumActivity.class).putExtra(AppConstant.ALBUM_BUNDLE, entity)
+                            , ActivityOptionsCompat.makeSceneTransitionAnimation((Activity) mContext, category_image, AlbumActivity.TRANSLATE_VIEW).toBundle());
                 }
             });
         }

@@ -9,12 +9,14 @@ import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TrackInfoBean;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksInfo;
 import com.fastapp.viroyal.fm_newstyle.util.RxSchedulers;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.TrackListVH;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 
+import rx.Observer;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
@@ -28,37 +30,45 @@ public class TrackPresenter extends TrackContract.Presenter {
     protected void onStart() {
     }
 
+
     @Override
-    void getAlumList(int albumId, int pageSize) {
-        getManager().add(model.getAlbumList(albumId, pageSize)
-                .compose(RxSchedulers.<Data<HimalayanBean>>io_main()).subscribe(
-                        new Subscriber<Data<HimalayanBean>>() {
-                            @Override
-                            public void onCompleted() {
-                            }
+    void getTracksInfo(int trackId) {
+        getManager().add(model.getTracksInfo(trackId)
+                .compose(RxSchedulers.<TracksInfo>io_main())
+                .doOnSubscribe(new Action0() {
+                    @Override
+                    public void call() {
+                        view.showLoading();
+                    }
+                })
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<TracksInfo>() {
+                    @Override
+                    public void onCompleted() {
+                        view.dismissLoading();
+                    }
 
-                            @Override
-                            public void onError(Throwable throwable) {
-                                throwable.printStackTrace();
-                                Log.i(AppConstant.TAG, "getAlumList error = " + throwable.getMessage());
-                                if (throwable instanceof SocketTimeoutException) {
-                                    getManager().post(AppConstant.LOADING_STATUS, null);
-                                    ErrorBean errorBean = new ErrorBean();
-                                    errorBean.setClazz(TrackListVH.class);
-                                    getManager().post(AppConstant.ERROR_MESSAGE, errorBean);
-                                } else if (throwable instanceof ConnectException) {
+                    @Override
+                    public void onError(Throwable throwable) {
+                        throwable.printStackTrace();
+                        if (throwable instanceof SocketTimeoutException) {
+                            ErrorBean errorBean = new ErrorBean();
+                            errorBean.setClazz(TrackListVH.class);
+                            getManager().post(AppConstant.LOADING_STATUS, null);
+                            getManager().post(AppConstant.ERROR_MESSAGE, errorBean);
+                        } else if (throwable instanceof ConnectException) {
 
-                                } else {
+                        } else {
 
-                                }
-                            }
-
-                            @Override
-                            public void onNext(Data<HimalayanBean> himalayanBeanData) {
-                                view.loadAlbumList(himalayanBeanData.getData().getTracks().getList());
-                            }
                         }
-                ));
+                    }
+
+                    @Override
+                    public void onNext(TracksInfo tracksInfo) {
+                        view.initTracksInfo(tracksInfo);
+                    }
+                }));
+
     }
 
     @Override

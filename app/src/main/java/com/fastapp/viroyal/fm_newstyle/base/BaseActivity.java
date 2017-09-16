@@ -9,7 +9,6 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -22,7 +21,7 @@ import android.widget.TextView;
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
-import com.fastapp.viroyal.fm_newstyle.data.db.RealmHelper;
+import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
 import com.fastapp.viroyal.fm_newstyle.ui.ranking.RankingActivity;
 import com.fastapp.viroyal.fm_newstyle.ui.track.TrackActivity;
@@ -70,27 +69,11 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         mActionBar = (Toolbar) findViewById(R.id.tool_bar);
 
         nowPlayingLayout = (FrameLayout) findViewById(R.id.now_playing_layout);
-        if(nowPlayingLayout != null){
+        if (nowPlayingLayout != null) {
             nowPlayingLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (AppContext.getMediaPlayService().isPlaying()) {
-                        Intent intent = new Intent(mContext, TrackActivity.class);
-                        mContext.startActivity(intent);
-                    } else {
-                        NowPlayTrack entity = AppContext.getRealmHelper().getNowPlayingTrack();
-                        if(entity != null){
-                            AppContext.getMediaPlayService().playMedia(entity.getPlayUrl32());
-                            Bundle bundle = new Bundle();
-                            bundle.putInt(AppConstant.TRACK_ID, entity.getTrackId());
-                            Intent intent = new Intent(mContext, TrackActivity.class);
-                            intent.putExtra(AppConstant.TRACK_BUNDLE, bundle);
-                            mContext.startActivity(intent);
-                        } else {
-                            Intent intent = new Intent(mContext, RankingActivity.class);
-                            mContext.startActivity(intent);
-                        }
-                    }
+                    startActivity();
                 }
             });
         }
@@ -108,12 +91,6 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
                 setPlayViewStatue();
             }
         });
-//        presenter.getManager().on(AppConstant.UPDATE_ITEM_STATUS, new Action1() {
-//            @Override
-//            public void call(Object o) {
-//                setPlayViewStatue();
-//            }
-//        });
 
         if (systemUIFullScreen()) {
             fullScreen();
@@ -136,6 +113,17 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         this.initView();
     }
 
+    private void startActivity() {
+        NowPlayTrack entity = AppContext.getRealmHelper().getNowPlayingTrack();
+        if (entity != null) {
+            Intent intent = new Intent(mContext, TrackActivity.class);
+            mContext.startActivity(intent);
+        } else {
+            Intent intent = new Intent(mContext, RankingActivity.class);
+            mContext.startActivity(intent);
+        }
+    }
+
     private void playNowImgAnimation() {
         if ((AppContext.getPlayState() == AppConstant.STATUS_PLAY
                 || AppContext.getPlayState() == AppConstant.STATUS_RESUME) && operatingAnim != null) {
@@ -147,14 +135,18 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
     }
 
     private void setPlayViewStatue() {
-        if (realmHelper.getNowPlayingTrack() == null &&(AppContext.getPlayState() == AppConstant.STATUS_PLAY
-                || AppContext.getPlayState() == AppConstant.STATUS_RESUME
-                 || AppContext.getPlayState() == AppConstant.STATUS_NONE)) {
-                nowPlayingStatus.setBackgroundResource(R.mipmap.play_icon_default);
-        } else if (AppContext.getPlayState() == AppConstant.STATUS_PAUSE || AppContext.getPlayState() == AppConstant.STATUS_STOP) {
-            nowPlayingStatus.setBackgroundResource(R.mipmap.play_icon_pause);
-            if(realmHelper.getNowPlayingTrack() != null)
-                ImageUtils.loadCircleImage(AppContext.getAppContext(), realmHelper.getNowPlayingTrack().getCoverSmall(), nowPlayingImg);
+        if (realmHelper.getNowPlayingTrack() == null) {
+            nowPlayingStatus.setBackgroundResource(R.mipmap.play_icon_default);
+        } else {
+            if (AppContext.getPlayState() == AppConstant.STATUS_PAUSE || AppContext.getPlayState() == AppConstant.STATUS_STOP
+                    || AppContext.getPlayState() == AppConstant.STATUS_NONE) {
+                nowPlayingStatus.setBackgroundResource(R.mipmap.play_icon_pause);
+            } else {
+                nowPlayingStatus = (SquareImageView) findViewById(R.id.now_playing_status);
+            }
+        }
+        if (realmHelper.getNowPlayingTrack() != null) {
+            ImageUtils.loadCircleImage(AppContext.getAppContext(), realmHelper.getNowPlayingTrack().getCoverSmall(), nowPlayingImg);
         }
     }
 
@@ -223,7 +215,8 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         return false;
     }
 
-    public void disposeError(){}
+    public void disposeError() {
+    }
 
     public void setActionBarTitle(String title) {
         if (supportActionBar()) {
