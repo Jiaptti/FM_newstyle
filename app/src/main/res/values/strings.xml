@@ -42,6 +42,7 @@
     <string name="net_error_msg">"网络偷懒啦~"</string>
     <string name="net_error_msg_body">"再试一次，伦家已经在飞来的路上了"</string>
     <string name="reload">"重新加载"</string>
+    <string name="foot_reload">"点击重新加载"</string>
 
     <string name="ranking_list">"今日最火"</string>
 

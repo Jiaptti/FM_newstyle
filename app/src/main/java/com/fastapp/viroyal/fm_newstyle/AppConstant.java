@@ -21,7 +21,6 @@ public class AppConstant {
     public static final String ERROR_MESSAGE = "error_message";
     public static final String CURRENT_POSITION_VIEW ="current_position_view";
     public static final String UPDATE_TRACKS_UI="update_tracks_ui";
-    public static final String TRACK_LIST_CACHE_DATA = "track_list_cache_data";
     public static final String CACHE_PAGEID = "cache_page_id";
     public static final String MAX_COUNT = "max_count";
     public static final String SAVE_DATA = "save_data";
@@ -43,5 +42,6 @@ public class AppConstant {
     public static final int STATUS_NONE = 105;
     public static final int STATUS_UPDATE_TIME = 106;
 
-    public static final int RECYCLE_ERROR_CODE = 1000;
+    public static final int RECYCLE_DATA_ERROR = 1001;
+    public static final int REQUEST_BODY_ERROR = 1002;
 }

@@ -176,8 +176,8 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         presenter.getManager().on(AppConstant.ERROR_MESSAGE, new Action1() {
             @Override
             public void call(Object o) {
-                ErrorBean errorBean = (ErrorBean) o;
-                if (errorBean.getClazz() == TrackListVH.class) {
+                ErrorBean errorBean = (ErrorBean)o;
+                if (errorBean.getClazz() == TrackListVH.class && errorBean.getCode() == AppConstant.REQUEST_BODY_ERROR) {
                     loadingLayout.setVisibility(View.GONE);
                     animation.stop();
                     trackInfoError.setVisibility(View.VISIBLE);

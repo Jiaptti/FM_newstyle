@@ -2,13 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="60dp"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/foot_content_layout"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:gravity="center"
-        android:orientation="horizontal" >
+        android:orientation="horizontal">
 
         <ProgressBar
             android:id="@+id/foot_progress"
@@ -23,6 +24,25 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:text="加载更多" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/foot_error_content"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/foot_error_load"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:layout_gravity="center"
+            android:textSize="@dimen/text_regular_primary_size"
+            android:text="@string/foot_reload"
+            android:textColor="@color/black" />
+
     </LinearLayout>
 
 </LinearLayout>

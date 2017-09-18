@@ -5,6 +5,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -54,16 +55,12 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
     @Bind(R.id.album_pager)
     ViewPager albumPager;
 
-    @Bind(R.id.loading_layout)
-    LinearLayout loadingLayout;
-    @Bind(R.id.loading_img)
-    SquareImageView loadingImg;
-    private AnimationDrawable animation;
-
     @Bind(R.id.net_error_layout)
     LinearLayout errorLayout;
     @Bind(R.id.reload)
     TextView reload;
+
+    private HimalayanEntity himalayanEntity;
 
     @Override
     protected int layoutResID() {
@@ -73,7 +70,7 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
 
     @Override
     protected void initView() {
-        HimalayanEntity himalayanEntity = (HimalayanEntity) getIntent().getSerializableExtra(AppConstant.ALBUM_BUNDLE);
+        himalayanEntity = (HimalayanEntity) getIntent().getSerializableExtra(AppConstant.ALBUM_BUNDLE);
         if (himalayanEntity != null) {
             initData(himalayanEntity);
         }
@@ -82,7 +79,8 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
         presenter.getManager().on(AppConstant.LOADING_STATUS, new Action1() {
             @Override
             public void call(Object o) {
-//                dismissLoading();
+                Log.i(AppConstant.TAG, "album loading");
+                showLoading();
             }
         });
 
@@ -101,11 +99,11 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
             public void onClick(View view) {
                 errorLayout.setVisibility(View.GONE);
                 albumContent.setVisibility(View.VISIBLE);
-//                presenter.getAlbumsList(albumId, tracks);
+                if (himalayanEntity != null) {
+                    initData(himalayanEntity);
+                }
             }
         });
-
-
     }
 
     private void initData(HimalayanEntity himalayanEntity){
@@ -142,16 +140,9 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
 
     @Override
     public void showLoading() {
-        loadingLayout.setVisibility(View.VISIBLE);
-        albumContent.setVisibility(View.GONE);
-        animation = (AnimationDrawable) loadingImg.getBackground();
-        animation.start();
     }
 
     @Override
     public void dismissLoading() {
-        loadingLayout.setVisibility(View.GONE);
-        albumContent.setVisibility(View.VISIBLE);
-        animation.stop();
     }
 }

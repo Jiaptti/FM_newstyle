@@ -14,8 +14,8 @@ import rx.Observable;
 
 public class AlbumModel implements AlbumContract.Model{
 
-    @Override
-    public Observable<Data<HimalayanBean>> getAlbums(int albumId, int pageSize) {
-        return Api.getInstance().getApiService().getAlbumsList(albumId, pageSize).compose(RxSchedulers.<Data<HimalayanBean>>io_main());
-    }
+//    @Override
+//    public Observable<Data<HimalayanBean>> getAlbums(int albumId, int pageSize) {
+//        return Api.getInstance().getApiService().getAlbumsList(albumId, pageSize).compose(RxSchedulers.<Data<HimalayanBean>>io_main());
+//    }
 }

@@ -4,8 +4,10 @@ import android.content.Context;
 import android.util.Log;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
+import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
 import com.fastapp.viroyal.fm_newstyle.util.NetWorkUtils;
 import com.fastapp.viroyal.fm_newstyle.view.layout.TRecyclerView;
+import com.fastapp.viroyal.fm_newstyle.view.viewholder.AlbumVH;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
@@ -18,14 +20,15 @@ import rx.Subscriber;
 
 public class BaseSubscriber<T> extends Subscriber<T> {
     private Context mContext;
-    private TRecyclerView recycle;
+    private ErrorBean errorBean;
+    private RxManager manager = new RxManager();
 
     public BaseSubscriber() {
     }
 
-    public BaseSubscriber(Context context, TRecyclerView mTRecyclerView) {
+    public BaseSubscriber(Context context, ErrorBean errorBean) {
         mContext = context;
-        this.recycle = mTRecyclerView;
+        this.errorBean = errorBean;
     }
 
     @Override
@@ -33,32 +36,19 @@ public class BaseSubscriber<T> extends Subscriber<T> {
         if (!NetWorkUtils.hasNet()) {
             return;
         }
-
     }
 
     @Override
     public void onCompleted() {
-        recycle.setRefreshLoadedState();
     }
 
     @Override
     public void onError(Throwable throwable) {
         throwable.printStackTrace();
-        if (throwable instanceof SocketTimeoutException) {
-            recycle.begin = 0;
-            recycle.setRefreshLoadedState();
-            recycle.mRxManager.post(AppConstant.LOADING_STATUS, null);
-            recycle.errorBean.setCode(AppConstant.RECYCLE_ERROR_CODE);
-            recycle.mRxManager.post(AppConstant.ERROR_MESSAGE, recycle.errorBean);
-        } else if (throwable instanceof ConnectException) {
-
-        } else if (throwable instanceof NullPointerException) {
-
-        }
+        manager.post(AppConstant.ERROR_MESSAGE, errorBean);
     }
 
     @Override
     public void onNext(T t) {
-
     }
 }

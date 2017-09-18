@@ -2,10 +2,12 @@ package com.fastapp.viroyal.fm_newstyle.view.popup;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
@@ -13,11 +15,15 @@ import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
 import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
+import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
 import com.fastapp.viroyal.fm_newstyle.util.JsonUtils;
 import com.fastapp.viroyal.fm_newstyle.view.layout.TRecyclerView;
+import com.fastapp.viroyal.fm_newstyle.view.viewholder.AlbumVH;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.TrackListVH;
+
 import android.widget.TextView;
 
 import java.util.List;
@@ -28,15 +34,19 @@ import rx.functions.Action1;
  * Created by hanjiaqi on 2017/8/24.
  */
 
-public class PlayListPopupWindow extends PopupWindow{
-    private Context mContext;
+public class PlayListPopupWindow extends PopupWindow {
     private TRecyclerView mTRecyclerView;
     private TextView popupClose;
+    private LinearLayout trackListContent;
+    private LinearLayout errorLayout;
+    private TextView reload;
+
+    private Context mContext;
     private RxManager manager = new RxManager();
     private AlbumPlayService.PlayBinder mBinder;
     private RealmHelper realmHelper;
 
-    public PlayListPopupWindow(Context context){
+    public PlayListPopupWindow(Context context) {
         this.mContext = context;
         View view = LayoutInflater.from(context).inflate(R.layout.play_list_popup_layout, null);
         setContentView(view);
@@ -45,6 +55,9 @@ public class PlayListPopupWindow extends PopupWindow{
         mBinder = AppContext.getMediaPlayService();
         mTRecyclerView = (TRecyclerView) view.findViewById(R.id.play_list_view);
         popupClose = (TextView) view.findViewById(R.id.popup_close);
+        errorLayout = (LinearLayout) view.findViewById(R.id.net_error_layout);
+        trackListContent = (LinearLayout) view.findViewById(R.id.track_list_content);
+        reload = (TextView) view.findViewById(R.id.reload);
         backgroundAlpha(1f);
         setWidth(WindowManager.LayoutParams.MATCH_PARENT);
         setHeight((AppContext.getScreenHeight() / 2) + (AppContext.getScreenHeight() / 4));
@@ -54,7 +67,7 @@ public class PlayListPopupWindow extends PopupWindow{
         popupClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(isShowing()){
+                if (isShowing()) {
                     dismiss();
                 }
             }
@@ -66,6 +79,26 @@ public class PlayListPopupWindow extends PopupWindow{
             }
         });
 
+        manager.on(AppConstant.ERROR_MESSAGE, new Action1() {
+            @Override
+            public void call(Object o) {
+                ErrorBean errorBean = (ErrorBean) o;
+                if (errorBean.getClazz() == TrackListVH.class) {
+                    errorLayout.setVisibility(View.VISIBLE);
+                    trackListContent.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        reload.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                errorLayout.setVisibility(View.GONE);
+                trackListContent.setVisibility(View.VISIBLE);
+                mTRecyclerView.sendRequest();
+            }
+        });
+
         manager.on(AppConstant.CURRENT_POSITION_VIEW, new Action1() {
             @Override
             public void call(Object o) {
@@ -74,35 +107,36 @@ public class PlayListPopupWindow extends PopupWindow{
         });
     }
 
-    public void initListData(int albumId){
+    public void initListData(int albumId) {
         mTRecyclerView.setView(TrackListVH.class, albumId);
         mTRecyclerView.sendRequest();
     }
 
-    private void saveData(){
+    private void saveData() {
         JsonUtils.createJson(mTRecyclerView.getAdapter().getData());
         AppContext.apply(AppContext.getEditor().putInt(AppConstant.MAX_COUNT, mTRecyclerView.getMaxCount()));
         AppContext.apply(AppContext.getEditor().putInt(AppConstant.MAX_PAGE_ID, mTRecyclerView.getMaxPageId()));
         AppContext.apply(AppContext.getEditor().putInt(AppConstant.CACHE_PAGEID, AppContext.getTempPageId()));
     }
 
-    private void loadListData(){
+    private void loadListData() {
         int count = mTRecyclerView.getAdapter().getItemCount() - 1;
         int position = realmHelper.getNowPlayingTrack().getPosition() + 4;
-        if(position > count && mTRecyclerView.hasMore()){
+        if (position > count && mTRecyclerView.hasMore()) {
             mTRecyclerView.sendRequest();
         }
     }
 
-    public void destroyManager(){
+    public void destroyManager() {
         manager.clear(AppConstant.UPDATE_ITEM_STATUS);
         manager.clear(AppConstant.CURRENT_POSITION_VIEW);
+        manager.clear(AppConstant.ERROR_MESSAGE);
     }
 
-    public void playNext(){
+    public void playNext() {
         List<TracksBeanList> beanList = mTRecyclerView.getAdapter().getData();
         TracksBeanList entity = beanList.get(realmHelper.getNowPlayingTrack().getPosition() + 1);
-        if(realmHelper.getNowPlayingTrack().isFromTrack()){
+        if (realmHelper.getNowPlayingTrack().isFromTrack()) {
             entity.setFromTrack(true);
         }
         entity.setPosition(realmHelper.getNowPlayingTrack().getPosition() + 1);
@@ -111,16 +145,15 @@ public class PlayListPopupWindow extends PopupWindow{
         loadListData();
     }
 
-    public void playPrev(){
+    public void playPrev() {
         List<TracksBeanList> beanList = mTRecyclerView.getAdapter().getData();
         TracksBeanList entity = beanList.get(realmHelper.getNowPlayingTrack().getPosition() - 1);
-        if(realmHelper.getNowPlayingTrack().isFromTrack()){
+        if (realmHelper.getNowPlayingTrack().isFromTrack()) {
             entity.setFromTrack(true);
         }
         entity.setPosition(realmHelper.getNowPlayingTrack().getPosition() - 1);
         realmHelper.setNowPlayTrack(entity);
         mBinder.playMedia(realmHelper.getNowPlayingTrack().getPlayUrl32());
-        loadListData();
     }
 
     OnDismissListener dismissListener = new OnDismissListener() {
@@ -131,25 +164,25 @@ public class PlayListPopupWindow extends PopupWindow{
         }
     };
 
-    public void show(View parent){
+    public void show(View parent) {
         backgroundAlpha(0.7f);
-        if(!isShowing()){
+        if (!isShowing()) {
             showAtLocation(parent, Gravity.NO_GRAVITY, 0, AppContext.getScreenHeight() / 4);
-            mTRecyclerView.getRecyclerView().scrollToPosition(realmHelper.getNowPlayingTrack().getPosition());
+            if (mTRecyclerView.getRecyclerView() != null)
+                mTRecyclerView.getRecyclerView().scrollToPosition(realmHelper.getNowPlayingTrack().getPosition());
         } else {
-            dismiss();
+            saveData();
         }
     }
 
-    public boolean hasNext(){
+    public boolean hasNext() {
         int count = AppContext.getPersistPreferences().getInt(AppConstant.MAX_COUNT, 0);
         return ((realmHelper.getNowPlayingTrack().getPosition() + 1) != count);
     }
 
-    public void backgroundAlpha(float bgAlpha)
-    {
-        WindowManager.LayoutParams lp = ((Activity)mContext).getWindow().getAttributes();
+    public void backgroundAlpha(float bgAlpha) {
+        WindowManager.LayoutParams lp = ((Activity) mContext).getWindow().getAttributes();
         lp.alpha = bgAlpha;
-        ((Activity)mContext).getWindow().setAttributes(lp);
+        ((Activity) mContext).getWindow().setAttributes(lp);
     }
 }

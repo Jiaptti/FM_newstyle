@@ -14,15 +14,12 @@ import rx.Observable;
 
 public interface AlbumContract {
     interface Model extends BaseModel{
-        Observable<Data<HimalayanBean>> getAlbums(int albumId, int pageSize);
     }
 
     interface View extends BaseView{
-//        void showAlbumMessage(Data<HimalayanBean> himalayanBeanData);
     }
 
     abstract class Presenter extends BasePresenter<View, Model>{
-        abstract void getAlbumsList(int albumId, int PageSize);
         @Override
         protected void onStart() {}
     }

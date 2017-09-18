@@ -3,6 +3,7 @@ package com.fastapp.viroyal.fm_newstyle.view.layout;
 import android.content.Context;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
@@ -40,20 +41,19 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.Observable;
+import rx.functions.Action1;
 import rx.functions.Func1;
 
 /**
  * Created by hanjiaqi on 2017/6/29.
  */
 
-public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements SwipeRefreshLayout.OnRefreshListener{
+public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements SwipeRefreshLayout.OnRefreshListener {
     private Context mContext;
     @Bind(R.id.swiperefresh)
     SwipeRefreshLayout mSwipeRefreshLayout;
     @Bind(R.id.recycle_list)
     RecyclerView recyclerView;
-    @Bind(R.id.empty_layout)
-    LinearLayout emptyLayout;
     private LinearLayoutManager mLayoutManager;
     public int begin;
     private T model;
@@ -70,7 +70,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
     private int maxPageId;
     private String title;
     private RealmHelper helper = AppContext.getRealmHelper();
-    
+
     public TRecyclerView(Context context) {
         super(context);
         mContext = context;
@@ -92,14 +92,14 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
         mRxManager = new RxManager();
         addView(view);
         ButterKnife.bind(this, view);
-        initView(view);
+        initView();
     }
 
     public RecyclerView getRecyclerView() {
         return recyclerView;
     }
 
-    private void initView(View view) {
+    private void initView() {
         mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright);
         mSwipeRefreshLayout.setOnRefreshListener(this);
         mLayoutManager = new LinearLayoutManager(mContext);
@@ -128,12 +128,6 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
                 mLastItem = mLayoutManager.findLastVisibleItemPosition();
             }
         });
-        emptyLayout.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                refresh();
-            }
-        });
     }
 
     public void setRefreshLoadingState() {
@@ -151,7 +145,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
         }
     }
 
-    public int getMaxPageId(){
+    public int getMaxPageId() {
         return maxPageId;
     }
 
@@ -194,15 +188,27 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
             AppContext.setTempPageId(begin);
         }
         mRxManager.add(observable.subscribe(
-                new BaseSubscriber<T>(mContext, this){
+                new BaseSubscriber<T>(mContext, errorBean) {
                     @Override
                     public void onNext(T o) {
                         mAdatper.setBeans(o, begin);
                     }
+                    @Override
+                    public void onError(Throwable throwable) {
+                        super.onError(throwable);
+                        begin = 0;
+                        setRefreshLoadedState();
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        super.onCompleted();
+                        setRefreshLoadedState();
+                    }
                 }));
     }
 
-    private Observable getRankingModel(int type,final int begin) {
+    private Observable getRankingModel(int type, final int begin) {
         return model.getPageAt(type, begin, getPageSize()).compose(RxSchedulers.io_main())
                 .flatMap(new Func1<RankingTracks, Observable<TracksBeanList>>() {
                     @Override
@@ -243,7 +249,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
     }
 
     public void refresh() {
-        if(errorBean.getClazz() != TrackListVH.class){
+        if (errorBean.getClazz() != TrackListVH.class) {
             begin = 0;
             mAdatper.getData().clear();
             sendRequest();
@@ -278,7 +284,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
 
     @Override
     public void onRefresh() {
-        if(recyclerView != null)
+        if (recyclerView != null)
             recyclerView.scrollToPosition(0);
         refresh();
         setRefreshLoadingState();
@@ -315,10 +321,10 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
         @Override
         public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
             inFoot = position + 1 == getItemCount();
-            if(errorBean.getClazz() == TrackListVH.class || errorBean.getClazz() == AlbumVH.class && helper.getNowPlayingTrack() != null){
-                if(((position == helper.getNowPlayingTrack().getPosition()+1)
-                        && getItemViewType(helper.getNowPlayingTrack().getPosition() + 1) ==  CommFooterVH.FOOT_TYPE)
-                       || (begin == maxPageId && inFoot)){
+            if (errorBean.getClazz() == TrackListVH.class || errorBean.getClazz() == AlbumVH.class && helper.getNowPlayingTrack() != null) {
+                if (((position == helper.getNowPlayingTrack().getPosition() + 1)
+                        && getItemViewType(helper.getNowPlayingTrack().getPosition() + 1) == CommFooterVH.FOOT_TYPE)
+                        || (begin == maxPageId && inFoot)) {
                     inFoot = true;
                     hasMore = false;
                 }
@@ -357,8 +363,6 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
                     this.mDatas.add(data);
                 }
                 notifyDataSetChanged();
-                if (errorBean.getClazz() == AlbumVH.class && begin == 1)
-                    mRxManager.post(AppConstant.LOADING_STATUS, null);
             }
             isLoading = false;
             notifyDataSetChanged();

@@ -4,7 +4,6 @@ package com.fastapp.viroyal.fm_newstyle.ui.home;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -46,7 +45,7 @@ public class HomeActivity extends BaseActivity<HomePresenter, HomeModel> impleme
         presenter.getManager().on(AppConstant.ERROR_MESSAGE, new Action1() {
             @Override
             public void call(Object o) {
-                ErrorBean errorBean = (ErrorBean)o;
+                ErrorBean errorBean = (ErrorBean) o;
                 if(errorBean.getClazz() == CategoryVH.class){
                     errorLayout.setVisibility(View.VISIBLE);
                     mContentPager.setVisibility(View.GONE);

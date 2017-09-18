@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
+import com.fastapp.viroyal.fm_newstyle.base.BaseSubscriber;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
@@ -38,29 +39,17 @@ public class TrackPresenter extends TrackContract.Presenter {
                 .doOnSubscribe(new Action0() {
                     @Override
                     public void call() {
+                        errorBean.setClazz(TrackListVH.class);
+                        errorBean.setCode(AppConstant.REQUEST_BODY_ERROR);
                         view.showLoading();
                     }
                 })
                 .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<TracksInfo>() {
+                .subscribe(new BaseSubscriber<TracksInfo>(mContext, errorBean) {
                     @Override
                     public void onCompleted() {
+                        super.onCompleted();
                         view.dismissLoading();
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-                        throwable.printStackTrace();
-                        if (throwable instanceof SocketTimeoutException) {
-                            ErrorBean errorBean = new ErrorBean();
-                            errorBean.setClazz(TrackListVH.class);
-                            getManager().post(AppConstant.LOADING_STATUS, null);
-                            getManager().post(AppConstant.ERROR_MESSAGE, errorBean);
-                        } else if (throwable instanceof ConnectException) {
-
-                        } else {
-
-                        }
                     }
 
                     @Override

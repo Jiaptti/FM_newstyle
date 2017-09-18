@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.IMA">
         <activity
-            android:name=".ui.home.HomeActivity"
+            android:name=".ui.navigation.NavigationActivity"
             android:uiOptions="splitActionBarWhenNarrow"
             android:screenOrientation="portrait">
             <intent-filter>
@@ -28,6 +28,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ui.home.HomeActivity"
+            android:uiOptions="splitActionBarWhenNarrow"
+            android:screenOrientation="portrait" />
 
         <activity
             android:name=".ui.album.AlbumActivity"

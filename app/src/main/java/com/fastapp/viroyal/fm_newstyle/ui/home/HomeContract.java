@@ -22,6 +22,7 @@ public interface HomeContract {
 
     interface Model extends BaseModel{
         Observable<String> getTabFragment();
+
     }
 
     abstract class Presenter extends BasePresenter<View, Model> {
