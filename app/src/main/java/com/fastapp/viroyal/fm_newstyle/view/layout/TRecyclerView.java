@@ -41,7 +41,6 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import rx.Observable;
-import rx.functions.Action1;
 import rx.functions.Func1;
 
 /**
@@ -54,13 +53,13 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
     SwipeRefreshLayout mSwipeRefreshLayout;
     @Bind(R.id.recycle_list)
     RecyclerView recyclerView;
-    private LinearLayoutManager mLayoutManager;
+    public GridLayoutManager mGridLayoutManager;
     public int begin;
     private T model;
     public CoreAdapter<T> mAdatper = new CoreAdapter<>();
     public RxManager mRxManager;
     private int type = AppConstant.PAGE_CROSSTALK;
-    private int pageSize = 10;
+    private int pageSize = 20;
     public ErrorBean errorBean;
     public boolean hasMore;
     private Observable observable;
@@ -102,11 +101,11 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
     private void initView() {
         mSwipeRefreshLayout.setColorSchemeResources(android.R.color.holo_blue_bright);
         mSwipeRefreshLayout.setOnRefreshListener(this);
-        mLayoutManager = new LinearLayoutManager(mContext);
-        recyclerView.setLayoutManager(mLayoutManager);
+        mGridLayoutManager = new GridLayoutManager(mContext, AppConstant.SPAN_COUNT_ONE);
+        recyclerView.setLayoutManager(mGridLayoutManager);
         recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.smoothScrollToPosition(mAdatper.getItemCount());
+        recyclerView.smoothScrollToPosition(0);
         recyclerView.setAdapter(mAdatper);
         recyclerView.addItemDecoration(new RecycleViewDivider(mContext, LinearLayoutManager.HORIZONTAL));
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -125,7 +124,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                mLastItem = mLayoutManager.findLastVisibleItemPosition();
+                mLastItem = mGridLayoutManager.findLastVisibleItemPosition();
             }
         });
     }
@@ -204,6 +203,11 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
                     public void onCompleted() {
                         super.onCompleted();
                         setRefreshLoadedState();
+                        if(errorBean.getClazz() == AlbumVH.class && begin == 1){
+                            TracksBeanList bean = (TracksBeanList) mAdatper.getData().get(0);
+                            Log.i(AppConstant.TAG, "onCompleted trackId = " + bean.getTrackId());
+                            helper.updateRecentTrackId(bean.getAlbumId(),bean.getTrackId());
+                        }
                     }
                 }));
     }
@@ -220,7 +224,7 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
                 });
     }
 
-    private synchronized Observable getTrackModel(int type, final int begin) {
+    private synchronized Observable getTrackModel(final int type, final int begin) {
         return model.getPageAt(type, begin, getPageSize()).compose(RxSchedulers.io_main())
                 .flatMap(new Func1<TracksData, Observable<TracksBeanList>>() {
                     @Override
@@ -278,10 +282,6 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
         return this;
     }
 
-    public void setFragmentTitle(String title) {
-        this.title = title;
-    }
-
     @Override
     public void onRefresh() {
         if (recyclerView != null)
@@ -308,6 +308,13 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
                     }
                     return (mFootViewClass).getConstructor(View.class).newInstance(view);
                 } else {
+                    if(mItemViewClass == CategoryVH.class){
+                        if(viewType == AppConstant.SPAN_COUNT_THREE){
+                            mItemType = R.layout.category_item_vertical_layout;
+                        } else {
+                            mItemType = R.layout.category_item_layout;
+                        }
+                    }
                     View view = LayoutInflater.from(parent.getContext()).inflate(mItemType, parent, false);
                     return (mItemViewClass).getConstructor(View.class).newInstance(view);
                 }
@@ -335,7 +342,8 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
 
         @Override
         public int getItemViewType(int position) {
-            return position + 1 == getItemCount() ? mFootType : mItemType;
+            return position + 1 == getItemCount() ? mFootType
+                    : mGridLayoutManager.getSpanCount() == AppConstant.SPAN_COUNT_ONE ? mItemType : AppConstant.SPAN_COUNT_THREE;
         }
 
         public void setViewType(Class<? extends BaseViewHolder> tagClass, int type) {

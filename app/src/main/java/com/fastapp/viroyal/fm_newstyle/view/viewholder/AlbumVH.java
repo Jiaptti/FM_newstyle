@@ -95,7 +95,6 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
                         } else {
                             mBinder.stopMedia();
                             mBinder.playMedia(entity.getPlayUrl32());
-                            manager.post(AppConstant.SAVE_DATA, null);
                             helper.setNowPlayTrack(entity);
                             manager.post(AppConstant.SAVE_DATA, errorBean);
                         }
@@ -119,12 +118,10 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
                 if(helper.getNowPlayingTrack() == null){
                     entity.setPosition(getPosition());
                     entity.setFromTrack(false);
-                    helper.setNowPlayTrack(entity);
                 } else {
                     if(!mBinder.isPlaying() && helper.getNowPlayingTrack().getTrackId() != entity.getTrackId()){
                         entity.setPosition(getPosition());
                         entity.setFromTrack(false);
-                        helper.setNowPlayTrack(entity);
                     }
                 }
                 Intent intent = new Intent(mContext, TrackActivity.class);

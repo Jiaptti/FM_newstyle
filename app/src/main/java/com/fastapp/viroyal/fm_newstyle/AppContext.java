@@ -68,6 +68,16 @@ public class AppContext extends Application{
         return mApp;
     }
 
+    public static void setAutoCacheMode(boolean isChecked) {
+        Editor editor = getPersistPreferences().edit();
+        editor.putBoolean(AppConstant.KEY_MODE_AUTO_CACHE, isChecked);
+        apply(editor);
+    }
+
+    public boolean isAutoCacheMode() {
+        return getPersistPreferences().getBoolean(AppConstant.KEY_MODE_AUTO_CACHE, false);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();

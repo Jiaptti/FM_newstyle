@@ -51,6 +51,18 @@ public class FileUtils {
         }
     }
 
+    public static void removeData(){
+        Context c = AppContext.getAppContext();
+        CacheRoot = Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED ? c
+                .getExternalCacheDir() : c.getCacheDir();
+        File file=new File(CacheRoot.toString()
+                +File.separator+ "fm"
+                +File.separator+ AppConstant.DATA_FILE);
+        if(file.exists()){
+            Log.i(AppConstant.TAG, "clear = " + file.delete());
+        }
+    }
+
 
     public static String readData() {
         Context c = AppContext.getAppContext();

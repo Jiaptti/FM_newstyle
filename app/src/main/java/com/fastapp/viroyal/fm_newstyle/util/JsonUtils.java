@@ -22,4 +22,8 @@ public class JsonUtils {
         return gson.fromJson(data, new TypeToken<List<TracksBeanList>>(){}.getType());
     }
 
+    public static void cleanData(){
+        FileUtils.removeData();
+    }
+
 }

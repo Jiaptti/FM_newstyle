@@ -8,7 +8,11 @@
     <string name="wrong_xml">"XML错误"</string>
     <string name="no_content">"没有内容"</string>
     <string name="loading_now">"正在为您努力加载..."</string>
+    <string name="navigation_title">"导航栏"</string>
+    <string name="settings_title">"设置"</string>
     <string name="no_net">"没有网络"</string>
+    <string name="confirm">"确定"</string>
+    <string name="cancel">"取消"</string>
 
     <string name="play_counts">"播放次数："</string>
     <string name="play_duration">"时长："</string>
@@ -51,4 +55,13 @@
     <string name="load_success">"成功"</string>
     <string name="track_play_thousands_counts">"万次播放"</string>
     <string name="track_play_counts">"次播放"</string>
+
+
+    <string name="settings_recent_listener">"最近收听"</string>
+    <string name="settings_my_collect">"我的收藏"</string>
+    <string name="settings_cache_size_title">"缓存大小："</string>
+    <string name="settings_clear_cache_title">"清理缓存"</string>
+    <string name="settings_check_update">"检查更新"</string>
+    <string name="settings_version_name">"当前版本号："</string>
+    <string name="settings_open_cache">"开启缓存"</string>
 </resources>

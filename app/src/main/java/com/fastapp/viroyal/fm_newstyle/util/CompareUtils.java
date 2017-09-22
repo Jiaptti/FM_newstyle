@@ -17,9 +17,9 @@ public class CompareUtils implements Comparator {
         Date d1 = new Date(t1.getCreatedAt());
         Date d2 = new Date(t2.getCreatedAt());
         if (d1.before(d2)) {
-            return -1;
-        } else {
             return 1;
+        } else {
+            return -1;
         }
     }
 }

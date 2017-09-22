@@ -1,6 +1,5 @@
 package com.fastapp.viroyal.fm_newstyle.ui.album;
 
-import android.graphics.drawable.AnimationDrawable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
@@ -14,15 +13,15 @@ import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseActivity;
+import com.fastapp.viroyal.fm_newstyle.base.BaseAdapter;
 import com.fastapp.viroyal.fm_newstyle.base.BaseListFragment;
 import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanEntity;
 import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.view.SquareImageView;
-import com.fastapp.viroyal.fm_newstyle.view.fragment.AlbumDetailsFragment;
-import com.fastapp.viroyal.fm_newstyle.view.fragment.AlbumFragment;
-import com.fastapp.viroyal.fm_newstyle.view.fragment.adapter.FragmentAdapter;
+import com.fastapp.viroyal.fm_newstyle.view.fragment.album.AlbumDetailsFragment;
+import com.fastapp.viroyal.fm_newstyle.view.fragment.album.AlbumTracksFragment;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.AlbumVH;
 
 import java.util.ArrayList;
@@ -79,7 +78,6 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
         presenter.getManager().on(AppConstant.LOADING_STATUS, new Action1() {
             @Override
             public void call(Object o) {
-                Log.i(AppConstant.TAG, "album loading");
                 showLoading();
             }
         });
@@ -114,8 +112,8 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
         albumType.setText(himalayanEntity.getCategoryName());
         List<Fragment> fragments = new ArrayList<>();
         fragments.add(AlbumDetailsFragment.newInstance(himalayanEntity));
-        fragments.add(BaseListFragment.newInstance(new AlbumFragment(), AlbumVH.class, himalayanEntity.getAlbumId()));
-        albumPager.setAdapter(new FragmentAdapter(getSupportFragmentManager(), fragments,
+        fragments.add(BaseListFragment.newInstance(new AlbumTracksFragment(), AlbumVH.class, himalayanEntity.getAlbumId()));
+        albumPager.setAdapter(new BaseAdapter(getSupportFragmentManager(), fragments,
                 Arrays.asList(new String[]{AppContext.getStringById(R.string.album_details),
                         AppContext.getStringById(R.string.album_show) + "(" + himalayanEntity.getTracks() + ")"})));
         albumTabs.setupWithViewPager(albumPager);

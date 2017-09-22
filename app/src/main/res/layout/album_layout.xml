@@ -15,8 +15,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <include layout="@layout/album_head_layout"
-            />
+        <include layout="@layout/album_head_layout"/>
 
         <View
             android:layout_width="match_parent"

@@ -4,7 +4,7 @@
     android:id="@+id/tool_bar"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:background="@color/white"
+    android:background="@color/red"
 
     app:contentInsetEnd="0dp"
     app:contentInsetLeft="0dp"
@@ -26,6 +26,14 @@
         android:layout_gravity="center"
         android:lines="1"
         android:scrollHorizontally="true"
-        android:textColor="@color/black" />
+        android:textColor="@color/white" />
 
-</android.support.v7.widget.Toolbar>
+    <ImageButton
+        android:id="@+id/actionbar_switch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|left"
+        android:layout_marginLeft="10dp"
+        android:visibility="gone"
+        android:background="@drawable/ic_span_1"/>
+ </android.support.v7.widget.Toolbar>

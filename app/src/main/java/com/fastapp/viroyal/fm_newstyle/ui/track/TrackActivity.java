@@ -128,15 +128,20 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
             mBinder.setPlayCompleteListener(this);
             mBinder.setPlayBufferingUpdateListener(this);
         }
+        boolean fromTrack = getIntent().getExtras().getBoolean(AppConstant.FROM_RECENT);
         beanList = (TracksBeanList) getIntent().getSerializableExtra(AppConstant.TRACK_BUNDLE);
-        if (helper.getNowPlayingTrack() != null) {
+        if (helper.getNowPlayingTrack() != null && !fromTrack) {
             if (beanList != null && beanList.getTrackId() != helper.getNowPlayingTrack().getTrackId()) {
                 presenter.getTracksInfo(beanList.getTrackId());
             } else {
                 presenter.getNowTrack();
             }
         } else {
-            presenter.getTracksInfo(beanList.getTrackId());
+            if(fromTrack){
+                presenter.getTracksInfo(getIntent().getExtras().getInt(AppConstant.TRACK_ID));
+            } else {
+                presenter.getTracksInfo(beanList.getTrackId());
+            }
         }
         trackImg.setOnClickListener(this);
         playPauseButton.setOnClickListener(this);
@@ -337,8 +342,12 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         trackPlayCounts.setText(CommonUtils.getOmitOrderCounts(tracksInfo.getPlaytimes()));
         trackCreateTime.setText(CommonUtils.getCreatedTime(tracksInfo.getCreatedAt()));
         trackInfo.setText(tracksInfo.getIntro());
-        beanList.setIntro(tracksInfo.getIntro());
-        helper.setNowPlayTrack(beanList);
+        if(beanList != null){
+            beanList.setIntro(tracksInfo.getIntro());
+            helper.setNowPlayTrack(beanList);
+        } else {
+            helper.setNowPlayTrack(tracksInfo);
+        }
     }
 
 

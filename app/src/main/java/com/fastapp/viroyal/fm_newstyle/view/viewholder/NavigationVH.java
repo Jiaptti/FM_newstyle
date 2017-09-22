@@ -22,8 +22,18 @@ public class NavigationVH extends RecyclerView.ViewHolder {
     @Bind(R.id.navigation_title)
     public TextView navigationTitle;
 
-    public NavigationVH(View view) {
+    public NavigationVH(View view,final NavigationOnClickListener listener) {
         super(view);
         ButterKnife.bind(this, view);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listener.onViewclick(view, getPosition());
+            }
+        });
+    }
+
+    public interface NavigationOnClickListener{
+        void onViewclick(View view, int position);
     }
 }

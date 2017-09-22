@@ -16,6 +16,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
@@ -42,10 +43,12 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
     public E model;
     private Toolbar mActionBar;
     private TextView mActionTitle;
+    private ImageButton mActionSwitch;
+
+    private RealmHelper realmHelper;
 
     private SquareImageView nowPlayingImg;
     private SquareImageView nowPlayingStatus;
-    private RealmHelper realmHelper;
     private Animation operatingAnim;
     private FrameLayout nowPlayingLayout;
 
@@ -67,6 +70,7 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         operatingAnim.setInterpolator(new LinearInterpolator());
 
         mActionBar = (Toolbar) findViewById(R.id.tool_bar);
+        mActionSwitch = (ImageButton) findViewById(R.id.actionbar_switch);
 
         nowPlayingLayout = (FrameLayout) findViewById(R.id.now_playing_layout);
         if (nowPlayingLayout != null) {
@@ -80,17 +84,17 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         nowPlayingImg = (SquareImageView) findViewById(R.id.now_playing_image);
         nowPlayingStatus = (SquareImageView) findViewById(R.id.now_playing_status);
 
-        if (supportBottomPlay()) {
+        if (presenter != null && supportBottomPlay()) {
             setPlayViewStatue();
+            playNowImgAnimation();
+            presenter.getManager().on(AppConstant.MEDIA_START_PLAY, new Action1() {
+                @Override
+                public void call(Object obj) {
+                    playNowImgAnimation();
+                    setPlayViewStatue();
+                }
+            });
         }
-        playNowImgAnimation();
-        presenter.getManager().on(AppConstant.MEDIA_START_PLAY, new Action1() {
-            @Override
-            public void call(Object obj) {
-                playNowImgAnimation();
-                setPlayViewStatue();
-            }
-        });
 
         if (systemUIFullScreen()) {
             fullScreen();
@@ -114,7 +118,7 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
     }
 
     private void startActivity() {
-        NowPlayTrack entity = AppContext.getRealmHelper().getNowPlayingTrack();
+        NowPlayTrack entity = realmHelper.getNowPlayingTrack();
         if (entity != null) {
             Intent intent = new Intent(mContext, TrackActivity.class);
             mContext.startActivity(intent);
@@ -122,6 +126,18 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
             Intent intent = new Intent(mContext, RankingActivity.class);
             mContext.startActivity(intent);
         }
+    }
+
+    public void setSwitchState(int visiable) {
+        mActionSwitch.setVisibility(visiable);
+    }
+
+    public void setSwitchListener(View.OnClickListener onClickListener) {
+        mActionSwitch.setOnClickListener(onClickListener);
+    }
+
+    public void setSwitchBackground(int resId) {
+        mActionSwitch.setBackgroundResource(resId);
     }
 
     private void playNowImgAnimation() {
@@ -142,7 +158,7 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
                     || AppContext.getPlayState() == AppConstant.STATUS_NONE) {
                 nowPlayingStatus.setBackgroundResource(R.mipmap.play_icon_pause);
             } else {
-                nowPlayingStatus = (SquareImageView) findViewById(R.id.now_playing_status);
+                nowPlayingStatus.setBackgroundResource(R.mipmap.play_icon_bg);
             }
         }
         if (realmHelper.getNowPlayingTrack() != null) {
@@ -213,9 +229,6 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
 
     public boolean systemUIFullScreen() {
         return false;
-    }
-
-    public void disposeError() {
     }
 
     public void setActionBarTitle(String title) {

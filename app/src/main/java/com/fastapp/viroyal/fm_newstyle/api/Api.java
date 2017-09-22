@@ -3,6 +3,7 @@ package com.fastapp.viroyal.fm_newstyle.api;
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
@@ -34,7 +35,7 @@ public class Api{
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
 
-        Cache cache = new Cache(AppContext.getAppContext().getCacheDir(), 1024 * 1024 * 50);
+        Cache cache = new Cache(new File(AppConstant.NET_DATA_PATH), 1024 * 1024 * 10);
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor( new ClientHelper().getAutoCacheInterceptor())
                 .addNetworkInterceptor(new ClientHelper().getAutoCacheInterceptor())

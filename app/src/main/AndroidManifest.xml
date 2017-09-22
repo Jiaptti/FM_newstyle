@@ -21,7 +21,6 @@
         android:theme="@style/Theme.IMA">
         <activity
             android:name=".ui.navigation.NavigationActivity"
-            android:uiOptions="splitActionBarWhenNarrow"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,8 +28,8 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".ui.home.HomeActivity"
+       <activity
+            android:name=".ui.settings.SettingsActivity"
             android:uiOptions="splitActionBarWhenNarrow"
             android:screenOrientation="portrait" />
 

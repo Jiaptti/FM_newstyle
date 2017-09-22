@@ -1,4 +1,4 @@
-package com.fastapp.viroyal.fm_newstyle.view.fragment;
+package com.fastapp.viroyal.fm_newstyle.view.fragment.album;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

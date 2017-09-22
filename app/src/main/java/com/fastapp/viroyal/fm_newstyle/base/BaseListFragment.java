@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
+import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.util.TUtils;
 import com.fastapp.viroyal.fm_newstyle.view.layout.TRecyclerView;
@@ -41,6 +42,10 @@ public class BaseListFragment extends Fragment{
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mTRecyclerView = new TRecyclerView(getContext());
+    }
+
+    public interface IFragmentTitle{
+        void setFragmentTitle(String title);
     }
 }
 

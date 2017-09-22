@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
+import com.fastapp.viroyal.fm_newstyle.AppContext;
+import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
 import com.fastapp.viroyal.fm_newstyle.util.NetWorkUtils;
 import com.fastapp.viroyal.fm_newstyle.view.layout.TRecyclerView;
@@ -34,6 +36,7 @@ public class BaseSubscriber<T> extends Subscriber<T> {
     @Override
     public void onStart() {
         if (!NetWorkUtils.hasNet()) {
+            AppContext.toastShort(R.string.no_net);
             return;
         }
     }
@@ -44,6 +47,7 @@ public class BaseSubscriber<T> extends Subscriber<T> {
 
     @Override
     public void onError(Throwable throwable) {
+        Log.i(AppConstant.TAG, "BaseSubscribe throwable = " + throwable);
         throwable.printStackTrace();
         manager.post(AppConstant.ERROR_MESSAGE, errorBean);
     }

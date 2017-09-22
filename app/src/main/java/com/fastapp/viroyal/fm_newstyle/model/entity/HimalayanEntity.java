@@ -34,7 +34,16 @@ public class HimalayanEntity extends BaseEntity {
     private int priceTypeId;
     private int refundSupportType;
     private boolean isVipFree;
+    private boolean fromRecent;
     private String categoryName;
+
+    public boolean isFromRecent() {
+        return fromRecent;
+    }
+
+    public void setFromRecent(boolean fromRecent) {
+        this.fromRecent = fromRecent;
+    }
 
     public String getCategoryName() {
         return categoryName;

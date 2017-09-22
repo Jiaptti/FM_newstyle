@@ -20,7 +20,6 @@ public class ClientHelper {
             public Response intercept(Chain chain) throws IOException {
                 Request request = chain.request();
                 if(!NetWorkUtils.hasNet()){
-                    //无网络下强制使用缓存，无论缓存是否过期,此时该请求实际上不会被发送出去。
                     request = request.newBuilder().cacheControl(CacheControl.FORCE_CACHE).build();
                 }
 

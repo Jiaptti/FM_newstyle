@@ -41,7 +41,6 @@ public class RecycleViewDivider extends RecyclerView.ItemDecoration {
     }
 
     /**
-     * 自定义分割线
      *
      * @param context
      * @param orientation 列表方向
@@ -54,7 +53,6 @@ public class RecycleViewDivider extends RecyclerView.ItemDecoration {
     }
 
     /**
-     * 自定义分割线
      *
      * @param context
      * @param orientation   列表方向
@@ -70,25 +68,23 @@ public class RecycleViewDivider extends RecyclerView.ItemDecoration {
     }
 
 
-    //获取分割线尺寸
     @Override
     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
         super.getItemOffsets(outRect, view, parent, state);
         outRect.set(0, 0, 0, mDividerHeight);
     }
 
-    //绘制分割线
     @Override
     public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
         super.onDraw(c, parent, state);
-//        if (mOrientation == LinearLayoutManager.VERTICAL) {
-//            drawVertical(c, parent);
-//        } else {
+        if (mOrientation == LinearLayoutManager.VERTICAL) {
             drawHorizontal(c, parent);
-//        }
+            drawVertical(c, parent);
+        } else {
+            drawHorizontal(c, parent);
+        }
     }
 
-    //绘制横向 item 分割线
     private void drawHorizontal(Canvas canvas, RecyclerView parent) {
         final int left = parent.getPaddingLeft();
         final int right = parent.getMeasuredWidth() - parent.getPaddingRight();
@@ -108,7 +104,6 @@ public class RecycleViewDivider extends RecyclerView.ItemDecoration {
         }
     }
 
-    //绘制纵向 item 分割线
     private void drawVertical(Canvas canvas, RecyclerView parent) {
         final int top = parent.getPaddingTop();
         final int bottom = parent.getMeasuredHeight() - parent.getPaddingBottom();

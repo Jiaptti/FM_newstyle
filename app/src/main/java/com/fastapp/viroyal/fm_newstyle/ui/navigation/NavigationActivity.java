@@ -1,17 +1,21 @@
 package com.fastapp.viroyal.fm_newstyle.ui.navigation;
 
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
+import android.content.Intent;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.FrameLayout;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
+import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseActivity;
+import com.fastapp.viroyal.fm_newstyle.base.BaseListFragment;
 import com.fastapp.viroyal.fm_newstyle.model.entity.NavigationBean;
-import com.fastapp.viroyal.fm_newstyle.view.adapter.NavigationAdapter;
-import com.fastapp.viroyal.fm_newstyle.view.layout.RecycleViewDivider;
+import com.fastapp.viroyal.fm_newstyle.ui.settings.SettingsActivity;
+import com.fastapp.viroyal.fm_newstyle.view.fragment.navigation.NavigationFragment;
 
 import java.util.List;
 
@@ -21,12 +25,12 @@ import butterknife.Bind;
  * Created by hanjiaqi on 2017/9/18.
  */
 
-public class NavigationActivity extends BaseActivity<NavigationPresenter, NavigationModel> implements NavigationContract.View{
-    @Bind(R.id.navigation_content)
-    RecyclerView mRecycleView;
-
-    private GridLayoutManager mGridLayoutManager;
-    private NavigationAdapter mAdapter;
+public class NavigationActivity extends BaseActivity<NavigationPresenter, NavigationModel>
+        implements NavigationContract.View, BaseListFragment.IFragmentTitle{
+    @Bind(R.id.main_content)
+    FrameLayout mainContent;
+    private NavigationFragment fragment;
+    private long firstClickTime;
 
     @Override
     protected int layoutResID() {
@@ -35,19 +39,42 @@ public class NavigationActivity extends BaseActivity<NavigationPresenter, Naviga
 
     @Override
     protected void initView() {
-        mGridLayoutManager = new GridLayoutManager(mContext, 2);
-        mRecycleView.setLayoutManager(mGridLayoutManager);
-        mRecycleView.setHasFixedSize(true);
-        mRecycleView.setItemAnimator(new DefaultItemAnimator());
-        mRecycleView.addItemDecoration(new RecycleViewDivider(mContext, GridLayoutManager.HORIZONTAL));
-        mRecycleView.addItemDecoration(new RecycleViewDivider(mContext, GridLayoutManager.VERTICAL));
+        setActionBarTitle(AppContext.getStringById(R.string.navigation_title));
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+        fragment = NavigationFragment.newInstance(AppConstant.NAVIGATION_TYPE);
+        transaction.add(R.id.main_content, fragment, AppConstant.FRAGMENT_MAIN);
+        transaction.commit();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.menu_settings) {
+            startActivity(new Intent(mContext, SettingsActivity.class));
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean supportBottomPlay() {
+        return true;
+    }
+
+    @Override
+    public boolean supportActionBar() {
+        return true;
+    }
 
     @Override
     public void showNavigation(List<NavigationBean> list) {
-        mAdapter = new NavigationAdapter(mContext, list);
-        mRecycleView.setAdapter(mAdapter);
+        fragment.setData(list);
     }
 
     @Override
@@ -58,5 +85,27 @@ public class NavigationActivity extends BaseActivity<NavigationPresenter, Naviga
     @Override
     public void dismissLoading() {
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(System.currentTimeMillis() - firstClickTime < 2000){
+            AppContext.getInstance().unBindMediaService();
+            super.onBackPressed();
+        } else {
+            if(getSupportFragmentManager().getBackStackEntryCount() > 0){
+                setSwitchState(View.GONE);
+                setActionBarTitle(AppContext.getStringById(R.string.navigation_title));
+                getSupportFragmentManager().popBackStack();
+            } else {
+                firstClickTime = System.currentTimeMillis();
+                AppContext.toastShort(R.string.tip_click_back_again_to_exist);
+            }
+        }
+    }
+
+    @Override
+    public void setFragmentTitle(String title) {
+        setActionBarTitle(title);
     }
 }

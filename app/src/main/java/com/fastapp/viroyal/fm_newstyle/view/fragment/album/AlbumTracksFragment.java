@@ -1,4 +1,4 @@
-package com.fastapp.viroyal.fm_newstyle.view.fragment;
+package com.fastapp.viroyal.fm_newstyle.view.fragment.album;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -22,7 +22,7 @@ import rx.functions.Action1;
  * Created by hanjiaqi on 2017/8/24.
  */
 
-public class AlbumFragment extends BaseListFragment{
+public class AlbumTracksFragment extends BaseListFragment{
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

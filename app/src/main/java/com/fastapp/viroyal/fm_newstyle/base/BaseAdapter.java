@@ -1,20 +1,19 @@
-package com.fastapp.viroyal.fm_newstyle.view.fragment.adapter;
+package com.fastapp.viroyal.fm_newstyle.base;
 
+/**
+ * Created by hanjiaqi on 2017/9/21.
+ */
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
 import java.util.List;
 
-/**
- * Created by hanjiaqi on 2017/7/3.
- */
-
-public class FragmentAdapter extends FragmentPagerAdapter {
+public class BaseAdapter extends FragmentPagerAdapter {
     private List<Fragment> fragmentList;
     private List<String> titles;
 
-    public FragmentAdapter(FragmentManager fm, List<Fragment> fragmentList,List<String> titles) {
+    public BaseAdapter(FragmentManager fm, List<Fragment> fragmentList, List<String> titles) {
         super(fm);
         this.fragmentList = fragmentList;
         this.titles = titles;

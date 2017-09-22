@@ -2,7 +2,6 @@ package com.fastapp.viroyal.fm_newstyle.view.popup;
 
 import android.app.Activity;
 import android.content.Context;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,16 +15,16 @@ import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.RxManager;
 import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
-import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.service.AlbumPlayService;
+import com.fastapp.viroyal.fm_newstyle.util.CompareUtils;
 import com.fastapp.viroyal.fm_newstyle.util.JsonUtils;
 import com.fastapp.viroyal.fm_newstyle.view.layout.TRecyclerView;
-import com.fastapp.viroyal.fm_newstyle.view.viewholder.AlbumVH;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.TrackListVH;
 
 import android.widget.TextView;
 
+import java.util.Collections;
 import java.util.List;
 
 import rx.functions.Action1;
@@ -168,8 +167,9 @@ public class PlayListPopupWindow extends PopupWindow {
         backgroundAlpha(0.7f);
         if (!isShowing()) {
             showAtLocation(parent, Gravity.NO_GRAVITY, 0, AppContext.getScreenHeight() / 4);
-            if (mTRecyclerView.getRecyclerView() != null)
+            if (mTRecyclerView.getRecyclerView() != null){
                 mTRecyclerView.getRecyclerView().scrollToPosition(realmHelper.getNowPlayingTrack().getPosition());
+            }
         } else {
             saveData();
         }

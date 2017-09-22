@@ -2,7 +2,6 @@ package com.fastapp.viroyal.fm_newstyle.view.viewholder;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.util.Log;
@@ -11,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
+import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseViewHolder;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanEntity;
@@ -35,7 +35,7 @@ public class CategoryVH extends BaseViewHolder<HimalayanEntity> {
 
     @Override
     public int getType() {
-        return R.layout.category_layout;
+        return R.layout.category_item_layout;
     }
 
     @Override
@@ -49,6 +49,7 @@ public class CategoryVH extends BaseViewHolder<HimalayanEntity> {
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    AppContext.getRealmHelper().setRecentListen(entity);
                     ActivityCompat.startActivity((Activity) mContext, new Intent(mContext, AlbumActivity.class).putExtra(AppConstant.ALBUM_BUNDLE, entity)
                             , ActivityOptionsCompat.makeSceneTransitionAnimation((Activity) mContext, category_image, AlbumActivity.TRANSLATE_VIEW).toBundle());
                 }

@@ -1,4 +1,4 @@
-package com.fastapp.viroyal.fm_newstyle.view.adapter;
+package com.fastapp.viroyal.fm_newstyle.view.adapter.navigation;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -19,15 +19,20 @@ import java.util.List;
 public class NavigationAdapter extends RecyclerView.Adapter<NavigationVH>{
     private Context mContext;
     private List<NavigationBean> list;
+    private NavigationVH.NavigationOnClickListener listener;
 
     public NavigationAdapter(Context context, List<NavigationBean> list){
         this.mContext = context;
         this.list = list;
     }
 
+    public void setViewClickListener(NavigationVH.NavigationOnClickListener listener){
+        this.listener = listener;
+    }
+
     @Override
     public NavigationVH onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new NavigationVH(LayoutInflater.from(mContext).inflate(R.layout.navigation_item_layout, parent, false));
+        return new NavigationVH(LayoutInflater.from(mContext).inflate(R.layout.navigation_item_layout, parent, false), listener);
     }
 
     @Override
