@@ -203,9 +203,8 @@ public class TRecyclerView<T extends BaseEntity> extends LinearLayout implements
                     public void onCompleted() {
                         super.onCompleted();
                         setRefreshLoadedState();
-                        if(errorBean.getClazz() == AlbumVH.class && begin == 1){
+                        if(errorBean.getClazz() == TrackListVH.class && begin == 1){
                             TracksBeanList bean = (TracksBeanList) mAdatper.getData().get(0);
-                            Log.i(AppConstant.TAG, "onCompleted trackId = " + bean.getTrackId());
                             helper.updateRecentTrackId(bean.getAlbumId(),bean.getTrackId());
                         }
                     }

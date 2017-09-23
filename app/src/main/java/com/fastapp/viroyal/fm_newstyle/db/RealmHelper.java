@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
+import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanEntity;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksInfo;
@@ -25,6 +26,7 @@ import io.realm.RecentListenRealmProxy;
 public class RealmHelper {
     private Realm mRealm;
     private static RealmHelper instance;
+    private RecentListen recent;
 
     private RealmHelper(Context context) {
         mRealm = Realm.getInstance(new RealmConfiguration.Builder(context).deleteRealmIfMigrationNeeded().name(AppConstant.DB_NAME).build());
@@ -41,9 +43,9 @@ public class RealmHelper {
         return instance;
     }
 
-    public void updateRecentTrackId(final int albumId, final int trackId){
+    public void updateRecentTrackId(final int albumId, final int trackId) {
         RecentListen bean = mRealm.where(RecentListen.class).equalTo("albumId", albumId).findFirst();
-        if(bean != null){
+        if (bean != null && bean.getTrackId() != trackId) {
             mRealm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
@@ -175,24 +177,21 @@ public class RealmHelper {
     }
 
     public void setRecentListen(HimalayanEntity entity) {
-        RecentListen recent = new RecentListen();
-        if (getRecentListen(entity.getAlbumId()) == null) {
-            recent.setCoverSmall(entity.getCoverSmall());
-            recent.setTitle(entity.getTitle());
-            recent.setIntro(entity.getIntro());
-            recent.setNickname(entity.getNickname());
-            recent.setPlaysCounts(entity.getPlaysCounts());
-            recent.setCategoryName(entity.getCategoryName());
-            recent.setAlbumId(entity.getAlbumId());
-            recent.setTrackId(entity.getTrackId());
-            recent.setTracks(entity.getTracks());
-            addRecentListen(recent);
-        }
+        recent = new RecentListen();
+        recent.setCoverSmall(entity.getCoverSmall());
+        recent.setTitle(entity.getTitle());
+        recent.setIntro(entity.getIntro());
+        recent.setPlaysCounts(entity.getPlaysCounts());
+        recent.setAlbumId(entity.getAlbumId());
+        recent.setTrackId(entity.getTrackId());
+        recent.setTracks(entity.getTracks());
     }
 
-    public void addRecentListen(RecentListen recent) {
-        mRealm.beginTransaction();
-        mRealm.copyToRealm(recent);
-        mRealm.commitTransaction();
+    public void addRecentListen(int albumId) {
+        if (getRecentListen(albumId) == null) {
+            mRealm.beginTransaction();
+            mRealm.copyToRealm(recent);
+            mRealm.commitTransaction();
+        }
     }
 }

@@ -31,7 +31,7 @@ public class FileUtils {
             File file = new File(CacheRoot.toString()
                     +File.separator+ "fm"
                     +File.separator+ AppConstant.DATA_FILE);
-            if(!file.getParentFile().exists()){//判断父文件是否存在，如果不存在则创建
+            if(!file.getParentFile().exists()){
                 file.getParentFile().mkdirs();
             }
             outStream = new FileOutputStream(file);
@@ -59,7 +59,7 @@ public class FileUtils {
                 +File.separator+ "fm"
                 +File.separator+ AppConstant.DATA_FILE);
         if(file.exists()){
-            Log.i(AppConstant.TAG, "clear = " + file.delete());
+            file.delete();
         }
     }
 
@@ -75,7 +75,7 @@ public class FileUtils {
         File file=new File(CacheRoot.toString()
                 +File.separator+ "fm"
                 +File.separator+ AppConstant.DATA_FILE);
-        if(!file.getParentFile().exists()){//判断父文件是否存在，如果不存在则创建
+        if(!file.getParentFile().exists()){
             file.getParentFile().mkdirs();
         }
         try {

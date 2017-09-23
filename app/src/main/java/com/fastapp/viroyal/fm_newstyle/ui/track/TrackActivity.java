@@ -298,7 +298,6 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
 
     @Override
     public void setNowPlayerTrack(NowPlayTrack nowPlayerTrack) {
-        listPopupWindow.initListData(nowPlayerTrack.getAlbumId());
         if (helper.getNowPlayingTrack().getCoverLarge() == null) {
             ImageUtils.loadImage(mContext, nowPlayerTrack.getCoverSmall(), trackImg);
         } else {
@@ -318,11 +317,11 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         trackPlayCounts.setText(CommonUtils.getOmitOrderCounts(nowPlayerTrack.getPlaytimes()));
         trackCreateTime.setText(CommonUtils.getCreatedTime(nowPlayerTrack.getCreatedAt()));
         trackInfo.setText(nowPlayerTrack.getIntro());
+        listPopupWindow.initListData(nowPlayerTrack.getAlbumId());
     }
 
     @Override
     public void initTracksInfo(TracksInfo tracksInfo) {
-        listPopupWindow.initListData(tracksInfo.getAlbumId());
         if (tracksInfo.getCoverLarge() == null) {
             ImageUtils.loadImage(mContext, tracksInfo.getCoverSmall(), trackImg);
         } else {
@@ -348,6 +347,8 @@ public class TrackActivity extends BaseActivity<TrackPresenter, TrackModel> impl
         } else {
             helper.setNowPlayTrack(tracksInfo);
         }
+        helper.addRecentListen(tracksInfo.getAlbumId());
+        listPopupWindow.initListData(tracksInfo.getAlbumId());
     }
 
 
