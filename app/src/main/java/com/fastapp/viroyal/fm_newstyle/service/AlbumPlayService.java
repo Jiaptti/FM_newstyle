@@ -49,6 +49,7 @@ public class AlbumPlayService extends Service{
 
         public void resumePlay(){
             playerManager.resumeMediaPlayer();
+            manager.post(AppConstant.UPDATE_ITEM_STATUS, AppConstant.STATUS_RESUME);
         }
 
         public void setPlayBufferingUpdateListener(MediaPlayerManager.PlayBufferingUpdate listener){

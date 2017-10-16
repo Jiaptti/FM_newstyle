@@ -42,62 +42,34 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/recent_title"
+                android:id="@+id/recent_album_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/text_dark"
                 android:textSize="@dimen/text_regular_primary_size" />
 
             <TextView
-                android:id="@+id/recent_intro"
+                android:id="@+id/recent_track_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/recent_title"
+                android:layout_below="@+id/recent_album_title"
                 android:layout_marginTop="5dip"
                 android:maxLines="2"
                 android:textColor="@color/text_light"
                 android:textSize="@dimen/text_large_secondary_size" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/recent_play_state"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:gravity="left|center"
-                android:orientation="horizontal">
-
-                <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
-                    android:id="@+id/recent_counts_img"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@mipmap/ic_item_playtimes_count" />
-
-                <TextView
-                    android:id="@+id/recent_plays_counts"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="3dip"
-                    android:textColor="@color/text_light"
-                    android:textSize="@dimen/text_third_size" />
-
-                <com.fastapp.viroyal.fm_newstyle.view.SquareImageView
-                    android:id="@+id/recent_tracks_img"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dip"
-                    android:background="@mipmap/ic_item_sounds_count" />
-
-                <TextView
-                    android:id="@+id/recent_tracks_counts"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="3dip"
-                    android:text="0"
-                    android:textColor="@color/text_light"
-                    android:textSize="@dimen/text_third_size" />
-
-            </LinearLayout>
+                android:layout_below="@+id/recent_track_title"
+                android:layout_marginTop="5dip"
+                android:textColor="@color/text_light"
+                android:textSize="@dimen/text_large_secondary_size"/>
 
         </RelativeLayout>
+
+
     </LinearLayout>
 
 </android.support.v7.widget.CardView>

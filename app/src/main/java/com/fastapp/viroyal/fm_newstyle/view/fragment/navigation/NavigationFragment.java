@@ -2,6 +2,7 @@ package com.fastapp.viroyal.fm_newstyle.view.fragment.navigation;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -12,8 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
+import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseListFragment;
+import com.fastapp.viroyal.fm_newstyle.base.RxManager;
+import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.NavigationBean;
 import com.fastapp.viroyal.fm_newstyle.ui.navigation.NavigationActivity;
 import com.fastapp.viroyal.fm_newstyle.view.adapter.navigation.NavigationAdapter;
@@ -23,6 +27,8 @@ import com.fastapp.viroyal.fm_newstyle.view.viewholder.CategoryVH;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.NavigationVH;
 
 import java.util.List;
+
+import rx.functions.Action1;
 
 /**
  * Created by hanjiaqi on 2017/9/19.

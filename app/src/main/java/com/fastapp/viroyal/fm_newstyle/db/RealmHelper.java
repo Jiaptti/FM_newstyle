@@ -6,6 +6,7 @@ import android.util.Log;
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanEntity;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TrackInfoBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksInfo;
 import com.fastapp.viroyal.fm_newstyle.model.realm.CollectTrackRealm;
@@ -26,7 +27,6 @@ import io.realm.RecentListenRealmProxy;
 public class RealmHelper {
     private Realm mRealm;
     private static RealmHelper instance;
-    private RecentListen recent;
 
     private RealmHelper(Context context) {
         mRealm = Realm.getInstance(new RealmConfiguration.Builder(context).deleteRealmIfMigrationNeeded().name(AppConstant.DB_NAME).build());
@@ -43,14 +43,15 @@ public class RealmHelper {
         return instance;
     }
 
-    public void updateRecentTrackId(final int albumId, final int trackId) {
+    public void updateRecentTrack(final int albumId, final int trackId,final String title) {
         RecentListen bean = mRealm.where(RecentListen.class).equalTo("albumId", albumId).findFirst();
-        if (bean != null && bean.getTrackId() != trackId) {
+        if (bean != null) {
             mRealm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
                     RecentListen bean = realm.where(RecentListen.class).equalTo("albumId", albumId).findFirst();
                     bean.setTrackId(trackId);
+                    bean.setTitle(title);
                 }
             });
         }
@@ -146,52 +147,41 @@ public class RealmHelper {
         }
     }
 
-    public void setNowPlayTrack(TracksInfo entity) {
-        NowPlayTrack playTrack = null;
-        if (getPlayTrack(entity.getPlayUrl32()) == null) {
-            playTrack = new NowPlayTrack();
-            playTrack.setTrackId(entity.getTrackId());
-            playTrack.setTitle(entity.getTitle());
-            playTrack.setTrackId(entity.getTrackId());
-            playTrack.setDuration(entity.getDuration());
-            playTrack.setAlbumId(entity.getAlbumId());
-            playTrack.setFromTrack(false);
-            playTrack.setAlbumTitle(entity.getAlbumTitle());
-            playTrack.setCoverLarge(entity.getCoverLarge());
-            playTrack.setCoverMiddle(entity.getCoverMiddle());
-            playTrack.setCoverSmall(entity.getCoverSmall());
-            playTrack.setCreatedAt(entity.getCreatedAt());
-            playTrack.setNickname(entity.getNickname());
-            playTrack.setDuration(entity.getDuration());
-            playTrack.setPlayUrl32(entity.getPlayUrl32());
-            playTrack.setTrackId(entity.getTrackId());
-            playTrack.setPlaytimes(entity.getPlaytimes());
-            playTrack.setPlayPathHq(entity.getPlayPathHq());
-            playTrack.setPlayUrl64(entity.getPlayUrl64());
-            playTrack.setPlayPathAacv164(entity.getPlayPathAacv164());
-            playTrack.setPlayPathAacv224(entity.getPlayPathAacv224());
-            playTrack.setIntro(entity.getIntro());
-            playTrack.setPosition(0);
-            setNowTrack(playTrack);
+
+
+    public void setRecentListen(TracksInfo entity) {
+        if (getRecentListen(entity.getAlbumId()) == null) {
+            RecentListen recent = new RecentListen();
+            recent.setCoverSmall(entity.getCoverSmall());
+            recent.setTitle(entity.getTitle());
+            entity.setIsPaid(entity.isIsPaid());
+            recent.setAlbumTitle(entity.getAlbumTitle());
+            recent.setAlbumId(entity.getAlbumId());
+            recent.setTrackId(entity.getTrackId());
+            addRecentListen(recent);
+        } else {
+            updateRecentTrack(entity.getAlbumId(), entity.getTrackId(), entity.getTitle());
         }
     }
 
-    public void setRecentListen(HimalayanEntity entity) {
-        recent = new RecentListen();
-        recent.setCoverSmall(entity.getCoverSmall());
-        recent.setTitle(entity.getTitle());
-        recent.setIntro(entity.getIntro());
-        recent.setPlaysCounts(entity.getPlaysCounts());
-        recent.setAlbumId(entity.getAlbumId());
-        recent.setTrackId(entity.getTrackId());
-        recent.setTracks(entity.getTracks());
+    public void setRecentListen(TracksBeanList entity) {
+        if (getRecentListen(entity.getAlbumId()) == null) {
+            RecentListen recent = new RecentListen();
+            recent.setCoverSmall(entity.getCoverSmall());
+            recent.setTitle(entity.getTitle());
+            entity.setPaid(entity.isPaid());
+            recent.setAlbumTitle(entity.getAlbumTitle());
+            recent.setAlbumId(entity.getAlbumId());
+            recent.setTrackId(entity.getTrackId());
+            addRecentListen(recent);
+        } else {
+            updateRecentTrack(entity.getAlbumId(), entity.getTrackId(), entity.getTitle());
+        }
     }
 
-    public void addRecentListen(int albumId) {
-        if (getRecentListen(albumId) == null) {
-            mRealm.beginTransaction();
-            mRealm.copyToRealm(recent);
-            mRealm.commitTransaction();
-        }
+    public void addRecentListen(RecentListen recent) {
+        mRealm.beginTransaction();
+        mRealm.copyToRealm(recent);
+        mRealm.commitTransaction();
     }
 }

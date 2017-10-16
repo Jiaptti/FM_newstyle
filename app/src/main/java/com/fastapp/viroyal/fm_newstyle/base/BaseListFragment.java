@@ -27,7 +27,7 @@ public class BaseListFragment extends Fragment{
 
     /**
      * @param vh 传入VH的类名
-     * @param type tab的名字
+     * @param type 传入的类型id
      * @return
      */
     public static BaseListFragment newInstance(BaseListFragment fragment, Class<? extends BaseViewHolder> vh, int type){

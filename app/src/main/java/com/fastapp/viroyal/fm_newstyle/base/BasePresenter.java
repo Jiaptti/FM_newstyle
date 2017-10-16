@@ -33,6 +33,7 @@ public abstract class BasePresenter<V , M> {
     /**
      * Created by hanjiaqi on 2017/6/26.
      */ public void destroy(){
-        manager.clear();
+        if(manager != null)
+            manager.clear();
     }
 }

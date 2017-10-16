@@ -1,22 +1,20 @@
 package com.fastapp.viroyal.fm_newstyle.view.adapter.recent;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
+import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
-import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanEntity;
-import com.fastapp.viroyal.fm_newstyle.ui.album.AlbumActivity;
+import com.fastapp.viroyal.fm_newstyle.base.RxManager;
+import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksInfo;
 import com.fastapp.viroyal.fm_newstyle.ui.track.TrackActivity;
-import com.fastapp.viroyal.fm_newstyle.util.CommonUtils;
 import com.fastapp.viroyal.fm_newstyle.util.ImageUtils;
 import com.fastapp.viroyal.fm_newstyle.util.JsonUtils;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.RecentVH;
@@ -29,11 +27,15 @@ import java.util.List;
 
 public class RecentAdapter extends RecyclerView.Adapter<RecentVH> {
     private Context mContext;
-    private List<HimalayanEntity> list;
+    private List<TracksBeanList> list;
+    private RealmHelper helper;
+    private RxManager manager;
 
-    public RecentAdapter(Context context, List<HimalayanEntity> list) {
+    public RecentAdapter(Context context, List<TracksBeanList> list,RxManager manager) {
         this.mContext = context;
         this.list = list;
+        this.manager = manager;
+        helper = AppContext.getRealmHelper();
     }
 
     @Override
@@ -43,21 +45,24 @@ public class RecentAdapter extends RecyclerView.Adapter<RecentVH> {
 
     @Override
     public void onBindViewHolder(final RecentVH holder, int position) {
-        final HimalayanEntity entity = list.get(position);
-        if (!entity.isIsPaid()) {
+        final TracksBeanList entity = list.get(position);
+        if (!entity.isPaid()) {
             ImageUtils.loadImage(mContext, entity.getCoverSmall(), holder.mRecentImg);
-            holder.mRecentTitle.setText(entity.getTitle());
-            holder.mRecentIntro.setText(entity.getIntro());
-            holder.mCounts.setText(CommonUtils.getOmitPlayCounts(entity.getPlaysCounts()));
-            holder.mPlayCounts.setText(entity.getTracks() + "");
+            if(helper.getNowPlayingTrack().getTrackId() == entity.getTrackId()
+                    && AppContext.getPlayState() == AppConstant.STATUS_PLAY){
+                holder.mPlayState.setText(R.string.playing_state);
+            } else {
+                holder.mPlayState.setVisibility(View.GONE);
+            }
+            holder.mAlbumTitle.setText(entity.getAlbumTitle());
+            holder.mTrackTitle.setText(entity.getTitle());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(mContext, TrackActivity.class);
-                    intent.putExtra(AppConstant.FROM_RECENT, true);
-                    intent.putExtra(AppConstant.TRACK_ID, entity.getTrackId());
+                    intent.putExtra(AppConstant.TRACK_BUNDLE, entity);
                     mContext.startActivity(intent);
-                    JsonUtils.cleanData();
+                    manager.post(AppConstant.PLAY_RECENT_STATE_CHANTE, null);
                 }
             });
         }

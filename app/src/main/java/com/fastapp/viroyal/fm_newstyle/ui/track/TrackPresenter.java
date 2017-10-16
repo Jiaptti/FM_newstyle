@@ -1,24 +1,13 @@
 package com.fastapp.viroyal.fm_newstyle.ui.track;
 
 
-import android.util.Log;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
-import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.base.BaseSubscriber;
-import com.fastapp.viroyal.fm_newstyle.model.base.Data;
-import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
-import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanBean;
-import com.fastapp.viroyal.fm_newstyle.model.entity.TrackInfoBean;
 import com.fastapp.viroyal.fm_newstyle.model.entity.TracksInfo;
 import com.fastapp.viroyal.fm_newstyle.util.RxSchedulers;
 import com.fastapp.viroyal.fm_newstyle.view.viewholder.TrackListVH;
 
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
-
-import rx.Observer;
-import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 

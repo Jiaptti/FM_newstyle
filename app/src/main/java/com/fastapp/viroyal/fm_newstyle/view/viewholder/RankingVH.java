@@ -128,6 +128,7 @@ public class RankingVH extends BaseViewHolder<TracksBeanList>{
                         entity.setFromTrack(true);
                     }
                 }
+//                helper.setNowPlayTrack(entity);
                 Intent intent = new Intent(mContext, TrackActivity.class);
                 intent.putExtra(AppConstant.TRACK_BUNDLE, entity);
                 mContext.startActivity(intent);

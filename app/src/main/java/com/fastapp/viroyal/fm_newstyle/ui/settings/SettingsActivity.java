@@ -2,6 +2,7 @@ package com.fastapp.viroyal.fm_newstyle.ui.settings;
 
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
@@ -53,9 +54,6 @@ public class SettingsActivity extends BaseActivity<BasePresenter, BaseModel> {
 
     @Override
     public void onBackPressed() {
-        if(getSupportFragmentManager().getBackStackEntryCount() > 0){
-            setActionBarTitle(AppContext.getStringById(R.string.settings_title));
-        }
         super.onBackPressed();
     }
 }

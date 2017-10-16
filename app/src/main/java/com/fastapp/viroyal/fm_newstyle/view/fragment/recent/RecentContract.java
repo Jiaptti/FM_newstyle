@@ -4,6 +4,7 @@ import com.fastapp.viroyal.fm_newstyle.base.BaseModel;
 import com.fastapp.viroyal.fm_newstyle.base.BasePresenter;
 import com.fastapp.viroyal.fm_newstyle.base.BaseView;
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanEntity;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.model.realm.RecentListen;
 
 import java.util.List;
@@ -14,7 +15,8 @@ import java.util.List;
 
 public interface RecentContract {
     interface View extends BaseView{
-        void showRecentCategory(List<HimalayanEntity> data);
+        void showRecentCategory(List<TracksBeanList> data);
+        void noContent();
     }
 
     interface Model extends BaseModel{

@@ -17,14 +17,12 @@ import butterknife.ButterKnife;
 public class RecentVH extends RecyclerView.ViewHolder{
     @Bind(R.id.recent_image)
     public ImageView mRecentImg;
-    @Bind(R.id.recent_title)
-    public TextView mRecentTitle;
-    @Bind(R.id.recent_intro)
-    public TextView mRecentIntro;
-    @Bind(R.id.recent_plays_counts)
-    public TextView mPlayCounts;
-    @Bind(R.id.recent_tracks_counts)
-    public TextView mCounts;
+    @Bind(R.id.recent_album_title)
+    public TextView mAlbumTitle;
+    @Bind(R.id.recent_track_title)
+    public TextView mTrackTitle;
+    @Bind(R.id.recent_play_state)
+    public TextView mPlayState;
 
     public RecentVH(View view) {
         super(view);

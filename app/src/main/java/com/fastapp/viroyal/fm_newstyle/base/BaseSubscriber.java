@@ -6,6 +6,7 @@ import android.util.Log;
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
+import com.fastapp.viroyal.fm_newstyle.api.ExceptionHandle;
 import com.fastapp.viroyal.fm_newstyle.model.base.ErrorBean;
 import com.fastapp.viroyal.fm_newstyle.util.NetWorkUtils;
 import com.fastapp.viroyal.fm_newstyle.view.layout.TRecyclerView;
@@ -29,7 +30,7 @@ public class BaseSubscriber<T> extends Subscriber<T> {
     }
 
     public BaseSubscriber(Context context, ErrorBean errorBean) {
-        mContext = context;
+        this.mContext = context;
         this.errorBean = errorBean;
     }
 
@@ -47,9 +48,40 @@ public class BaseSubscriber<T> extends Subscriber<T> {
 
     @Override
     public void onError(Throwable throwable) {
-        Log.i(AppConstant.TAG, "BaseSubscribe throwable = " + throwable);
         throwable.printStackTrace();
-        manager.post(AppConstant.ERROR_MESSAGE, errorBean);
+
+        ExceptionHandle.ResponseThrowable response;
+        if(throwable instanceof Exception){
+            response = ExceptionHandle.handleException(throwable);
+        }else {
+            response = new ExceptionHandle.ResponseThrowable(throwable, AppConstant.UNKNOWN);
+        }
+        AppContext.toastShort(response.message);
+        int statusCode = response.code;
+        errorBean.setStatusCode(statusCode);
+        switch (statusCode){
+            case AppConstant.SSL_ERROR:
+                manager.post(AppConstant.ERROR_MESSAGE, errorBean);
+                break;
+            case AppConstant.UNKNOWN:
+                manager.post(AppConstant.ERROR_MESSAGE, errorBean);
+                break;
+            case AppConstant.PARSE_ERROR:
+                manager.post(AppConstant.ERROR_MESSAGE, errorBean);
+                break;
+            case AppConstant.NETWORD_ERROR:
+                manager.post(AppConstant.ERROR_MESSAGE, errorBean);
+                break;
+            case AppConstant.HTTP_ERROR:
+                manager.post(AppConstant.ERROR_MESSAGE, errorBean);
+                break;
+            case AppConstant.SOCKET_TIMEOUT_ERROR:
+                manager.post(AppConstant.ERROR_MESSAGE, errorBean);
+                break;
+            case AppConstant.CONNECT_ERROR:
+                manager.post(AppConstant.ERROR_MESSAGE, errorBean);
+                break;
+        }
     }
 
     @Override

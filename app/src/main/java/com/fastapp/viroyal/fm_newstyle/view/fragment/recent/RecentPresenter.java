@@ -1,6 +1,8 @@
 package com.fastapp.viroyal.fm_newstyle.view.fragment.recent;
 
 import com.fastapp.viroyal.fm_newstyle.model.entity.HimalayanEntity;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksData;
 import com.fastapp.viroyal.fm_newstyle.model.realm.RecentListen;
 
 import java.util.ArrayList;
@@ -8,6 +10,7 @@ import java.util.List;
 
 import rx.Observable;
 import rx.Subscriber;
+import rx.functions.Action1;
 import rx.functions.Func1;
 
 /**
@@ -18,43 +21,26 @@ public class RecentPresenter extends RecentContract.Presenter{
 
     @Override
     void getRecentList() {
-        getManager().add(Observable.just(model.getRecentTrackList())
-                .flatMap(new Func1<List<RecentListen>, Observable<List<HimalayanEntity>>>() {
-                    @Override
-                    public Observable<List<HimalayanEntity>> call(List<RecentListen> recentListenTracks) {
-                        List<HimalayanEntity> records = new ArrayList<>();
-                        HimalayanEntity entity = null;
-                        for (RecentListen track : recentListenTracks) {
-                            entity = new HimalayanEntity();
-                            entity.setCoverSmall(track.getCoverSmall());
-                            entity.setTitle(track.getTitle());
-                            entity.setIntro(track.getIntro());
-                            entity.setNickname(track.getNickname());
-                            entity.setPlaysCounts(track.getPlaysCounts());
-                            entity.setCategoryName(track.getCategoryName());
-                            entity.setAlbumId(track.getAlbumId());
-                            entity.setTrackId(track.getTrackId());
-                            entity.setTracks(track.getTracks());
-                            records.add(entity);
-                        }
-                        return Observable.just(records);
-                    }
-                }).subscribe(new Subscriber<List<HimalayanEntity>>() {
-                    @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onNext(List<HimalayanEntity> list) {
-                        view.showRecentCategory(list);
-                    }
-                }));
+        getManager().add(Observable.just(model.getRecentTrackList()).subscribe(new Action1<List<RecentListen>>() {
+            @Override
+            public void call(List<RecentListen> recentListens) {
+                List<TracksBeanList> beanList = new ArrayList();
+                for(RecentListen entity : recentListens){
+                    TracksBeanList bean = new TracksBeanList();
+                    bean.setAlbumTitle(entity.getAlbumTitle());
+                    bean.setTrackId(entity.getTrackId());
+                    bean.setAlbumId(entity.getAlbumId());
+                    bean.setCoverSmall(entity.getCoverSmall());
+                    bean.setTitle(entity.getTitle());
+                    beanList.add(bean);
+                }
+                if(recentListens.size() == 0){
+                    view.noContent();
+                } else {
+                    view.showRecentCategory(beanList);
+                }
+            }
+        }));
     }
 
     @Override

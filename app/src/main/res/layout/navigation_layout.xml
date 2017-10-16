@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="?attr/actionBarSize"/>
-
+    <include layout="@layout/net_error_layout"/>
+    <include layout="@layout/view_loading_layout" />
     <include layout="@layout/now_playing_layout" />
 </RelativeLayout>

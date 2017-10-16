@@ -10,14 +10,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <TextView
+    <ImageView
         android:id="@+id/recent_no_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="@string/no_content"
-        android:textColor="@color/gray_10"
-        android:textSize="@dimen/text_large_primary_size"
+        android:background="@mipmap/no_content"
         android:visibility="gone" />
 
 </LinearLayout>

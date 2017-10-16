@@ -45,11 +45,7 @@ public class RankingActivity extends BaseActivity<RankingPresenter,RankingModel>
             @Override
             public void call(Object o) {
                 if(o instanceof ErrorBean && ((ErrorBean)o).getClazz() == RankingVH.class){
-                    Log.i(AppConstant.TAG, "Ranking saveData");
-                    JsonUtils.createJson(rankingList.getAdapter().getData());
-                    AppContext.apply(AppContext.getEditor().putInt(AppConstant.MAX_COUNT, rankingList.getMaxCount()));
-                    AppContext.apply(AppContext.getEditor().putInt(AppConstant.MAX_PAGE_ID, rankingList.getMaxPageId()));
-                    AppContext.apply(AppContext.getEditor().putInt(AppConstant.CACHE_PAGEID, AppContext.getTempPageId()));
+                    JsonUtils.saveData(rankingList.getAdapter().getData(),rankingList.getMaxCount(), rankingList.getMaxPageId(), AppContext.getTempPageId());
                 }
             }
         });

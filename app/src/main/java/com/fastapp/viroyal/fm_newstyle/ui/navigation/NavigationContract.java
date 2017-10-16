@@ -20,7 +20,7 @@ public interface NavigationContract {
     }
 
     interface Model extends BaseModel{
-        Observable<Data<NavigationBean>> getNavigation();
+        Observable<Data<List<NavigationBean>>> getNavigation();
     }
 
     abstract class Presenter extends BasePresenter<View, Model>{

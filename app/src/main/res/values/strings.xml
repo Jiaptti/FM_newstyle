@@ -5,7 +5,6 @@
     <string name="tabs_literati_writings">"文人著作"</string>
     <string name="foot_load_more">"加载更多"</string>
     <string name="foot_has_no_more">"没有更多"</string>
-    <string name="wrong_xml">"XML错误"</string>
     <string name="no_content">"没有内容"</string>
     <string name="loading_now">"正在为您努力加载..."</string>
     <string name="navigation_title">"导航栏"</string>
@@ -13,6 +12,9 @@
     <string name="no_net">"没有网络"</string>
     <string name="confirm">"确定"</string>
     <string name="cancel">"取消"</string>
+    <string name="clear_record">"清除记录"</string>
+    <string name="confirm_clear_record">"是否确定清除？"</string>
+    <string name="playing_state">"正在播放"</string>
 
     <string name="play_counts">"播放次数："</string>
     <string name="play_duration">"时长："</string>
@@ -42,12 +44,6 @@
     <string name="player_current_time">"00:00"</string>
     <string name="player_total_time">"--:--"</string>
 
-    <string name="net_error_msg_head">"喵～网络偷懒啦～"</string>
-    <string name="net_error_msg">"网络偷懒啦~"</string>
-    <string name="net_error_msg_body">"再试一次，伦家已经在飞来的路上了"</string>
-    <string name="reload">"重新加载"</string>
-    <string name="foot_reload">"点击重新加载"</string>
-
     <string name="ranking_list">"今日最火"</string>
 
     <string name="close">"关闭"</string>
@@ -64,4 +60,20 @@
     <string name="settings_check_update">"检查更新"</string>
     <string name="settings_version_name">"当前版本号："</string>
     <string name="settings_open_cache">"开启缓存"</string>
+
+
+    <string name="net_error">"网络错误，请检查网络是否稳定"</string>
+    <string name="parse_error">"解析错误"</string>
+    <string name="connection_error">"连接失败，请检查网络"</string>
+    <string name="http_error">"协议出错"</string>
+    <string name="ssl_error">"证书验证失败"</string>
+    <string name="socket_timeout_error">"响应超时，请重新访问或者检查网络"</string>
+    <string name="connect_error">"请求超时，请重新访问或者检查网络"</string>
+    <string name="unknown_error">"未知错误"</string>
+    <string name="wrong_xml">"XML错误"</string>
+    <string name="net_error_msg_head">"喵～网络偷懒啦～"</string>
+    <string name="net_error_msg">"网络偷懒啦~"</string>
+    <string name="net_error_msg_body">"再试一次，伦家已经在飞来的路上了"</string>
+    <string name="reload">"重新加载"</string>
+    <string name="foot_reload">"点击重新加载"</string>
 </resources>

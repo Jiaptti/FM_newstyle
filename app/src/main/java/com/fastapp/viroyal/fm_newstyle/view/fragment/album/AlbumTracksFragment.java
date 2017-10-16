@@ -37,10 +37,8 @@ public class AlbumTracksFragment extends BaseListFragment{
                 @Override
                 public void call(Object o) {
                     if(o instanceof ErrorBean && ((ErrorBean)o).getClazz() == AlbumVH.class){
-                        JsonUtils.createJson(mTRecyclerView.getAdapter().getData());
-                        AppContext.apply(AppContext.getEditor().putInt(AppConstant.MAX_COUNT, mTRecyclerView.getMaxCount()));
-                        AppContext.apply(AppContext.getEditor().putInt(AppConstant.MAX_PAGE_ID, mTRecyclerView.getMaxPageId()));
-                        AppContext.apply(AppContext.getEditor().putInt(AppConstant.CACHE_PAGEID, AppContext.getTempPageId()));
+                        JsonUtils.saveData(mTRecyclerView.getAdapter().getData(), mTRecyclerView.getMaxCount(),
+                                mTRecyclerView.getMaxPageId(),AppContext.getTempPageId());
                     }
                 }
             });

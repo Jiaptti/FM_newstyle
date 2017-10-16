@@ -4,11 +4,14 @@ import com.fastapp.viroyal.fm_newstyle.base.BaseSubscriber;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.entity.NavigationBean;
 import com.fastapp.viroyal.fm_newstyle.util.RxSchedulers;
+import com.fastapp.viroyal.fm_newstyle.view.viewholder.NavigationVH;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.functions.Func1;
 
 /**
@@ -17,33 +20,38 @@ import rx.functions.Func1;
 
 public class NavigationPresenter extends NavigationContract.Presenter {
     private List<NavigationBean> list = new ArrayList<>();
+
     @Override
     void initNavigation() {
-        getManager().add(model.getNavigation().compose(RxSchedulers.<Data<NavigationBean>>io_main())
-                .flatMap(new Func1<Data<NavigationBean>, Observable<NavigationBean>>() {
+        getManager().add(model.getNavigation().compose(RxSchedulers.<Data<List<NavigationBean>>>io_main()).
+                doOnSubscribe(new Action0() {
                     @Override
-                    public Observable<NavigationBean> call(Data<NavigationBean> data) {
+                    public void call() {
+                        view.showLoading();
+                    }
+                }).subscribeOn(AndroidSchedulers.mainThread())
+                .flatMap(new Func1<Data<List<NavigationBean>>, Observable<NavigationBean>>() {
+                    @Override
+                    public Observable<NavigationBean> call(Data<List<NavigationBean>> data) {
                         return Observable.from(data.getList());
                     }
-                }).filter(new Func1<NavigationBean, Boolean>() {
+                })
+                .filter(new Func1<NavigationBean, Boolean>() {
                     @Override
                     public Boolean call(NavigationBean bean) {
                         return !bean.isIsPaid();
                     }
-                }).subscribe(new BaseSubscriber<NavigationBean>() {
+                })
+                .subscribe(new BaseSubscriber<NavigationBean>(mContext, errorBean) {
                     @Override
                     public void onNext(NavigationBean entity) {
                         list.add(entity);
-                        view.showNavigation(list);
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-                        super.onError(throwable);
                     }
 
                     @Override
                     public void onCompleted() {
+                        view.dismissLoading();
+                        view.showNavigation(list);
                         super.onCompleted();
                     }
                 }));
@@ -52,6 +60,7 @@ public class NavigationPresenter extends NavigationContract.Presenter {
 
     @Override
     protected void onStart() {
+        errorBean.setClazz(NavigationVH.class);
         initNavigation();
     }
 }

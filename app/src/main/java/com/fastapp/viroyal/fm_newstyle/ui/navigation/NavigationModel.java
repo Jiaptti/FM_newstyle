@@ -4,6 +4,8 @@ import com.fastapp.viroyal.fm_newstyle.api.Api;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.entity.NavigationBean;
 
+import java.util.List;
+
 import rx.Observable;
 
 /**
@@ -12,7 +14,7 @@ import rx.Observable;
 
 public class NavigationModel implements NavigationContract.Model {
     @Override
-    public Observable<Data<NavigationBean>> getNavigation() {
+    public Observable<Data<List<NavigationBean>>> getNavigation() {
         return Api.getInstance().getApiService().getNavigationList("android", 13, 2);
     }
 }

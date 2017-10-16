@@ -60,6 +60,7 @@ public class TracksBeanList extends BaseEntity{
     private boolean fromTrack;
     private String intro;
 
+
     public String getIntro() {
         return intro;
     }

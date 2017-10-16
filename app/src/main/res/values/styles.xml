@@ -27,6 +27,16 @@
         <item name="actionBarSize">@dimen/actionbar_size</item>
 
         <item name="android:windowContentOverlay">@null</item>
+
+        <item name="android:actionOverflowButtonStyle">@style/OverflowStyle</item>
+    </style>
+
+    <style name="OverflowStyle" parent="@style/RtlUnderlay.Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:background">?actionBarItemBackground</item>
+        <item name="android:minWidth">@dimen/abc_action_button_min_width_overflow_material</item>
+        <item name="android:minHeight">@dimen/abc_action_button_min_height_material</item>
+        <item name="android:contentDescription">@string/abc_action_menu_overflow_description</item>
+        <item name="android:src">@drawable/abc_ic_menu_overflow_material</item>
     </style>
 
     <style name="ActionBarPopupThemeOverlay" parent="ThemeOverlay.AppCompat.Light" />

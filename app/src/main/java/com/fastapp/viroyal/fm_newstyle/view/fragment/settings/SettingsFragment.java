@@ -1,9 +1,11 @@
 package com.fastapp.viroyal.fm_newstyle.view.fragment.settings;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -14,6 +16,7 @@ import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.base.BaseFragment;
 import com.fastapp.viroyal.fm_newstyle.base.BaseModel;
 import com.fastapp.viroyal.fm_newstyle.base.BasePresenter;
+import com.fastapp.viroyal.fm_newstyle.base.RxManager;
 import com.fastapp.viroyal.fm_newstyle.cache.CacheCleanManager;
 import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
 import com.fastapp.viroyal.fm_newstyle.util.DialogUtils;
@@ -52,6 +55,7 @@ public class SettingsFragment extends BaseFragment<BasePresenter, BaseModel> {
     TextView mCollectCount;
 
     private RealmHelper helper;
+    private RxManager manager = new RxManager();
 
     @Override
     protected int layoutResID() {
@@ -69,11 +73,16 @@ public class SettingsFragment extends BaseFragment<BasePresenter, BaseModel> {
     @Override
     protected void initView() {
         helper = AppContext.getRealmHelper();
-
         setNumAsync(mRecentCount, getRecentNum());
         setNumAsync(mCollectCount, getCollectNum());
-
         mCacheSize.setText(CacheCleanManager.getFormatSize(CacheCleanManager.getFolderSize(new File(AppConstant.NET_DATA_PATH))));
+        manager.on(AppConstant.RESET_DATA, new Action1() {
+            @Override
+            public void call(Object o) {
+                setNumAsync(mRecentCount, getRecentNum());
+                setNumAsync(mCollectCount, getCollectNum());
+            }
+        });
     }
 
     private void setNumAsync(final TextView tv, int num) {
@@ -112,6 +121,11 @@ public class SettingsFragment extends BaseFragment<BasePresenter, BaseModel> {
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        manager.clear(AppConstant.RESET_DATA);
+    }
 
     private int getRecentNum() {
         return helper.getAllRecent().size();
@@ -122,7 +136,7 @@ public class SettingsFragment extends BaseFragment<BasePresenter, BaseModel> {
     }
 
     private void showClearDialog() {
-        DialogUtils.getConfirmDialog(mContext, getString(R.string.settings_clear_cache_title), new DialogInterface.OnClickListener() {
+        DialogUtils.getConfirmDialog(mContext, getString(R.string.confirm_clear_record), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();

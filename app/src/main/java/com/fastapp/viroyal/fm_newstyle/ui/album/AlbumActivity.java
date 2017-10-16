@@ -1,5 +1,6 @@
 package com.fastapp.viroyal.fm_newstyle.ui.album;
 
+import android.graphics.Color;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewCompat;
@@ -69,6 +70,7 @@ public class AlbumActivity extends BaseActivity<AlbumPresenter, AlbumModel> impl
 
     @Override
     protected void initView() {
+        setActionBarBackgroundColor(Color.WHITE);
         himalayanEntity = (HimalayanEntity) getIntent().getSerializableExtra(AppConstant.ALBUM_BUNDLE);
         if (himalayanEntity != null) {
             initData(himalayanEntity);

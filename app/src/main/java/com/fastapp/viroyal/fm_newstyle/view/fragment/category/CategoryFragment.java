@@ -2,19 +2,14 @@ package com.fastapp.viroyal.fm_newstyle.view.fragment.category;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.GridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
-import com.fastapp.viroyal.fm_newstyle.base.BaseActivity;
 import com.fastapp.viroyal.fm_newstyle.base.BaseListFragment;
 import com.fastapp.viroyal.fm_newstyle.ui.navigation.NavigationActivity;
 import com.fastapp.viroyal.fm_newstyle.util.TUtils;
@@ -65,8 +60,17 @@ public class CategoryFragment extends BaseListFragment{
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if(mTRecyclerView != null){
+            mTRecyclerView.setTitle(((NavigationActivity)getActivity()).getActionTitle());
             mTRecyclerView.sendRequest();
         }
+
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ((NavigationActivity)getActivity()).setSwitchState(View.GONE);
+        ((NavigationActivity)getActivity()).setSwitchListener(null);
+        ((NavigationActivity) getActivity()).setFragmentTitle(AppContext.getStringById(R.string.navigation_title));
+    }
 }

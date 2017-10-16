@@ -1,12 +1,14 @@
 package com.fastapp.viroyal.fm_newstyle.model.realm;
 
+import java.io.Serializable;
+
 import io.realm.RealmObject;
 
 /**
  * Created by hanjiaqi on 2017/7/24.
  */
 
-public class NowPlayTrack extends RealmObject {
+public class NowPlayTrack extends RealmObject{
     private int trackId;
     private int uid;
     private String playUrl64;

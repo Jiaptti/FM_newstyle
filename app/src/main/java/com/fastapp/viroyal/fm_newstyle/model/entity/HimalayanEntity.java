@@ -4,6 +4,8 @@ import com.fastapp.viroyal.fm_newstyle.api.Api;
 import com.fastapp.viroyal.fm_newstyle.model.base.Data;
 import com.fastapp.viroyal.fm_newstyle.model.base.BaseEntity;
 
+import java.util.List;
+
 import rx.Observable;
 
 /**
@@ -238,7 +240,7 @@ public class HimalayanEntity extends BaseEntity {
     }
 
     @Override
-    public Observable<Data<HimalayanEntity>> getPageAt(int categoryId, int pageId, int pageSize) {
+    public Observable<Data<List<HimalayanEntity>>> getPageAt(int categoryId, int pageId, int pageSize) {
         return Api.getInstance().getApiService().getCommentList("hot",categoryId,"android",pageId, pageSize,"5.4.93");
     }
 }

@@ -124,10 +124,11 @@ public class AlbumVH extends BaseViewHolder<TracksBeanList> {
                         entity.setFromTrack(false);
                     }
                 }
+                manager.post(AppConstant.SAVE_DATA, errorBean);
+//                helper.setNowPlayTrack(entity);
                 Intent intent = new Intent(mContext, TrackActivity.class);
                 intent.putExtra(AppConstant.TRACK_BUNDLE, entity);
                 mContext.startActivity(intent);
-                manager.post(AppConstant.SAVE_DATA, errorBean);
             }
         });
         setPlayStatus(entity);

@@ -49,7 +49,6 @@ public class CategoryVH extends BaseViewHolder<HimalayanEntity> {
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    AppContext.getRealmHelper().setRecentListen(entity);
                     ActivityCompat.startActivity((Activity) mContext, new Intent(mContext, AlbumActivity.class).putExtra(AppConstant.ALBUM_BUNDLE, entity)
                             , ActivityOptionsCompat.makeSceneTransitionAnimation((Activity) mContext, category_image, AlbumActivity.TRANSLATE_VIEW).toBundle());
                 }

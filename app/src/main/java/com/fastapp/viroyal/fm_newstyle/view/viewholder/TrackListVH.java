@@ -2,6 +2,7 @@ package com.fastapp.viroyal.fm_newstyle.view.viewholder;
 
 import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
+import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -68,9 +69,8 @@ public class TrackListVH extends BaseViewHolder<TracksBeanList>{
                         entity.setFromTrack(true);
                     }
                     entity.setPosition(getPosition());
-                    helper.setNowPlayTrack(entity);
-                    mBinder.playMedia(entity.getPlayUrl32());
-                    manager.post(AppConstant.CURRENT_POSITION_VIEW, null);
+//                    helper.setNowPlayTrack(entity);
+                    manager.post(AppConstant.CURRENT_POSITION_VIEW, entity);
                     manager.post(AppConstant.UPDATE_TRACKS_UI, null);
                 }
             }
@@ -79,7 +79,7 @@ public class TrackListVH extends BaseViewHolder<TracksBeanList>{
     }
 
     private void setPlayStatus(TracksBeanList entity) {
-        if (helper.getNowPlayingTrack().getTrackId() ==entity.getTrackId()) {
+        if (helper.getNowPlayingTrack().getTrackId() == entity.getTrackId()) {
             animation = (AnimationDrawable) track_item_wave_flag.getBackground();
             track_item_wave_flag.setVisibility(View.VISIBLE);
             if (mBinder.isPlaying()) {

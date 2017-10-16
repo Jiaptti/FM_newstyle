@@ -8,7 +8,16 @@ import com.fastapp.viroyal.fm_newstyle.base.BaseViewHolder;
 
 public class ErrorBean {
     private Class<? extends BaseViewHolder> clazz;
+    private int statusCode;
     private int code;
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
+    }
 
     public int getCode() {
         return code;

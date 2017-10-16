@@ -170,9 +170,9 @@ public class MediaPlayerManager implements OnCompletionListener, OnErrorListener
     }
 
     public void resumeMediaPlayer() {
+        AppContext.setPlayState(AppConstant.STATUS_RESUME);
         playHandler.sendEmptyMessage(AppConstant.STATUS_RESUME);
         timeChangeHandler.postAtTime(TimeChangeRunnable, 1000);
-        AppContext.setPlayState(AppConstant.STATUS_RESUME);
     }
 
     public int getDuration(){

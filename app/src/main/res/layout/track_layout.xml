@@ -238,7 +238,7 @@
                 android:layout_marginTop="30dip"
                 android:background="@color/light_gray" />
 
-            <include layout="@layout/track_info_content"></include>
+            <include layout="@layout/track_info_content" />
 
         </RelativeLayout>
 

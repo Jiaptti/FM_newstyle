@@ -2,6 +2,7 @@ package com.fastapp.viroyal.fm_newstyle.view.popup;
 
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,7 @@ import android.widget.TextView;
 import java.util.Collections;
 import java.util.List;
 
+import butterknife.OnClick;
 import rx.functions.Action1;
 
 /**
@@ -44,6 +46,7 @@ public class PlayListPopupWindow extends PopupWindow {
     private RxManager manager = new RxManager();
     private AlbumPlayService.PlayBinder mBinder;
     private RealmHelper realmHelper;
+    private IPlayTrackListener listener;
 
     public PlayListPopupWindow(Context context) {
         this.mContext = context;
@@ -63,14 +66,6 @@ public class PlayListPopupWindow extends PopupWindow {
         setFocusable(true);
         setAnimationStyle(R.style.anim_popup_window);
         setOnDismissListener(dismissListener);
-        popupClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (isShowing()) {
-                    dismiss();
-                }
-            }
-        });
         manager.on(AppConstant.UPDATE_ITEM_STATUS, new Action1() {
             @Override
             public void call(Object o) {
@@ -89,37 +84,51 @@ public class PlayListPopupWindow extends PopupWindow {
             }
         });
 
-        reload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                errorLayout.setVisibility(View.GONE);
-                trackListContent.setVisibility(View.VISIBLE);
-                mTRecyclerView.sendRequest();
-            }
-        });
-
         manager.on(AppConstant.CURRENT_POSITION_VIEW, new Action1() {
             @Override
             public void call(Object o) {
                 loadListData();
+                if(o instanceof TracksBeanList){
+                    TracksBeanList entity = (TracksBeanList) o;
+                    listener.playTrack(entity);
+                }
             }
         });
     }
 
+    @OnClick({R.id.popup_close, R.id.reload})
+    public void onClick(View view) {
+        switch (view.getId()){
+            case R.id.popup_close:
+                if (isShowing()) {
+                    dismiss();
+                }
+                break;
+            case R.id.reload:
+                errorLayout.setVisibility(View.GONE);
+                trackListContent.setVisibility(View.VISIBLE);
+                mTRecyclerView.sendRequest();
+                break;
+        }
+    }
+
+    public void setPlayTrackListener(IPlayTrackListener listener){
+        this.listener = listener;
+    }
+
     public void initListData(int albumId) {
-        mTRecyclerView.setView(TrackListVH.class, albumId);
-        mTRecyclerView.sendRequest();
+        if(mTRecyclerView.getAdapter().getData().size() == 0){
+            mTRecyclerView.setView(TrackListVH.class, albumId);
+            mTRecyclerView.sendRequest();
+        }
     }
 
     private void saveData() {
-        JsonUtils.createJson(mTRecyclerView.getAdapter().getData());
-        AppContext.apply(AppContext.getEditor().putInt(AppConstant.MAX_COUNT, mTRecyclerView.getMaxCount()));
-        AppContext.apply(AppContext.getEditor().putInt(AppConstant.MAX_PAGE_ID, mTRecyclerView.getMaxPageId()));
-        AppContext.apply(AppContext.getEditor().putInt(AppConstant.CACHE_PAGEID, AppContext.getTempPageId()));
+        JsonUtils.saveData(mTRecyclerView.getAdapter().getData(), mTRecyclerView.getMaxCount(), mTRecyclerView.getMaxPageId(), AppContext.getTempPageId());
     }
 
     private void loadListData() {
-        int count = mTRecyclerView.getAdapter().getItemCount() - 1;
+        int count = mTRecyclerView.getMaxCount();
         int position = realmHelper.getNowPlayingTrack().getPosition() + 4;
         if (position > count && mTRecyclerView.hasMore()) {
             mTRecyclerView.sendRequest();
@@ -140,8 +149,7 @@ public class PlayListPopupWindow extends PopupWindow {
         }
         entity.setPosition(realmHelper.getNowPlayingTrack().getPosition() + 1);
         realmHelper.setNowPlayTrack(entity);
-        mBinder.playMedia(realmHelper.getNowPlayingTrack().getPlayUrl32());
-        loadListData();
+        listener.playTrack(entity);
     }
 
     public void playPrev() {
@@ -152,7 +160,7 @@ public class PlayListPopupWindow extends PopupWindow {
         }
         entity.setPosition(realmHelper.getNowPlayingTrack().getPosition() - 1);
         realmHelper.setNowPlayTrack(entity);
-        mBinder.playMedia(realmHelper.getNowPlayingTrack().getPlayUrl32());
+        listener.playTrack(entity);
     }
 
     OnDismissListener dismissListener = new OnDismissListener() {
@@ -176,7 +184,7 @@ public class PlayListPopupWindow extends PopupWindow {
     }
 
     public boolean hasNext() {
-        int count = AppContext.getPersistPreferences().getInt(AppConstant.MAX_COUNT, 0);
+        int count = mTRecyclerView.getMaxCount();
         return ((realmHelper.getNowPlayingTrack().getPosition() + 1) != count);
     }
 
@@ -184,5 +192,9 @@ public class PlayListPopupWindow extends PopupWindow {
         WindowManager.LayoutParams lp = ((Activity) mContext).getWindow().getAttributes();
         lp.alpha = bgAlpha;
         ((Activity) mContext).getWindow().setAttributes(lp);
+    }
+
+    public interface IPlayTrackListener {
+        void playTrack(TracksBeanList track);
     }
 }

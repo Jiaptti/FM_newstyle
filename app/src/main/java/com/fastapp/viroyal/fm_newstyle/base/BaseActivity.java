@@ -23,6 +23,7 @@ import com.fastapp.viroyal.fm_newstyle.AppConstant;
 import com.fastapp.viroyal.fm_newstyle.AppContext;
 import com.fastapp.viroyal.fm_newstyle.R;
 import com.fastapp.viroyal.fm_newstyle.db.RealmHelper;
+import com.fastapp.viroyal.fm_newstyle.model.entity.TracksBeanList;
 import com.fastapp.viroyal.fm_newstyle.model.realm.NowPlayTrack;
 import com.fastapp.viroyal.fm_newstyle.ui.ranking.RankingActivity;
 import com.fastapp.viroyal.fm_newstyle.ui.track.TrackActivity;
@@ -43,6 +44,7 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
     public E model;
     private Toolbar mActionBar;
     private TextView mActionTitle;
+    private ImageButton mActionClear;
     private ImageButton mActionSwitch;
 
     private RealmHelper realmHelper;
@@ -70,6 +72,7 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         operatingAnim.setInterpolator(new LinearInterpolator());
 
         mActionBar = (Toolbar) findViewById(R.id.tool_bar);
+        mActionClear = (ImageButton) findViewById(R.id.actionbar_clear);
         mActionSwitch = (ImageButton) findViewById(R.id.actionbar_switch);
 
         nowPlayingLayout = (FrameLayout) findViewById(R.id.now_playing_layout);
@@ -117,10 +120,16 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         this.initView();
     }
 
+    public void setActionBarBackgroundColor(int color){
+        mActionTitle.setTextColor(Color.BLACK);
+        mActionBar.setBackgroundColor(color);
+    }
+
     private void startActivity() {
         NowPlayTrack entity = realmHelper.getNowPlayingTrack();
         if (entity != null) {
             Intent intent = new Intent(mContext, TrackActivity.class);
+            intent.putExtra(AppConstant.TRACK_ID, entity.getTrackId());
             mContext.startActivity(intent);
         } else {
             Intent intent = new Intent(mContext, RankingActivity.class);
@@ -129,15 +138,32 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
     }
 
     public void setSwitchState(int visiable) {
-        mActionSwitch.setVisibility(visiable);
+        if(mActionSwitch != null)
+            mActionSwitch.setVisibility(visiable);
     }
 
     public void setSwitchListener(View.OnClickListener onClickListener) {
-        mActionSwitch.setOnClickListener(onClickListener);
+        if(mActionSwitch != null)
+            mActionSwitch.setOnClickListener(onClickListener);
+    }
+
+    public void setActionClearEnable(boolean enable) {
+        if(mActionClear != null)
+            mActionClear.setEnabled(enable);
+    }
+    public void setActionClearState(int visiable) {
+        if(mActionClear != null)
+            mActionClear.setVisibility(visiable);
+    }
+
+    public void setActionClearListener(View.OnClickListener onClickListener) {
+        if(mActionClear != null)
+            mActionClear.setOnClickListener(onClickListener);
     }
 
     public void setSwitchBackground(int resId) {
-        mActionSwitch.setBackgroundResource(resId);
+        if(mActionSwitch != null)
+            mActionSwitch.setBackgroundResource(resId);
     }
 
     private void playNowImgAnimation() {
@@ -242,5 +268,9 @@ public abstract class BaseActivity<T extends BasePresenter, E extends BaseModel>
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(title);
         }
+    }
+
+    public String getActionTitle(){
+        return mActionTitle.getText().toString();
     }
 }
